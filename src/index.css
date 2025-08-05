@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+  }
+}
+
+@layer components {
+  .signal-gradient {
+    @apply bg-gradient-to-r from-signal-500 to-signal-600;
+  }
+  
+  .noise-gradient {
+    @apply bg-gradient-to-r from-noise-500 to-noise-600;
+  }
+  
+  .card-shadow {
+    @apply shadow-lg hover:shadow-xl transition-shadow duration-200;
+  }
+  
+  .drag-over {
+    @apply ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-900/20;
+  }
+}
