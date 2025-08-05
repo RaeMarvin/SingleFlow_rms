@@ -35,15 +35,3 @@ export interface IdeaRow {
   created_at: string;
   updated_at: string;
 }
-
-export interface UserSettingsRow {
-  id: string;
-  user_id: string;
-  dark_mode: boolean;
-  notifications: boolean;
-  daily_review_time: string;
-  daily_goal_signal_ratio: number;
-  daily_goal_total_tasks: number;
-  created_at: string;
-  updated_at: string;
-}
