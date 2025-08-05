@@ -20,7 +20,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
     setNodeRef: setSortableNodeRef,
     transform: sortableTransform,
     transition,
-    isDragging: isSortableDragging,
   } = useSortable({
     id: task.id,
   });

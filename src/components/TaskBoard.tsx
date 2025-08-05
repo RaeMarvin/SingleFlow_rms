@@ -1,13 +1,11 @@
 import { useDroppable } from '@dnd-kit/core';
 import { 
   SortableContext, 
-  verticalListSortingStrategy,
-  arrayMove 
+  verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { Signal, Volume2 } from 'lucide-react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import TaskCard from './TaskCard';
-import { DragEndEvent } from '@dnd-kit/core';
 
 const TaskBoard: React.FC = () => {
   const { tasks } = useSupabaseStore();
