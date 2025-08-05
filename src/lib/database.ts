@@ -1,4 +1,4 @@
-import { supabase, TaskRow, IdeaRow, UserSettingsRow } from './supabase';
+import { supabase, TaskRow, IdeaRow } from './supabase';
 import { Task, Idea } from '../types';
 
 // Get the current authenticated user's ID

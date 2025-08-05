@@ -26,9 +26,17 @@ const useStore = create<Store>()(
 
       // Task actions
       addTask: (taskData) => {
+        const state = get();
+        // Get the highest order number for this category
+        const categoryTasks = state.tasks.filter(t => t.category === taskData.category);
+        const maxOrder = categoryTasks.length > 0 
+          ? Math.max(...categoryTasks.map(t => t.order)) 
+          : -1;
+        
         const newTask: Task = {
           ...taskData,
           id: crypto.randomUUID(),
+          order: maxOrder + 1,
           createdAt: new Date(),
         };
         set((state) => ({
@@ -74,6 +82,18 @@ const useStore = create<Store>()(
 
       moveTask: (id, category) => {
         get().updateTask(id, { category });
+      },
+
+      reorderTasks: (category, taskIds) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) => {
+            if (task.category === category) {
+              const newOrder = taskIds.findIndex(taskId => taskId === task.id);
+              return newOrder !== -1 ? { ...task, order: newOrder } : task;
+            }
+            return task;
+          }),
+        }));
       },
 
       // Idea actions

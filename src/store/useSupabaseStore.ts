@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Task, Idea, Store } from '../types';
+import { Task, Store } from '../types';
 import { taskService, ideaService, settingsService } from '../lib/database';
 
 const useSupabaseStore = create<Store & { 
