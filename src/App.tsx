@@ -1,4 +1,4 @@
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, TouchSensor, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useState } from 'react';
 import useSupabaseStore from './store/useSupabaseStore';
@@ -21,6 +21,24 @@ function AppContent() {
   const { moveTask, reorderTasks, tasks, settings } = useSupabaseStore();
   const { isLoading } = useInitializeData();
   const { user, loading: authLoading } = useAuth();
+
+  // Configure sensors for both mouse and touch devices
+  const mouseSensor = useSensor(MouseSensor, {
+    // Require the mouse to move by 10 pixels before activating
+    activationConstraint: {
+      distance: 10,
+    },
+  });
+  
+  const touchSensor = useSensor(TouchSensor, {
+    // Press delay of 250ms, with tolerance of 5px of movement
+    activationConstraint: {
+      delay: 250,
+      tolerance: 5,
+    },
+  });
+  
+  const sensors = useSensors(mouseSensor, touchSensor);
 
   function handleDragStart(event: DragStartEvent) {
     const taskId = event.active.id as string;
@@ -169,7 +187,11 @@ function AppContent() {
             </div>
           </div>
         ) : (
-          <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <DndContext 
+            sensors={sensors}
+            onDragStart={handleDragStart} 
+            onDragEnd={handleDragEnd}
+          >
             <Header onShowDailyReview={() => setShowDailyReview(true)} />
             
             <main className="container mx-auto px-4 py-8">
