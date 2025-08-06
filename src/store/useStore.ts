@@ -183,7 +183,7 @@ const useStore = create<Store>()(
       },
     }),
     {
-      name: 'singleflow-storage',
+      name: 'signalflow-storage',
       version: 1,
     }
   )
