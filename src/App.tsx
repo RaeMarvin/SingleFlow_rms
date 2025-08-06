@@ -207,7 +207,8 @@ function AppContent() {
           />
         )}
         
-        <DebugPanel />
+        {/* Only show DebugPanel in development mode */}
+        {import.meta.env.DEV && <DebugPanel />}
       </div>
     </div>
   );
