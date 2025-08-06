@@ -27,20 +27,24 @@ const useStore = create<Store>()(
       // Task actions
       addTask: (taskData) => {
         const state = get();
-        // Get the highest order number for this category
-        const categoryTasks = state.tasks.filter(t => t.category === taskData.category);
-        const maxOrder = categoryTasks.length > 0 
-          ? Math.max(...categoryTasks.map(t => t.order)) 
-          : -1;
         
+        // Create new task with order 0 (top of the list)
         const newTask: Task = {
           ...taskData,
           id: crypto.randomUUID(),
-          order: maxOrder + 1,
+          order: 0,
           createdAt: new Date(),
         };
-        set((state) => ({
-          tasks: [...state.tasks, newTask],
+        
+        // Increment order of all existing tasks in the same category
+        const updatedTasks = state.tasks.map((task) => 
+          task.category === taskData.category
+            ? { ...task, order: task.order + 1 }
+            : task
+        );
+        
+        set(() => ({
+          tasks: [newTask, ...updatedTasks],
         }));
         get().updateStats();
       },

@@ -58,24 +58,35 @@ export const taskService = {
     
     console.log('User ID:', userId);
     
-    // Get the current max order for this category to add new task at the end
-    const { data: maxOrderData, error: maxOrderError } = await supabase
+    // First, get all existing tasks in the same category to increment their orders
+    const { data: existingTasks, error: fetchError } = await supabase
       .from('tasks')
-      .select('task_order')
+      .select('id, task_order')
       .eq('user_id', userId)
-      .eq('category', task.category)
-      .order('task_order', { ascending: false })
-      .limit(1);
+      .eq('category', task.category);
     
-    if (maxOrderError) {
-      console.error('Error getting max order:', maxOrderError);
+    if (fetchError) {
+      console.error('Error fetching existing tasks:', fetchError);
     }
     
-    const nextOrder = maxOrderData && maxOrderData.length > 0 
-      ? maxOrderData[0].task_order + 1 
-      : 0;
-    
-    console.log('Next order:', nextOrder);
+    // Increment order of all existing tasks in the same category
+    if (existingTasks && existingTasks.length > 0) {
+      const updates = existingTasks.map(existingTask => ({
+        id: existingTask.id,
+        task_order: existingTask.task_order + 1
+      }));
+      
+      // Update all tasks in batch
+      const { error: updateError } = await supabase
+        .from('tasks')
+        .upsert(updates);
+      
+      if (updateError) {
+        console.error('Error updating task orders:', updateError);
+      } else {
+        console.log(`Incremented order for ${updates.length} existing tasks`);
+      }
+    }
 
     const insertData = {
       id: crypto.randomUUID(),
@@ -84,7 +95,7 @@ export const taskService = {
       category: task.category,
       priority: task.priority,
       completed: task.completed,
-      task_order: nextOrder,
+      task_order: 0, // Always insert new tasks at the top
       created_at: new Date().toISOString(),
       completed_at: task.completedAt?.toISOString() || null,
       user_id: userId,
