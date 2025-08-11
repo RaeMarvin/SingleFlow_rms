@@ -212,9 +212,17 @@ const useSupabaseStore = create<Store & {
   updateStats: () => {
     const { tasks } = get();
     
-    // Get today's date (start of day)
+    // Get today's date (start of day) in local timezone
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayDateString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    console.log('Debug - Today date string:', todayDateString);
+    console.log('Debug - All tasks:', tasks.map(t => ({ 
+      id: t.id.slice(0,8), 
+      completed: t.completed, 
+      completedAt: t.completedAt,
+      category: t.category 
+    })));
     
     // All tasks (completed and incomplete)
     const signalTasks = tasks.filter((task) => task.category === 'signal');
@@ -224,11 +232,16 @@ const useSupabaseStore = create<Store & {
     const completedToday = tasks.filter((task) => {
       if (!task.completed || !task.completedAt) return false;
       
+      // Convert completedAt to date string (YYYY-MM-DD)
       const completedDate = new Date(task.completedAt);
-      completedDate.setHours(0, 0, 0, 0);
+      const completedDateString = completedDate.toISOString().split('T')[0];
       
-      return completedDate.getTime() === today.getTime();
+      console.log('Debug - Task completed date:', completedDateString, 'vs today:', todayDateString);
+      
+      return completedDateString === todayDateString;
     });
+    
+    console.log('Debug - Completed today:', completedToday.length);
     
     const signalCompleted = completedToday.filter((task) => task.category === 'signal').length;
     const noiseCompleted = completedToday.filter((task) => task.category === 'noise').length;
@@ -237,6 +250,14 @@ const useSupabaseStore = create<Store & {
     // Calculate ratios
     const signalRatio = totalTasks > 0 ? signalTasks.length / totalTasks : 0;
     const completedSignalRatio = totalCompleted > 0 ? signalCompleted / totalCompleted : 0;
+
+    console.log('Debug - Final stats:', {
+      signalCompleted,
+      noiseCompleted,
+      totalCompleted,
+      signalRatio,
+      completedSignalRatio
+    });
 
     set({
       stats: {

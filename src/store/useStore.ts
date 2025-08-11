@@ -148,24 +148,35 @@ const useStore = create<Store>()(
       updateStats: () => {
         const { tasks } = get();
         
-        // Get today's date (start of day)
+        // Get today's date (start of day) in local timezone
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const todayDateString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+        
+        console.log('Debug (useStore) - Today date string:', todayDateString);
         
         // Filter for tasks completed today only
         const completedToday = tasks.filter((task) => {
           if (!task.completed || !task.completedAt) return false;
           
+          // Convert completedAt to date string (YYYY-MM-DD)
           const completedDate = new Date(task.completedAt);
-          completedDate.setHours(0, 0, 0, 0);
+          const completedDateString = completedDate.toISOString().split('T')[0];
           
-          return completedDate.getTime() === today.getTime();
+          return completedDateString === todayDateString;
         });
         
         const signalCompleted = completedToday.filter((task) => task.category === 'signal').length;
         const noiseCompleted = completedToday.filter((task) => task.category === 'noise').length;
         const totalCompleted = completedToday.length;
         const signalRatio = totalCompleted > 0 ? signalCompleted / totalCompleted : 0;
+
+        console.log('Debug (useStore) - Stats:', {
+          completedToday: completedToday.length,
+          signalCompleted,
+          noiseCompleted,
+          totalCompleted,
+          signalRatio
+        });
 
         set({
           stats: {
