@@ -8,7 +8,7 @@ import {
   Header, 
   StatsPanel, 
   IdeaParkingLot, 
-  DailyReviewModal, 
+  WeeklyReviewModal, 
   TaskCard,
   DebugPanel
 } from './components';
@@ -17,7 +17,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function AppContent() {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
-  const [showDailyReview, setShowDailyReview] = useState(false);
+  const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const { moveTask, reorderTasks, tasks, settings } = useSupabaseStore();
   const { isLoading } = useInitializeData();
   const { user, loading: authLoading } = useAuth();
@@ -110,7 +110,7 @@ function AppContent() {
         settings.darkMode ? ' dark' : ''
       }`}>
         <div className="bg-neutral-50 dark:bg-gray-900 min-h-screen">
-          <Header onShowDailyReview={() => setShowDailyReview(true)} />
+          <Header onShowWeeklyReview={() => setShowWeeklyReview(true)} />
           
           <main className="container mx-auto px-4 py-16">
             <div className="text-center max-w-3xl mx-auto">
@@ -208,7 +208,7 @@ function AppContent() {
             onDragStart={handleDragStart} 
             onDragEnd={handleDragEnd}
           >
-            <Header onShowDailyReview={() => setShowDailyReview(true)} />
+            <Header onShowWeeklyReview={() => setShowWeeklyReview(true)} />
             
             <main className="container mx-auto px-4 py-8">
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -239,13 +239,11 @@ function AppContent() {
           </DndContext>
         )}
         
-        {showDailyReview && (
-          <DailyReviewModal 
-            onClose={() => setShowDailyReview(false)} 
+        {showWeeklyReview && (
+          <WeeklyReviewModal
+            onClose={() => setShowWeeklyReview(false)}
           />
-        )}
-        
-        {/* Only show DebugPanel in development mode */}
+        )}        {/* Only show DebugPanel in development mode */}
         {import.meta.env.DEV && <DebugPanel />}
       </div>
     </div>

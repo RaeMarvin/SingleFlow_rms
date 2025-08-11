@@ -5,10 +5,10 @@ import { AddTaskModal, AuthModal } from './';
 import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
-  onShowDailyReview: () => void;
+  onShowWeeklyReview: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onShowDailyReview }) => {
+const Header: React.FC<HeaderProps> = ({ onShowWeeklyReview }) => {
   const { settings, updateSettings } = useSupabaseStore();
   const { user, signOut } = useAuth();
   const [showAddTask, setShowAddTask] = useState(false);
@@ -55,13 +55,13 @@ const Header: React.FC<HeaderProps> = ({ onShowDailyReview }) => {
               )}
               
               {user && (
-                <button
-                  onClick={onShowDailyReview}
-                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                  title="Daily Review"
-                >
-                  <BarChart3 className="w-5 h-5" />
-                </button>
+                              <button
+                onClick={onShowWeeklyReview}
+                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                title="Weekly Review"
+              >
+                <BarChart3 className="w-5 h-5" />
+              </button>
               )}
 
               <button

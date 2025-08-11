@@ -1,11 +1,11 @@
 import { X, TrendingUp, Target, Award } from 'lucide-react';
 import useSupabaseStore from '../store/useSupabaseStore';
 
-interface DailyReviewModalProps {
+interface WeeklyReviewModalProps {
   onClose: () => void;
 }
 
-const DailyReviewModal: React.FC<DailyReviewModalProps> = ({ onClose }) => {
+const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
   const { tasks } = useSupabaseStore();
   
   // Get Monday of current week
@@ -321,4 +321,4 @@ const StatBox: React.FC<StatBoxProps> = ({ icon, title, value, subtitle, valueCo
   </div>
 );
 
-export default DailyReviewModal;
+export default WeeklyReviewModal;
