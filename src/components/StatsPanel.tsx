@@ -7,6 +7,17 @@ const StatsPanel: React.FC = () => {
   const signalTasks = tasks.filter(t => t.category === 'signal' && !t.completed).length;
   const noiseTasks = tasks.filter(t => t.category === 'noise' && !t.completed).length;
   
+  // Debug logging
+  console.log('StatsPanel Debug:', {
+    totalTasks: tasks.length,
+    signalTasks,
+    noiseTasks,
+    allSignalTasks: tasks.filter(t => t.category === 'signal').length,
+    allNoiseTasks: tasks.filter(t => t.category === 'noise').length,
+    completedTasks: tasks.filter(t => t.completed).length,
+    taskBreakdown: tasks.map(t => ({ id: t.id, category: t.category, completed: t.completed, title: t.title }))
+  });
+  
   const progressPercentage = Math.min((stats.totalCompleted / dailyGoal.totalTasks) * 100, 100);
   // Use completedSignalRatio for today's completed tasks ratio
   const signalRatioPercentage = (stats.completedSignalRatio || 0) * 100;
