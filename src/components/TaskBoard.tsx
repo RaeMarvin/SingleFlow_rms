@@ -32,8 +32,8 @@ const TaskBoard: React.FC = () => {
           subtitle="Critical & Important"
           icon={<Signal className="w-5 h-5" />}
           tasks={signalTasks}
-          colorClass="border-signal-500 bg-signal-50 dark:bg-signal-900/20"
-          headerClass="bg-signal-500"
+          colorClass="border-signal-300 bg-signal-50 dark:bg-signal-900/10"
+          headerClass="bg-signal-600"
         />
 
         {/* Noise Column */}
@@ -43,8 +43,8 @@ const TaskBoard: React.FC = () => {
           subtitle="Less Critical"
           icon={<Volume2 className="w-5 h-5" />}
           tasks={noiseTasks}
-          colorClass="border-noise-500 bg-noise-50 dark:bg-noise-900/20"
-          headerClass="bg-noise-500"
+          colorClass="border-noise-300 bg-noise-50 dark:bg-noise-900/10"
+          headerClass="bg-noise-600"
         />
       </div>
     </div>
@@ -83,7 +83,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
       ref={setNodeRef}
       className={`
         border-2 border-dashed rounded-xl transition-all duration-200 min-h-[400px]
-        ${isOver ? 'ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-900/20' : colorClass}
+        ${isOver ? 'ring-2 ring-primary-400 bg-primary-50 dark:bg-primary-900/20' : colorClass}
       `}
     >
       {/* Column Header */}

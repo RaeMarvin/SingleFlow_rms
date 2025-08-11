@@ -30,15 +30,15 @@ const Header: React.FC<HeaderProps> = ({ onShowDailyReview }) => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">SF</span>
+              <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-primary-400 rounded-full flex items-center justify-center shadow-md">
+                <span className="text-white font-bold text-lg">F</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-2xl font-bold text-neutral-800 dark:text-white">
                   Fozzle
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Focus on what matters
+                <p className="text-sm text-neutral-600 dark:text-gray-400">
+                  Focus on the next thing you need to do.
                 </p>
               </div>
             </div>
@@ -47,10 +47,10 @@ const Header: React.FC<HeaderProps> = ({ onShowDailyReview }) => {
               {user && (
                 <button
                   onClick={() => setShowAddTask(true)}
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200"
+                  className="inline-flex items-center px-6 py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Task
+                  Add a task
                 </button>
               )}
               
@@ -111,9 +111,9 @@ const Header: React.FC<HeaderProps> = ({ onShowDailyReview }) => {
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors duration-200"
+                  className="bg-primary-500 text-white px-6 py-2.5 rounded-full hover:bg-primary-600 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
                 >
-                  Sign In
+                  Login
                 </button>
               )}
             </div>

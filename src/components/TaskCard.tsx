@@ -1,7 +1,7 @@
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, Clock, Flag, Trash2, GripVertical } from 'lucide-react';
+import { Check, Clock, Trash2, GripVertical } from 'lucide-react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
 
@@ -54,9 +54,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
   };
 
   const priorityColors = {
-    high: 'border-red-400 bg-red-50 dark:bg-red-900/20',
-    medium: 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20',
-    low: 'border-green-400 bg-green-50 dark:bg-green-900/20',
+    high: 'border-signal-400 bg-signal-50 dark:bg-signal-900/20',
+    medium: 'border-accent-purple bg-purple-50 dark:bg-purple-900/20',
+    low: 'border-accent-coral bg-red-50 dark:bg-red-900/20',
   };
 
   const categoryColors = {
@@ -88,12 +88,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center space-x-2">
             <GripVertical className="w-3 h-3 text-gray-400 opacity-50" />
-            <Flag className={`w-4 h-4 ${
-              task.priority === 'high' ? 'text-red-500' :
-              task.priority === 'medium' ? 'text-yellow-500' : 'text-green-500'
-            }`} />
-            <span className="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400">
-              {task.category}
+            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              task.priority === 'high' ? 'bg-signal-100 text-signal-700 border border-signal-200' :
+              task.priority === 'medium' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 
+              'bg-red-100 text-red-700 border border-red-200'
+            }`}>
+              {task.priority === 'high' ? 'High' : task.priority === 'medium' ? 'Medium' : 'Low'}
             </span>
           </div>
         </div>

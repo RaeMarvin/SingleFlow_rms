@@ -7,17 +7,6 @@ const StatsPanel: React.FC = () => {
   const signalTasks = tasks.filter(t => t.category === 'signal' && !t.completed).length;
   const noiseTasks = tasks.filter(t => t.category === 'noise' && !t.completed).length;
   
-  // Debug logging
-  console.log('StatsPanel Debug:', {
-    totalTasks: tasks.length,
-    signalTasks,
-    noiseTasks,
-    allSignalTasks: tasks.filter(t => t.category === 'signal').length,
-    allNoiseTasks: tasks.filter(t => t.category === 'noise').length,
-    completedTasks: tasks.filter(t => t.completed).length,
-    taskBreakdown: tasks.map(t => ({ id: t.id, category: t.category, completed: t.completed, title: t.title }))
-  });
-  
   const progressPercentage = Math.min((stats.totalCompleted / dailyGoal.totalTasks) * 100, 100);
   // Use completedSignalRatio for today's completed tasks ratio
   const signalRatioPercentage = (stats.completedSignalRatio || 0) * 100;
@@ -53,15 +42,15 @@ const StatsPanel: React.FC = () => {
                 strokeWidth="8"
                 fill="none"
                 strokeDasharray={`${progressPercentage * 3.14} 314`}
-                className="text-blue-600 transition-all duration-500"
+                className="text-primary-500 transition-all duration-500"
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-neutral-800 dark:text-white">
                   {stats.totalCompleted}
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="text-sm text-neutral-500 dark:text-gray-400">
                   completed today
                 </div>
               </div>
@@ -72,17 +61,17 @@ const StatsPanel: React.FC = () => {
         {/* Stats Cards */}
         <div className="space-y-3">
           <StatCard
-            icon={<CheckCircle className="w-5 h-5 text-green-600" />}
+            icon={<CheckCircle className="w-5 h-5 text-signal-600" />}
             label="Signal Completed Today"
             value={stats.signalCompleted}
-            color="text-green-600"
+            color="text-signal-600"
           />
           
           <StatCard
-            icon={<Circle className="w-5 h-5 text-orange-600" />}
+            icon={<Circle className="w-5 h-5 text-noise-600" />}
             label="Noise Completed Today"
             value={stats.noiseCompleted}
-            color="text-orange-600"
+            color="text-noise-600"
           />
 
           <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
@@ -97,8 +86,8 @@ const StatsPanel: React.FC = () => {
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div
                 className={`h-2 rounded-full transition-all duration-500 ${
-                  signalRatioPercentage >= 80 ? 'bg-green-500' :
-                  signalRatioPercentage >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                  signalRatioPercentage >= 80 ? 'bg-signal-500' :
+                  signalRatioPercentage >= 60 ? 'bg-primary-500' : 'bg-noise-500'
                 }`}
                 style={{ width: `${signalRatioPercentage}%` }}
               />
@@ -106,8 +95,8 @@ const StatsPanel: React.FC = () => {
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
               <span>Target: 80%</span>
               <span className={
-                signalRatioPercentage >= 80 ? 'text-green-600' :
-                signalRatioPercentage >= 60 ? 'text-yellow-600' : 'text-red-600'
+                signalRatioPercentage >= 80 ? 'text-signal-600' :
+                signalRatioPercentage >= 60 ? 'text-primary-600' : 'text-noise-600'
               }>
                 {signalRatioPercentage >= 80 ? 'Great!' :
                  signalRatioPercentage >= 60 ? 'Good' : 'Focus on Signal'}
