@@ -1,6 +1,6 @@
-# SignalFlow - Focus on What Matters
+# Fozzle - Focus on What Matters
 
-A modern productivity web application based on the Signal vs. Noise framework, inspired by Steve Jobs' philosophy of ruthless focus. SignalFlow helps you categorize tasks as either "Signal" (critical, important work) or "Noise" (distractions, less essential tasks) to maintain focus on what truly matters.ingleFlow - Focus on What Matters
+A modern productivity web application based on the Signal vs. Noise framework, inspired by Steve Jobs' philosophy of ruthless focus. Fozzle helps you categorize tasks as either "Signal" (critical, important work) or "Noise" (distractions, less essential tasks) to maintain focus on what truly matters.ingleFlow - Focus on What Matters
 
 A modern productivity web application based on the Signal vs. Noise framework, inspired by Steve Jobs' philosophy of ruthless focus. SingleFlow helps you categorize tasks as either "Signal" (critical, important work) or "Noise" (distractions, less essential tasks) to maintain focus on what truly matters.
 
@@ -145,7 +145,7 @@ The built files will be in the `dist` directory.
 
 ### Getting Started
 1. **Sign Up/Sign In**
-   - Visit [SignalFlow](https://single-flow-rms.vercel.app/)
+   - Visit [Fozzle](https://single-flow-rms.vercel.app/)
    - Click "Sign in with Google" for instant access
    - Or use email/password for traditional authentication
    - Your data is automatically synced across all your devices
@@ -247,7 +247,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ## Deployment
 
-SignalFlow is deployed on **Vercel** with automatic CI/CD from GitHub:
+Fozzle is deployed on **Vercel** with automatic CI/CD from GitHub:
 
 - **Production URL**: [https://single-flow-rms.vercel.app/](https://single-flow-rms.vercel.app/)
 - **GitHub Repository**: [https://github.com/RaeMarvin/SingleFlow_rms](https://github.com/RaeMarvin/SingleFlow_rms)
@@ -302,7 +302,7 @@ We welcome contributions! Here's how to get started:
 
 ## Philosophy
 
-SignalFlow is built on the principle that **focus is everything**. By clearly distinguishing between Signal (what matters) and Noise (what doesn't), you can:
+Fozzle is built on the principle that **focus is everything**. By clearly distinguishing between Signal (what matters) and Noise (what doesn't), you can:
 
 - Reduce decision fatigue
 - Maintain clear priorities
@@ -317,7 +317,7 @@ MIT License - feel free to use this project for personal or commercial purposes.
 
 ## Support & Feedback
 
-If you find SignalFlow helpful, please consider:
+If you find Fozzle helpful, please consider:
 - ⭐ **Starring the repository** on GitHub
 - 🐛 **Reporting bugs** via GitHub Issues
 - 💡 **Requesting features** for future releases

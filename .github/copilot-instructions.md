@@ -1,9 +1,9 @@
 <!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
 
-# SignalFlow Productivity App - Copilot Instructions
+# Fozzle Productivity App - Copilot Instructions
 
 ## Project Overview
-SignalFlow is a productivity web application based on the Signal vs. Noise framework inspired by Steve Jobs. It helps users categorize tasks as either "Signal" (critical, important work) or "Noise" (distractions, non-essential tasks) to maintain focus on what truly matters.
+Fozzle is a productivity web application based on the Signal vs. Noise framework inspired by Steve Jobs. It helps users categorize tasks as either "Signal" (critical, important work) or "Noise" (distractions, non-essential tasks) to maintain focus on what truly matters.
 
 ## Key Features to Maintain
 - **Signal vs. Noise Task Categorization**: Tasks are categorized as Signal (critical) or Noise (distractions)

@@ -30,10 +30,10 @@ export function DebugPanel() {
 
   useEffect(() => {
     const getUserId = () => {
-      let userId = localStorage.getItem('signalflow-user-id');
+      let userId = localStorage.getItem('fozzle-user-id');
       if (!userId) {
         userId = crypto.randomUUID();
-        localStorage.setItem('signalflow-user-id', userId);
+        localStorage.setItem('fozzle-user-id', userId);
       }
       return userId;
     };
@@ -146,8 +146,8 @@ export function DebugPanel() {
               }
               
               // Create a test task
-              const userId = localStorage.getItem('signalflow-user-id') || crypto.randomUUID();
-              localStorage.setItem('signalflow-user-id', userId);
+              const userId = localStorage.getItem('fozzle-user-id') || crypto.randomUUID();
+              localStorage.setItem('fozzle-user-id', userId);
               
               const { error } = await supabase
                 .from('tasks')

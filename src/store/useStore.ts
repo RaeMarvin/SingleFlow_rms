@@ -183,7 +183,7 @@ const useStore = create<Store>()(
       },
     }),
     {
-      name: 'signalflow-storage',
+      name: 'fozzle-storage',
       version: 1,
     }
   )
