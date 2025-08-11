@@ -8,17 +8,21 @@ interface WeeklyReviewModalProps {
 const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
   const { tasks } = useSupabaseStore();
   
-  // Get Monday of current week
+  // Get Monday of current week (with proper timezone handling)
   const getMonday = (date: Date) => {
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1); // adjust for Sunday
-    return new Date(date.setDate(diff));
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0); // Start of day
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust for Sunday
+    d.setDate(diff);
+    return d;
   };
 
-  // Get Sunday of current week
+  // Get Sunday of current week (end of day)
   const getSunday = (monday: Date) => {
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999); // End of day
     return sunday;
   };
 
@@ -31,10 +35,42 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
     return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
   };
 
-  // Filter tasks for current week
+  // Better filtering approach
   const weekTasks = tasks.filter(task => {
     const taskDate = new Date(task.createdAt);
-    return taskDate >= weekStart && taskDate <= weekEnd;
+    const isCreatedThisWeek = taskDate >= weekStart && taskDate <= weekEnd;
+    
+    // Also include tasks completed this week even if created earlier
+    if (task.completed && task.completedAt) {
+      const completedDate = new Date(task.completedAt);
+      const isCompletedThisWeek = completedDate >= weekStart && completedDate <= weekEnd;
+      return isCreatedThisWeek || isCompletedThisWeek;
+    }
+    
+    return isCreatedThisWeek;
+  });
+
+  // Debug logging
+  console.log('Weekly Review Debug:', {
+    today: today.toISOString(),
+    weekStart: weekStart.toISOString(), 
+    weekEnd: weekEnd.toISOString(),
+    totalTasks: tasks.length,
+    filteredWeekTasks: weekTasks.length,
+    allTasksDates: tasks.map(t => ({ 
+      id: t.id, 
+      title: t.title,
+      createdAt: new Date(t.createdAt).toISOString(), 
+      completed: t.completed, 
+      completedAt: t.completedAt ? new Date(t.completedAt).toISOString() : null
+    })),
+    filteredTasksDates: weekTasks.map(t => ({ 
+      id: t.id, 
+      title: t.title,
+      createdAt: new Date(t.createdAt).toISOString(), 
+      completed: t.completed, 
+      completedAt: t.completedAt ? new Date(t.completedAt).toISOString() : null
+    }))
   });
 
   const completedWeekTasks = weekTasks.filter(t => t.completed);
