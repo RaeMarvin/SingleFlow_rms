@@ -8,7 +8,8 @@ const StatsPanel: React.FC = () => {
   const noiseTasks = tasks.filter(t => t.category === 'noise').length;
   
   const progressPercentage = Math.min((stats.totalCompleted / dailyGoal.totalTasks) * 100, 100);
-  const signalRatioPercentage = stats.signalRatio * 100;
+  // Use completedSignalRatio for today's completed tasks ratio
+  const signalRatioPercentage = (stats.completedSignalRatio || 0) * 100;
 
   return (
     <div className="space-y-4">
@@ -50,7 +51,7 @@ const StatsPanel: React.FC = () => {
                   {stats.totalCompleted}
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  of {dailyGoal.totalTasks}
+                  completed today
                 </div>
               </div>
             </div>
@@ -61,14 +62,14 @@ const StatsPanel: React.FC = () => {
         <div className="space-y-3">
           <StatCard
             icon={<CheckCircle className="w-5 h-5 text-green-600" />}
-            label="Signal Completed"
+            label="Signal Completed Today"
             value={stats.signalCompleted}
             color="text-green-600"
           />
           
           <StatCard
             icon={<Circle className="w-5 h-5 text-orange-600" />}
-            label="Noise Completed"
+            label="Noise Completed Today"
             value={stats.noiseCompleted}
             color="text-orange-600"
           />
@@ -76,7 +77,7 @@ const StatsPanel: React.FC = () => {
           <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Signal Ratio
+                Today's Signal Ratio
               </span>
               <span className="text-sm font-bold text-gray-900 dark:text-white">
                 {signalRatioPercentage.toFixed(0)}%

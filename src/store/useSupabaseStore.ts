@@ -212,15 +212,27 @@ const useSupabaseStore = create<Store & {
   updateStats: () => {
     const { tasks } = get();
     
+    // Get today's date (start of day)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     // All tasks (completed and incomplete)
     const signalTasks = tasks.filter((task) => task.category === 'signal');
     const totalTasks = tasks.length;
     
-    // Completed tasks only
-    const completed = tasks.filter((task) => task.completed);
-    const signalCompleted = completed.filter((task) => task.category === 'signal').length;
-    const noiseCompleted = completed.filter((task) => task.category === 'noise').length;
-    const totalCompleted = completed.length;
+    // Filter for tasks completed today only
+    const completedToday = tasks.filter((task) => {
+      if (!task.completed || !task.completedAt) return false;
+      
+      const completedDate = new Date(task.completedAt);
+      completedDate.setHours(0, 0, 0, 0);
+      
+      return completedDate.getTime() === today.getTime();
+    });
+    
+    const signalCompleted = completedToday.filter((task) => task.category === 'signal').length;
+    const noiseCompleted = completedToday.filter((task) => task.category === 'noise').length;
+    const totalCompleted = completedToday.length;
     
     // Calculate ratios
     const signalRatio = totalTasks > 0 ? signalTasks.length / totalTasks : 0;
