@@ -4,8 +4,8 @@ import useSupabaseStore from '../store/useSupabaseStore';
 const StatsPanel: React.FC = () => {
   const { stats, tasks, dailyGoal } = useSupabaseStore();
   
-  const signalTasks = tasks.filter(t => t.category === 'signal').length;
-  const noiseTasks = tasks.filter(t => t.category === 'noise').length;
+  const signalTasks = tasks.filter(t => t.category === 'signal' && !t.completed).length;
+  const noiseTasks = tasks.filter(t => t.category === 'noise' && !t.completed).length;
   
   const progressPercentage = Math.min((stats.totalCompleted / dailyGoal.totalTasks) * 100, 100);
   // Use completedSignalRatio for today's completed tasks ratio
