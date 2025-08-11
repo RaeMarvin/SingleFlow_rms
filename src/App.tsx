@@ -10,7 +10,8 @@ import {
   IdeaParkingLot, 
   WeeklyReviewModal, 
   TaskCard,
-  DebugPanel
+  DebugPanel,
+  CompletedTasksThisWeek
 } from './components';
 import { Task } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -222,9 +223,10 @@ function AppContent() {
                   <TaskBoard />
                 </div>
                 
-                {/* Idea Parking Lot */}
-                <div className="lg:col-span-1">
+                {/* Right Column - Ideas and Completed Tasks */}
+                <div className="lg:col-span-1 space-y-6">
                   <IdeaParkingLot />
+                  <CompletedTasksThisWeek />
                 </div>
               </div>
             </main>

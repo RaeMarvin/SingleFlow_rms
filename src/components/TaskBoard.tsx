@@ -10,8 +10,9 @@ import TaskCard from './TaskCard';
 const TaskBoard: React.FC = () => {
   const { tasks } = useSupabaseStore();
   
-  const signalTasks = tasks.filter((task) => task.category === 'signal');
-  const noiseTasks = tasks.filter((task) => task.category === 'noise');
+  // Only show incomplete tasks on the board
+  const signalTasks = tasks.filter((task) => task.category === 'signal' && !task.completed);
+  const noiseTasks = tasks.filter((task) => task.category === 'noise' && !task.completed);
 
   return (
     <div className="space-y-6">
