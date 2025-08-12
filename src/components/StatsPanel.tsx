@@ -1,10 +1,10 @@
-import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb } from 'lucide-react';
+import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
 
 const StatsPanel: React.FC = () => {
-  const { stats, dailyGoal, tasks, ideas } = useSupabaseStore();
+  const { stats, dailyGoal, tasks, ideas, addIdea, deleteIdea } = useSupabaseStore();
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
   
@@ -119,6 +119,8 @@ const StatsPanel: React.FC = () => {
         ideas={ideas}
         isOpen={showIdeas}
         onToggle={() => setShowIdeas(!showIdeas)}
+        onAddIdea={addIdea}
+        onDeleteIdea={deleteIdea}
       />
     </div>
   );
@@ -235,9 +237,29 @@ interface IdeasDropdownProps {
   ideas: { id: string; title: string; description?: string; createdAt: Date }[];
   isOpen: boolean;
   onToggle: () => void;
+  onAddIdea: (idea: { title: string; description?: string }) => void;
+  onDeleteIdea: (id: string) => void;
 }
 
-const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle }) => {
+const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle, onAddIdea, onDeleteIdea }) => {
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newIdea, setNewIdea] = useState({ title: '', description: '' });
+
+  const handleAddIdea = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newIdea.title.trim()) {
+      onAddIdea({
+        title: newIdea.title.trim(),
+        description: newIdea.description.trim() || undefined
+      });
+      setNewIdea({ title: '', description: '' });
+      setShowAddForm(false);
+    }
+  };
+
+  const handleDeleteIdea = (id: string) => {
+    onDeleteIdea(id);
+  };
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
       <button
@@ -250,41 +272,101 @@ const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle }
             Ideas ({ideas.length})
           </span>
         </div>
-        {isOpen ? (
-          <ChevronDown className="w-5 h-5 text-gray-400" />
-        ) : (
-          <ChevronRight className="w-5 h-5 text-gray-400" />
-        )}
+        <div className="flex items-center space-x-2">
+          {isOpen && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowAddForm(!showAddForm);
+              }}
+              className="p-1 text-yellow-600 hover:bg-yellow-100 dark:hover:bg-yellow-900/20 rounded transition-colors duration-200"
+              title="Add Idea"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          )}
+          {isOpen ? (
+            <ChevronDown className="w-5 h-5 text-gray-400" />
+          ) : (
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          )}
+        </div>
       </button>
       
       {isOpen && (
-        <div className="px-4 pb-4 space-y-2 max-h-60 overflow-y-auto">
-          {ideas.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">
-              No ideas captured yet.
-            </p>
-          ) : (
-            ideas.map(idea => (
-              <div key={idea.id} className="flex items-start space-x-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <Lightbulb className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800 dark:text-white">
-                    {idea.title}
-                  </p>
-                  {idea.description && (
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                      {idea.description}
-                    </p>
-                  )}
-                  {idea.createdAt && (
-                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
-                      {new Date(idea.createdAt).toLocaleDateString()}
-                    </span>
-                  )}
-                </div>
+        <div className="px-4 pb-4">
+          {/* Add Idea Form */}
+          {showAddForm && (
+            <form onSubmit={handleAddIdea} className="mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg">
+              <input
+                type="text"
+                placeholder="Enter your idea..."
+                value={newIdea.title}
+                onChange={(e) => setNewIdea({ ...newIdea, title: e.target.value })}
+                className="w-full p-2 border border-yellow-200 dark:border-yellow-800 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-transparent mb-2"
+                autoFocus
+              />
+              <textarea
+                placeholder="Description (optional)..."
+                value={newIdea.description}
+                onChange={(e) => setNewIdea({ ...newIdea, description: e.target.value })}
+                className="w-full p-2 border border-yellow-200 dark:border-yellow-800 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-transparent mb-2 resize-none"
+                rows={2}
+              />
+              <div className="flex items-center space-x-2">
+                <button
+                  type="submit"
+                  className="px-3 py-1 bg-yellow-600 text-white text-sm rounded-md hover:bg-yellow-700 transition-colors duration-200"
+                >
+                  Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddForm(false)}
+                  className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200"
+                >
+                  Cancel
+                </button>
               </div>
-            ))
+            </form>
           )}
+
+          {/* Ideas List */}
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {ideas.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">
+                No ideas captured yet.
+              </p>
+            ) : (
+              ideas.map(idea => (
+                <div key={idea.id} className="group flex items-start space-x-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors duration-200">
+                  <Lightbulb className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-800 dark:text-white">
+                      {idea.title}
+                    </p>
+                    {idea.description && (
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        {idea.description}
+                      </p>
+                    )}
+                    {idea.createdAt && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
+                        {new Date(idea.createdAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleDeleteIdea(idea.id)}
+                    className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-all duration-200"
+                    title="Delete idea"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>
