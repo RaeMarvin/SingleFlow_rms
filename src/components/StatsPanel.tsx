@@ -17,10 +17,10 @@ const StatsPanel: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+      <div className="bg-white rounded-xl shadow-sm p-6">
         <div className="flex items-center space-x-3 mb-4">
           <Target className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h2 className="text-xl font-semibold text-gray-900">
             Daily Progress
           </h2>
         </div>
@@ -36,7 +36,7 @@ const StatsPanel: React.FC = () => {
                 stroke="currentColor"
                 strokeWidth="8"
                 fill="none"
-                className="text-gray-200 dark:text-gray-700"
+                className="text-gray-200"
               />
               <circle
                 cx="60"
@@ -51,10 +51,10 @@ const StatsPanel: React.FC = () => {
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-2xl font-bold text-neutral-800 dark:text-white">
+                <div className="text-2xl font-bold text-neutral-800">
                   {stats.totalCompleted}
                 </div>
-                <div className="text-sm text-neutral-500 dark:text-gray-400">
+                <div className="text-sm text-neutral-500">
                   completed today
                 </div>
               </div>
@@ -138,10 +138,10 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color }) => (
-  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
     <div className="flex items-center space-x-3">
       {icon}
-      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <span className="text-sm font-medium text-gray-700">
         {label}
       </span>
     </div>
@@ -186,7 +186,7 @@ const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, 
   });
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 rounded-xl"

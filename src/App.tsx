@@ -19,7 +19,7 @@ import wordmarkImage from './assets/wordmark.png';
 function AppContent() {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
-  const { moveTask, reorderTasks, tasks, settings } = useSupabaseStore();
+  const { moveTask, reorderTasks, tasks } = useSupabaseStore();
   const { isLoading } = useInitializeData();
   const { user, loading: authLoading } = useAuth();
 
@@ -99,13 +99,11 @@ function AppContent() {
   // Show loading spinner while auth is loading
   if (authLoading) {
     return (
-      <div className={`min-h-screen transition-colors duration-200${
-        settings.darkMode ? ' dark' : ''
-      }`}>
-        <div className="bg-neutral-50 dark:bg-gray-900 min-h-screen flex items-center justify-center">
+      <div className="min-h-screen transition-colors duration-200">
+        <div className="bg-neutral-50 min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-neutral-600 dark:text-gray-400">Loading...</p>
+            <p className="text-neutral-600">Loading...</p>
           </div>
         </div>
       </div>
@@ -115,10 +113,8 @@ function AppContent() {
   // Show welcome screen for unauthenticated users
   if (!user) {
     return (
-      <div className={`min-h-screen transition-colors duration-200${
-        settings.darkMode ? ' dark' : ''
-      }`}>
-        <div className="bg-neutral-50 dark:bg-gray-900 min-h-screen">
+      <div className="min-h-screen transition-colors duration-200">
+        <div className="bg-neutral-50 min-h-screen">
           <Header onShowWeeklyReview={() => setShowWeeklyReview(true)} />
           
           <main className="container mx-auto px-4 py-16">
@@ -136,24 +132,24 @@ function AppContent() {
                 />
               </div>
               
-              <p className="text-xl text-neutral-600 dark:text-gray-400 mb-12 leading-relaxed">
+              <p className="text-xl text-neutral-600 mb-12 leading-relaxed">
                 Focus on the next thing you need to do.
               </p>
               
               {/* Demo task list matching the image */}
               <div className="max-w-md mx-auto mb-12">
-                <h2 className="text-2xl font-semibold text-neutral-800 dark:text-white mb-6">
+                <h2 className="text-2xl font-semibold text-neutral-800 mb-6">
                   Today's Tasks
                 </h2>
                 
                 <div className="space-y-3">
                   {/* High priority task */}
-                  <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                     <div className="flex items-center space-x-3">
                       <div className="w-5 h-5 rounded-full border-2 border-primary-500 flex items-center justify-center">
                         <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
                       </div>
-                      <span className="text-neutral-800 dark:text-white font-medium">Task</span>
+                      <span className="text-neutral-800 font-medium">Task</span>
                     </div>
                     <span className="px-3 py-1 bg-signal-100 text-signal-700 text-sm font-medium rounded-full border border-signal-200">
                       High
@@ -161,10 +157,10 @@ function AppContent() {
                   </div>
 
                   {/* Medium priority task */}
-                  <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                     <div className="flex items-center space-x-3">
                       <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
-                      <span className="text-neutral-800 dark:text-white font-medium">Task</span>
+                      <span className="text-neutral-800 font-medium">Task</span>
                     </div>
                     <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full border border-purple-200">
                       Medium
@@ -172,10 +168,10 @@ function AppContent() {
                   </div>
 
                   {/* Low priority task */}
-                  <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                     <div className="flex items-center space-x-3">
                       <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
-                      <span className="text-neutral-800 dark:text-white font-medium">Task</span>
+                      <span className="text-neutral-800 font-medium">Task</span>
                     </div>
                     <span className="px-3 py-1 bg-noise-100 text-noise-700 text-sm font-medium rounded-full border border-noise-200">
                       Low
@@ -186,7 +182,7 @@ function AppContent() {
 
               {/* Quick Action section */}
               <div className="mb-8">
-                <h3 className="text-xl font-semibold text-neutral-800 dark:text-white mb-4">
+                <h3 className="text-xl font-semibold text-neutral-800 mb-4">
                   Quick Action
                 </h3>
                 <button className="w-full max-w-md mx-auto block text-white border rounded-xl py-4 px-6 text-lg font-medium transition-colors duration-200" style={{backgroundColor: '#7dc3ff', borderColor: '#6bb6ff'}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#6bb6ff'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7dc3ff'}>
@@ -194,7 +190,7 @@ function AppContent() {
                 </button>
               </div>
               
-              <p className="text-neutral-600 dark:text-gray-400 mb-8">
+              <p className="text-neutral-600 mb-8">
                 Sign in to start organizing your tasks and boost your productivity today.
               </p>
             </div>
@@ -205,15 +201,13 @@ function AppContent() {
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-200${
-      settings.darkMode ? ' dark' : ''
-    }`}>
-      <div className="bg-neutral-50 dark:bg-gray-900 min-h-screen">
+    <div className="min-h-screen transition-colors duration-200">
+      <div className="bg-neutral-50 min-h-screen">
         {isLoading ? (
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-400">Loading your tasks...</p>
+              <p className="text-gray-600">Loading your tasks...</p>
             </div>
           </div>
         ) : (

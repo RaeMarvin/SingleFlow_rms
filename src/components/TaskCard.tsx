@@ -88,8 +88,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
       ref={setNodeRef}
       style={style}
       className={`
-        group relative rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-200
-        ${task.category === 'noise' ? 'bg-gray-50 dark:bg-gray-700/50' : 'bg-white dark:bg-gray-800'}
+        group relative rounded-xl p-4 border border-gray-200 shadow-sm transition-all duration-200
+        ${task.category === 'noise' ? 'bg-gray-50' : 'bg-white'}
         ${isDragging ? 'shadow-xl' : isDragActive ? 'shadow-xl rotate-1 scale-105 z-50' : 'hover:shadow-md'}
         ${task.completed ? 'opacity-75' : ''}
       `}
@@ -128,14 +128,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
           {/* Task content */}
           <div className="flex-1 min-w-0">
             <h3 className={`
-              font-medium text-neutral-800 dark:text-white text-sm leading-tight
-              ${task.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''}
+              font-medium text-neutral-800 text-sm leading-tight
+              ${task.completed ? 'line-through text-gray-500' : ''}
             `}>
               {task.title}
             </h3>
             {task.description && (
               <p className={`
-                text-xs text-gray-600 dark:text-gray-400 mt-1 truncate
+                text-xs text-gray-600 mt-1 truncate
                 ${task.completed ? 'line-through' : ''}
               `}>
                 {task.description}
