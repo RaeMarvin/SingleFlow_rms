@@ -30,28 +30,19 @@ const Header: React.FC<HeaderProps> = ({ onShowWeeklyReview }) => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="relative w-10 h-10">
-                <svg viewBox="0 0 400 400" className="w-10 h-10 drop-shadow-md">
-                  <defs>
-                    <linearGradient id="headerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{stopColor:"#6DB5E8", stopOpacity:1}} />
-                      <stop offset="100%" style={{stopColor:"#4A9FDB", stopOpacity:1}} />
-                    </linearGradient>
-                  </defs>
-                  <circle cx="200" cy="200" r="190" fill="url(#headerGradient)" />
-                  <text x="200" y="280" 
-                        fontFamily="Inter, -apple-system, BlinkMacSystemFont, sans-serif" 
-                        fontSize="280" 
-                        fontWeight="700" 
-                        textAnchor="middle" 
-                        fill="white">F</text>
-                  <circle cx="200" cy="330" r="18" fill="white"/>
-                </svg>
+              <div className="flex items-center space-x-2">
+                <img 
+                  src="/logo.png" 
+                  alt="Logo" 
+                  className="w-10 h-10 drop-shadow-md object-contain"
+                />
+                <img 
+                  src="/wordmark.png" 
+                  alt="Fozzle" 
+                  className="h-8 object-contain"
+                />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-neutral-800 dark:text-white">
-                  Fozzle
-                </h1>
                 <p className="text-sm text-neutral-600 dark:text-gray-400">
                   Focus on the next thing you need to do.
                 </p>

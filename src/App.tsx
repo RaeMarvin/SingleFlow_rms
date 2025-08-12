@@ -115,28 +115,18 @@ function AppContent() {
           
           <main className="container mx-auto px-4 py-16">
             <div className="text-center max-w-3xl mx-auto">
-              <div className="w-20 h-20 mx-auto mb-8">
-                <svg viewBox="0 0 400 400" className="w-20 h-20 drop-shadow-lg">
-                  <defs>
-                    <linearGradient id="welcomeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{stopColor:"#6DB5E8", stopOpacity:1}} />
-                      <stop offset="100%" style={{stopColor:"#4A9FDB", stopOpacity:1}} />
-                    </linearGradient>
-                  </defs>
-                  <circle cx="200" cy="200" r="190" fill="url(#welcomeGradient)" />
-                  <text x="200" y="280" 
-                        fontFamily="Inter, -apple-system, BlinkMacSystemFont, sans-serif" 
-                        fontSize="280" 
-                        fontWeight="700" 
-                        textAnchor="middle" 
-                        fill="white">F</text>
-                  <circle cx="200" cy="330" r="18" fill="white"/>
-                </svg>
+              <div className="flex items-center justify-center space-x-2 mb-8">
+                <img 
+                  src="/logo.png" 
+                  alt="Logo" 
+                  className="w-16 h-16 drop-shadow-lg object-contain"
+                />
+                <img 
+                  src="/wordmark.png" 
+                  alt="Fozzle" 
+                  className="h-14 object-contain"
+                />
               </div>
-              
-              <h1 className="text-5xl font-bold text-neutral-800 dark:text-white mb-6">
-                Welcome to Fozzle
-              </h1>
               
               <p className="text-xl text-neutral-600 dark:text-gray-400 mb-12 leading-relaxed">
                 Focus on the next thing you need to do.
