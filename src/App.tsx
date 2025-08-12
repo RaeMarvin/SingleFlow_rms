@@ -15,6 +15,8 @@ import {
 } from './components';
 import { Task } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import logoImage from './assets/logo.png';
+import wordmarkImage from './assets/wordmark.png';
 
 function AppContent() {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -117,12 +119,12 @@ function AppContent() {
             <div className="text-center max-w-3xl mx-auto">
               <div className="flex items-center justify-center space-x-2 mb-8">
                 <img 
-                  src="/logo.png" 
+                  src={logoImage} 
                   alt="Logo" 
                   className="w-16 h-16 drop-shadow-lg object-contain"
                 />
                 <img 
-                  src="/wordmark.png" 
+                  src={wordmarkImage} 
                   alt="Fozzle" 
                   className="h-14 object-contain"
                 />

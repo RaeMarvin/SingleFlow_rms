@@ -3,6 +3,8 @@ import useSupabaseStore from '../store/useSupabaseStore';
 import { useState } from 'react';
 import { AddTaskModal, AuthModal } from './';
 import { useAuth } from '../contexts/AuthContext';
+import logoImage from '../assets/logo.png';
+import wordmarkImage from '../assets/wordmark.png';
 
 interface HeaderProps {
   onShowWeeklyReview: () => void;
@@ -32,12 +34,12 @@ const Header: React.FC<HeaderProps> = ({ onShowWeeklyReview }) => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <img 
-                  src="/logo.png" 
+                  src={logoImage} 
                   alt="Logo" 
                   className="w-10 h-10 drop-shadow-md object-contain"
                 />
                 <img 
-                  src="/wordmark.png" 
+                  src={wordmarkImage} 
                   alt="Fozzle" 
                   className="h-8 object-contain"
                 />
