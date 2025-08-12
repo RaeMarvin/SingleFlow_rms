@@ -8,9 +8,10 @@ import useSupabaseStore from '../store/useSupabaseStore';
 interface TaskCardProps {
   task: Task;
   isDragging?: boolean;
+  onTaskClick?: (task: Task) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
   const { toggleTaskComplete, deleteTask } = useSupabaseStore();
   
   // Use sortable for within-column reordering
@@ -94,16 +95,18 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
         ${task.completed ? 'opacity-75' : ''}
       `}
     >
-      {/* Main content area - drag handle */}
-      <div
-        {...listeners}
-        {...attributes}
-        className="cursor-grab active:cursor-grabbing flex items-center justify-between"
-      >
-        {/* Left side - checkbox and task info */}
+      {/* Main content area */}
+      <div className="flex items-center justify-between">
+        {/* Left side - drag handle, checkbox and task info */}
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           {/* Drag handle */}
-          <GripVertical className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-50 flex-shrink-0" />
+          <div
+            {...listeners}
+            {...attributes}
+            className="cursor-grab active:cursor-grabbing flex-shrink-0"
+          >
+            <GripVertical className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-50" />
+          </div>
           
           {/* Circular checkbox */}
           <button
@@ -125,8 +128,16 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
             )}
           </button>
 
-          {/* Task content */}
-          <div className="flex-1 min-w-0">
+          {/* Task content - clickable */}
+          <div 
+            className="flex-1 min-w-0 cursor-pointer"
+            onClick={(e) => {
+              if (onTaskClick && !isDragActive) {
+                e.stopPropagation();
+                onTaskClick(task);
+              }
+            }}
+          >
             <h3 className={`
               font-medium text-neutral-800 text-sm leading-tight
               ${task.completed ? 'line-through text-gray-500' : ''}

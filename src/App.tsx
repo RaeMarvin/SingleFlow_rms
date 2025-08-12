@@ -9,6 +9,7 @@ import {
   StatsPanel, 
   WeeklyReviewModal, 
   TaskCard,
+  TaskDetailModal,
   DebugPanel
 } from './components';
 import { Task } from './types';
@@ -19,6 +20,7 @@ import wordmarkImage from './assets/wordmark.png';
 function AppContent() {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const { moveTask, reorderTasks, tasks } = useSupabaseStore();
   const { isLoading } = useInitializeData();
   const { user, loading: authLoading } = useAuth();
@@ -227,7 +229,7 @@ function AppContent() {
                 
                 {/* Task Board */}
                 <div className="lg:col-span-3">
-                  <TaskBoard />
+                  <TaskBoard onTaskClick={(task) => setSelectedTask(task)} />
                 </div>
               </div>
             </main>
@@ -246,7 +248,17 @@ function AppContent() {
           <WeeklyReviewModal
             onClose={() => setShowWeeklyReview(false)}
           />
-        )}        {/* Only show DebugPanel in development mode */}
+        )}
+
+        {selectedTask && (
+          <TaskDetailModal
+            task={selectedTask}
+            isOpen={true}
+            onClose={() => setSelectedTask(null)}
+          />
+        )}
+
+        {/* Only show DebugPanel in development mode */}
         {import.meta.env.DEV && <DebugPanel />}
       </div>
     </div>

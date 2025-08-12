@@ -7,7 +7,13 @@ import { Signal, Volume2, TrendingUp } from 'lucide-react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import TaskCard from './TaskCard';
 
-const TaskBoard: React.FC = () => {
+import { Task } from '../types';
+
+interface TaskBoardProps {
+  onTaskClick?: (task: Task) => void;
+}
+
+const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick }) => {
   const { tasks } = useSupabaseStore();
   
   // Only show incomplete tasks on the board
@@ -56,6 +62,7 @@ const TaskBoard: React.FC = () => {
           tasks={signalTasks}
           colorClass="border-signal-300 bg-signal-50"
           headerClass="bg-signal-600 text-white"
+          onTaskClick={onTaskClick}
         />
 
         {/* Noise Column */}
@@ -67,6 +74,7 @@ const TaskBoard: React.FC = () => {
           tasks={noiseTasks}
           colorClass="border-noise-300 bg-noise-50"
           headerClass="bg-purple-100 text-purple-700"
+          onTaskClick={onTaskClick}
         />
       </div>
     </div>
@@ -81,6 +89,7 @@ interface TaskColumnProps {
   tasks: any[];
   colorClass: string;
   headerClass: string;
+  onTaskClick?: (task: Task) => void;
 }
 
 const TaskColumn: React.FC<TaskColumnProps> = ({
@@ -91,6 +100,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
   tasks,
   colorClass,
   headerClass,
+  onTaskClick,
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id,
@@ -139,7 +149,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
         ) : (
           <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
             {sortedTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard key={task.id} task={task} onTaskClick={onTaskClick} />
             ))}
           </SortableContext>
         )}
