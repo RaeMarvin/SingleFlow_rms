@@ -232,7 +232,7 @@ const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, 
 };
 
 interface IdeasDropdownProps {
-  ideas: any[];
+  ideas: { id: string; title: string; description?: string; createdAt: Date }[];
   isOpen: boolean;
   onToggle: () => void;
 }
@@ -269,10 +269,15 @@ const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle }
                 <Lightbulb className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-800 dark:text-white">
-                    {idea.content}
+                    {idea.title}
                   </p>
+                  {idea.description && (
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      {idea.description}
+                    </p>
+                  )}
                   {idea.createdAt && (
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
                       {new Date(idea.createdAt).toLocaleDateString()}
                     </span>
                   )}
