@@ -88,7 +88,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
       ref={setNodeRef}
       style={style}
       className={`
-        group relative bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-200
+        group relative rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-200
+        ${task.category === 'noise' ? 'bg-gray-50 dark:bg-gray-700/50' : 'bg-white dark:bg-gray-800'}
         ${isDragging ? 'shadow-xl' : isDragActive ? 'shadow-xl rotate-1 scale-105 z-50' : 'hover:shadow-md'}
         ${task.completed ? 'opacity-75' : ''}
       `}
