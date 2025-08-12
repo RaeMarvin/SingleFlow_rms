@@ -1,7 +1,7 @@
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, Clock, Trash2, GripVertical } from 'lucide-react';
+import { Check, Trash2, GripVertical } from 'lucide-react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
 
@@ -53,15 +53,34 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
     transition,
   };
 
-  const priorityColors = {
-    high: 'border-signal-400 bg-signal-50 dark:bg-signal-900/20',
-    medium: 'border-accent-purple bg-purple-50 dark:bg-purple-900/20',
-    low: 'border-accent-coral bg-noise-50 dark:bg-noise-900/20',
+  const getPriorityBadge = () => {
+    switch (task.priority) {
+      case 'high':
+        return 'bg-signal-100 text-signal-700 border-signal-200';
+      case 'medium':
+        return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'low':
+        return 'bg-noise-100 text-noise-700 border-noise-200';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
   };
 
-  const categoryColors = {
-    signal: 'bg-signal-500',
-    noise: 'bg-noise-500',
+  const getCheckboxColor = () => {
+    if (task.completed) {
+      return 'border-signal-500 bg-signal-500';
+    }
+    
+    switch (task.priority) {
+      case 'high':
+        return 'border-signal-500';
+      case 'medium':
+        return 'border-purple-500';
+      case 'low':
+        return 'border-noise-500';
+      default:
+        return 'border-gray-300';
+    }
   };
 
   return (
@@ -69,84 +88,83 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
       ref={setNodeRef}
       style={style}
       className={`
-        group relative bg-white dark:bg-gray-800 rounded-lg border-2 p-4 transition-all duration-200
-        ${isDragActive || isDragging ? 'shadow-xl rotate-2 scale-105 z-50' : 'shadow-sm hover:shadow-md'}
-        ${task.completed ? 'opacity-75 bg-gray-50 dark:bg-gray-700' : ''}
-        ${priorityColors[task.priority]}
+        group relative bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-200
+        ${isDragActive || isDragging ? 'shadow-xl rotate-1 scale-105 z-50' : 'hover:shadow-md'}
+        ${task.completed ? 'opacity-75' : ''}
       `}
     >
-      {/* Drag handle area - everything except action buttons */}
+      {/* Main content area - drag handle */}
       <div
         {...listeners}
         {...attributes}
-        className="cursor-grab active:cursor-grabbing"
+        className="cursor-grab active:cursor-grabbing flex items-center justify-between"
       >
-        {/* Category indicator */}
-        <div className={`absolute top-0 left-0 w-full h-1 rounded-t-lg ${categoryColors[task.category]}`} />
-        
-        {/* Priority indicator */}
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <GripVertical className="w-3 h-3 text-gray-400 opacity-50" />
-            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-              task.priority === 'high' ? 'bg-signal-100 text-signal-700 border border-signal-200' :
-              task.priority === 'medium' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 
-              'bg-noise-100 text-noise-700 border border-noise-200'
-            }`}>
-              {task.priority === 'high' ? 'High' : task.priority === 'medium' ? 'Medium' : 'Low'}
-            </span>
+        {/* Left side - checkbox and task info */}
+        <div className="flex items-center space-x-3 flex-1 min-w-0">
+          {/* Drag handle */}
+          <GripVertical className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-50 flex-shrink-0" />
+          
+          {/* Circular checkbox */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleTaskComplete(task.id);
+            }}
+            className={`
+              w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0
+              ${getCheckboxColor()}
+              ${task.completed ? '' : 'hover:scale-110'}
+            `}
+          >
+            {task.completed && (
+              <Check className="w-3 h-3 text-white" strokeWidth={3} />
+            )}
+            {!task.completed && task.priority === 'high' && (
+              <div className="w-2 h-2 bg-signal-500 rounded-full"></div>
+            )}
+          </button>
+
+          {/* Task content */}
+          <div className="flex-1 min-w-0">
+            <h3 className={`
+              font-medium text-neutral-800 dark:text-white text-sm leading-tight
+              ${task.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''}
+            `}>
+              {task.title}
+            </h3>
+            {task.description && (
+              <p className={`
+                text-xs text-gray-600 dark:text-gray-400 mt-1 truncate
+                ${task.completed ? 'line-through' : ''}
+              `}>
+                {task.description}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Task content */}
-        <div className="mb-3">
-          <h3 className={`font-medium text-gray-900 dark:text-white mb-1 ${
-            task.completed ? 'line-through' : ''
-          }`}>
-            {task.title}
-          </h3>
-          {task.description && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {task.description}
-            </p>
-          )}
-        </div>
-
-        <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
-          <Clock className="w-3 h-3" />
-          <span>
-            {new Date(task.createdAt).toLocaleDateString()}
+        {/* Right side - priority badge */}
+        <div className="flex items-center space-x-2 flex-shrink-0">
+          <span className={`
+            px-3 py-1 text-sm font-medium rounded-full border
+            ${getPriorityBadge()}
+          `}>
+            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
           </span>
         </div>
       </div>
 
-      {/* Action buttons - outside drag area */}
-      <div className="absolute top-2 right-2 flex items-center space-x-1">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            deleteTask(task.id);
-          }}
-          className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-noise-500 transition-all duration-200 p-1"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-        
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            console.log('Complete button clicked for task:', task.id);
-            toggleTaskComplete(task.id);
-          }}
-          className={`p-1.5 rounded-full transition-colors duration-200 ${
-            task.completed
-              ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400'
-              : 'bg-gray-100 text-gray-400 hover:bg-green-100 hover:text-green-600 dark:bg-gray-700 dark:text-gray-500 dark:hover:bg-green-900 dark:hover:text-green-400'
-          }`}
-        >
-          <Check className="w-4 h-4" />
-        </button>
-      </div>
+      {/* Delete button - appears on hover */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          deleteTask(task.id);
+        }}
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-200 p-1 rounded"
+        title="Delete task"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
     </div>
   );
 };
