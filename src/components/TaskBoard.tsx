@@ -15,31 +15,31 @@ const TaskBoard: React.FC = () => {
   const noiseTasks = tasks.filter((task) => task.category === 'noise' && !task.completed);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Current Tasks Overview */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-        <div className="flex items-center space-x-3 mb-3">
-          <TrendingUp className="w-5 h-5 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+        <div className="flex items-center space-x-2 mb-2">
+          <TrendingUp className="w-4 h-4 text-purple-600" />
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Current Tasks
           </h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="text-center p-3 bg-signal-50 dark:bg-signal-900/20 rounded-lg">
-            <div className="text-xl font-bold text-signal-600">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="text-center p-2 bg-signal-50 dark:bg-signal-900/20 rounded">
+            <div className="text-lg font-semibold text-signal-600">
               {signalTasks.length}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-xs text-gray-600 dark:text-gray-400">
               Signal
             </div>
           </div>
           
-          <div className="text-center p-3 bg-noise-50 dark:bg-noise-900/20 rounded-lg">
-            <div className="text-xl font-bold text-noise-600">
+          <div className="text-center p-2 bg-noise-50 dark:bg-noise-900/20 rounded">
+            <div className="text-lg font-semibold text-noise-600">
               {noiseTasks.length}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-xs text-gray-600 dark:text-gray-400">
               Noise
             </div>
           </div>
