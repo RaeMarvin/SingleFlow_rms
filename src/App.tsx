@@ -189,7 +189,7 @@ function AppContent() {
                 <h3 className="text-xl font-semibold text-neutral-800 dark:text-white mb-4">
                   Quick Action
                 </h3>
-                <button className="w-full max-w-md mx-auto block bg-noise-100 text-noise-700 border border-noise-200 rounded-xl py-4 px-6 text-lg font-medium hover:bg-noise-200 transition-colors duration-200">
+                <button className="w-full max-w-md mx-auto block bg-primary-500 text-white border border-primary-600 rounded-xl py-4 px-6 text-lg font-medium hover:bg-primary-600 transition-colors duration-200">
                   Add a task
                 </button>
               </div>
