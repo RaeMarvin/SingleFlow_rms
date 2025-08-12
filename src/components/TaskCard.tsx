@@ -56,7 +56,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
   const priorityColors = {
     high: 'border-signal-400 bg-signal-50 dark:bg-signal-900/20',
     medium: 'border-accent-purple bg-purple-50 dark:bg-purple-900/20',
-    low: 'border-accent-coral bg-red-50 dark:bg-red-900/20',
+    low: 'border-accent-coral bg-noise-50 dark:bg-noise-900/20',
   };
 
   const categoryColors = {
@@ -91,7 +91,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
               task.priority === 'high' ? 'bg-signal-100 text-signal-700 border border-signal-200' :
               task.priority === 'medium' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 
-              'bg-red-100 text-red-700 border border-red-200'
+              'bg-noise-100 text-noise-700 border border-noise-200'
             }`}>
               {task.priority === 'high' ? 'High' : task.priority === 'medium' ? 'Medium' : 'Low'}
             </span>
@@ -127,7 +127,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
             e.stopPropagation();
             deleteTask(task.id);
           }}
-          className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-200 p-1"
+          className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-noise-500 transition-all duration-200 p-1"
         >
           <Trash2 className="w-4 h-4" />
         </button>

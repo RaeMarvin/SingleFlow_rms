@@ -133,7 +133,7 @@ const IdeaCard: React.FC<IdeaCardProps> = ({ idea, onPromote, onDelete }) => (
         )}
         <button
           onClick={onDelete}
-          className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+          className="p-1 text-gray-400 hover:text-noise-600 dark:hover:text-noise-400"
           title="Delete Idea"
         >
           <Trash2 className="w-4 h-4" />

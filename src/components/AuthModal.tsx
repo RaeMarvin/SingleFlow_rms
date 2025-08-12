@@ -86,7 +86,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="mb-4 p-3 bg-noise-100 border border-noise-400 text-noise-700 rounded">
             {error}
           </div>
         )}

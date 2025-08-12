@@ -32,16 +32,16 @@ export default {
           900: '#14532d',
         },
         noise: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
+          50: '#faf9fc',
+          100: '#f4f1f8',
+          200: '#ebe5f0',
+          300: '#ddd0e6',
+          400: '#c9b3d9',
+          500: '#b7a6d6', // Desaturated lilac
+          600: '#a08cc7',
+          700: '#8975b3',
+          800: '#70619a',
+          900: '#5c507e',
         },
         accent: {
           purple: '#a78bfa', // Medium purple from image

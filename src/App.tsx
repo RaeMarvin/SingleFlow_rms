@@ -171,7 +171,7 @@ function AppContent() {
                       <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
                       <span className="text-neutral-800 dark:text-white font-medium">Task</span>
                     </div>
-                    <span className="px-3 py-1 bg-red-100 text-red-700 text-sm font-medium rounded-full border border-red-200">
+                    <span className="px-3 py-1 bg-noise-100 text-noise-700 text-sm font-medium rounded-full border border-noise-200">
                       Low
                     </span>
                   </div>
@@ -183,7 +183,7 @@ function AppContent() {
                 <h3 className="text-xl font-semibold text-neutral-800 dark:text-white mb-4">
                   Quick Action
                 </h3>
-                <button className="w-full max-w-md mx-auto block bg-red-100 text-red-700 border border-red-200 rounded-xl py-4 px-6 text-lg font-medium hover:bg-red-200 transition-colors duration-200">
+                <button className="w-full max-w-md mx-auto block bg-noise-100 text-noise-700 border border-noise-200 rounded-xl py-4 px-6 text-lg font-medium hover:bg-noise-200 transition-colors duration-200">
                   Add a task
                 </button>
               </div>
