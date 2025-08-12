@@ -1,11 +1,8 @@
-import { Target, TrendingUp, CheckCircle, Circle } from 'lucide-react';
+import { Target, CheckCircle, Circle } from 'lucide-react';
 import useSupabaseStore from '../store/useSupabaseStore';
 
 const StatsPanel: React.FC = () => {
-  const { stats, tasks, dailyGoal } = useSupabaseStore();
-  
-  const signalTasks = tasks.filter(t => t.category === 'signal' && !t.completed).length;
-  const noiseTasks = tasks.filter(t => t.category === 'noise' && !t.completed).length;
+  const { stats, dailyGoal } = useSupabaseStore();
   
   const progressPercentage = Math.min((stats.totalCompleted / dailyGoal.totalTasks) * 100, 100);
   // Use completedSignalRatio for today's completed tasks ratio
@@ -101,36 +98,6 @@ const StatsPanel: React.FC = () => {
                 {signalRatioPercentage >= 80 ? 'Great!' :
                  signalRatioPercentage >= 60 ? 'Good' : 'Focus on Signal'}
               </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Current Tasks Overview */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <TrendingUp className="w-6 h-6 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Current Tasks
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center p-3 bg-signal-50 dark:bg-signal-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-signal-600">
-              {signalTasks}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Signal
-            </div>
-          </div>
-          
-          <div className="text-center p-3 bg-noise-50 dark:bg-noise-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-noise-600">
-              {noiseTasks}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Noise
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@ import {
   SortableContext, 
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { Signal, Volume2 } from 'lucide-react';
+import { Signal, Volume2, TrendingUp } from 'lucide-react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import TaskCard from './TaskCard';
 
@@ -16,13 +16,34 @@ const TaskBoard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Task Board
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          Drag tasks between Signal and Noise categories
-        </p>
+      {/* Current Tasks Overview */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+        <div className="flex items-center space-x-3 mb-3">
+          <TrendingUp className="w-5 h-5 text-purple-600" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Current Tasks
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="text-center p-3 bg-signal-50 dark:bg-signal-900/20 rounded-lg">
+            <div className="text-xl font-bold text-signal-600">
+              {signalTasks.length}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Signal
+            </div>
+          </div>
+          
+          <div className="text-center p-3 bg-noise-50 dark:bg-noise-900/20 rounded-lg">
+            <div className="text-xl font-bold text-noise-600">
+              {noiseTasks.length}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Noise
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
