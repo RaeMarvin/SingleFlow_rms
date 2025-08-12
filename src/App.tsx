@@ -61,7 +61,7 @@ function AppContent() {
     const activeTask = tasks.find(t => t.id === activeId);
     if (!activeTask) return;
     
-    // Check if this is cross-column movement (dropping on signal/noise)
+    // Check if this is cross-column movement (dropping on signal/noise column headers)
     if (overId === 'signal' || overId === 'noise') {
       if (activeTask.category !== overId) {
         moveTask(activeId, overId);
@@ -69,21 +69,29 @@ function AppContent() {
       return;
     }
     
-    // Check if this is within-column reordering (dropping on another task)
+    // Check if dropping on another task
     const overTask = tasks.find(t => t.id === overId);
-    if (overTask && activeTask.category === overTask.category) {
-      // Get all tasks in this category, sorted by order
-      const categoryTasks = tasks
-        .filter(t => t.category === activeTask.category)
-        .sort((a, b) => a.order - b.order);
+    if (overTask) {
+      // Cross-category movement - if dropping on a task in a different category
+      if (activeTask.category !== overTask.category) {
+        moveTask(activeId, overTask.category);
+        return;
+      }
       
-      const oldIndex = categoryTasks.findIndex(t => t.id === activeId);
-      const newIndex = categoryTasks.findIndex(t => t.id === overId);
-      
-      if (oldIndex !== newIndex) {
-        const reorderedTasks = arrayMove(categoryTasks, oldIndex, newIndex);
-        const taskIds = reorderedTasks.map(t => t.id);
-        reorderTasks(activeTask.category, taskIds);
+      // Same-category reordering - if dropping on a task in the same category
+      if (activeTask.category === overTask.category) {
+        const categoryTasks = tasks
+          .filter(t => t.category === activeTask.category)
+          .sort((a, b) => a.order - b.order);
+        
+        const oldIndex = categoryTasks.findIndex(t => t.id === activeId);
+        const newIndex = categoryTasks.findIndex(t => t.id === overId);
+        
+        if (oldIndex !== newIndex) {
+          const reorderedTasks = arrayMove(categoryTasks, oldIndex, newIndex);
+          const taskIds = reorderedTasks.map(t => t.id);
+          reorderTasks(activeTask.category, taskIds);
+        }
       }
     }
   }
@@ -232,7 +240,7 @@ function AppContent() {
             
             <DragOverlay>
               {activeTask && (
-                <div className="rotate-6 opacity-90">
+                <div className="rotate-3 opacity-95 scale-110 transition-transform cursor-grabbing">
                   <TaskCard task={activeTask} isDragging />
                 </div>
               )}

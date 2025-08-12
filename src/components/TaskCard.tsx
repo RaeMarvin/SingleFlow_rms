@@ -89,7 +89,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false }) => {
       style={style}
       className={`
         group relative bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-200
-        ${isDragActive || isDragging ? 'shadow-xl rotate-1 scale-105 z-50' : 'hover:shadow-md'}
+        ${isDragging ? 'shadow-xl' : isDragActive ? 'shadow-xl rotate-1 scale-105 z-50' : 'hover:shadow-md'}
         ${task.completed ? 'opacity-75' : ''}
       `}
     >
