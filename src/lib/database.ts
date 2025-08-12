@@ -312,23 +312,30 @@ export const settingsService = {
     const userId = await getUserId();
     if (!userId) return false;
     
-    const { error } = await supabase
-      .from('user_settings')
-      .upsert({
-        user_id: userId,
-        dark_mode: settings.darkMode,
-        notifications: settings.notifications,
-        daily_review_time: settings.dailyReviewTime,
-        daily_goal_signal_ratio: settings.dailyGoal?.signalRatio || 0.8,
-        daily_goal_total_tasks: settings.dailyGoal?.totalTasks || 10,
-        updated_at: new Date().toISOString(),
-      });
+    try {
+      const { error } = await supabase
+        .from('user_settings')
+        .upsert({
+          user_id: userId,
+          dark_mode: settings.darkMode,
+          notifications: settings.notifications,
+          daily_review_time: settings.dailyReviewTime,
+          daily_goal_signal_ratio: settings.dailyGoal?.signalRatio || 0.8,
+          daily_goal_total_tasks: settings.dailyGoal?.totalTasks || 10,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id'
+        });
 
-    if (error) {
-      console.error('Error updating settings:', error);
+      if (error) {
+        console.error('Error updating settings:', error);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error('Failed to update settings in Supabase:', err);
       return false;
     }
-
-    return true;
   },
 };
