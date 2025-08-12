@@ -1,8 +1,12 @@
-import { Target, CheckCircle, Circle } from 'lucide-react';
+import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb } from 'lucide-react';
+import { useState } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
+import { Task } from '../types';
 
 const StatsPanel: React.FC = () => {
-  const { stats, dailyGoal } = useSupabaseStore();
+  const { stats, dailyGoal, tasks, ideas } = useSupabaseStore();
+  const [showCompletedTasks, setShowCompletedTasks] = useState(false);
+  const [showIdeas, setShowIdeas] = useState(false);
   
   const progressPercentage = Math.min((stats.totalCompleted / dailyGoal.totalTasks) * 100, 100);
   // Use completedSignalRatio for today's completed tasks ratio
@@ -102,6 +106,20 @@ const StatsPanel: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Completed Tasks Dropdown */}
+      <CompletedTasksDropdown 
+        tasks={tasks}
+        isOpen={showCompletedTasks}
+        onToggle={() => setShowCompletedTasks(!showCompletedTasks)}
+      />
+
+      {/* Ideas Dropdown */}
+      <IdeasDropdown 
+        ideas={ideas}
+        isOpen={showIdeas}
+        onToggle={() => setShowIdeas(!showIdeas)}
+      />
     </div>
   );
 };
@@ -126,5 +144,146 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color }) => (
     </span>
   </div>
 );
+
+interface CompletedTasksDropdownProps {
+  tasks: Task[];
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, isOpen, onToggle }) => {
+  // Filter for completed tasks this week
+  const getMonday = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    d.setDate(diff);
+    return d;
+  };
+
+  const getSunday = (monday: Date) => {
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    return sunday;
+  };
+
+  const today = new Date();
+  const weekStart = getMonday(new Date(today));
+  const weekEnd = getSunday(new Date(weekStart));
+
+  const completedThisWeek = tasks.filter(task => {
+    if (!task.completed) return false;
+    const completedDate = task.completedAt ? new Date(task.completedAt) : new Date(task.createdAt);
+    return completedDate >= weekStart && completedDate <= weekEnd;
+  });
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 rounded-xl"
+      >
+        <div className="flex items-center space-x-3">
+          <CheckCircle className="w-5 h-5 text-signal-600" />
+          <span className="font-medium text-gray-900 dark:text-white">
+            Completed Tasks ({completedThisWeek.length})
+          </span>
+        </div>
+        {isOpen ? (
+          <ChevronDown className="w-5 h-5 text-gray-400" />
+        ) : (
+          <ChevronRight className="w-5 h-5 text-gray-400" />
+        )}
+      </button>
+      
+      {isOpen && (
+        <div className="px-4 pb-4 space-y-2 max-h-60 overflow-y-auto">
+          {completedThisWeek.length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">
+              No tasks completed this week yet.
+            </p>
+          ) : (
+            completedThisWeek.map(task => (
+              <div key={task.id} className="flex items-start space-x-3 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <CheckCircle className="w-4 h-4 text-signal-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-gray-800 dark:text-white text-sm line-through">
+                    {task.title}
+                  </h4>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                      task.category === 'signal' 
+                        ? 'text-signal-600 bg-signal-50 border border-signal-200' 
+                        : 'text-noise-600 bg-noise-50 border border-noise-200'
+                    }`}>
+                      {task.category}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+interface IdeasDropdownProps {
+  ideas: any[];
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle }) => {
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 rounded-xl"
+      >
+        <div className="flex items-center space-x-3">
+          <Lightbulb className="w-5 h-5 text-yellow-600" />
+          <span className="font-medium text-gray-900 dark:text-white">
+            Ideas ({ideas.length})
+          </span>
+        </div>
+        {isOpen ? (
+          <ChevronDown className="w-5 h-5 text-gray-400" />
+        ) : (
+          <ChevronRight className="w-5 h-5 text-gray-400" />
+        )}
+      </button>
+      
+      {isOpen && (
+        <div className="px-4 pb-4 space-y-2 max-h-60 overflow-y-auto">
+          {ideas.length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">
+              No ideas captured yet.
+            </p>
+          ) : (
+            ideas.map(idea => (
+              <div key={idea.id} className="flex items-start space-x-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <Lightbulb className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-800 dark:text-white">
+                    {idea.content}
+                  </p>
+                  {idea.createdAt && (
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(idea.createdAt).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default StatsPanel;

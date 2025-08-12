@@ -7,11 +7,9 @@ import {
   TaskBoard, 
   Header, 
   StatsPanel, 
-  IdeaParkingLot, 
   WeeklyReviewModal, 
   TaskCard,
-  DebugPanel,
-  CompletedTasksThisWeek
+  DebugPanel
 } from './components';
 import { Task } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -219,7 +217,7 @@ function AppContent() {
             <Header onShowWeeklyReview={() => setShowWeeklyReview(true)} />
             
             <main className="container mx-auto px-4 py-8">
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Stats Panel */}
                 <div className="lg:col-span-1">
                   <StatsPanel />
@@ -228,12 +226,6 @@ function AppContent() {
                 {/* Task Board */}
                 <div className="lg:col-span-2">
                   <TaskBoard />
-                </div>
-                
-                {/* Right Column - Ideas and Completed Tasks */}
-                <div className="lg:col-span-1 space-y-6">
-                  <IdeaParkingLot />
-                  <CompletedTasksThisWeek />
                 </div>
               </div>
             </main>
