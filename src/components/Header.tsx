@@ -55,7 +55,10 @@ const Header: React.FC<HeaderProps> = ({ onShowWeeklyReview }) => {
               {user && (
                 <button
                   onClick={() => setShowAddTask(true)}
-                  className="inline-flex items-center px-6 py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="inline-flex items-center px-6 py-2.5 text-white rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                  style={{backgroundColor: '#7dc3ff'}}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#6bb6ff'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7dc3ff'}
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add a task
@@ -119,7 +122,10 @@ const Header: React.FC<HeaderProps> = ({ onShowWeeklyReview }) => {
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="bg-primary-500 text-white px-6 py-2.5 rounded-full hover:bg-primary-600 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="text-white px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                  style={{backgroundColor: '#7dc3ff'}}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#6bb6ff'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7dc3ff'}
                 >
                   Login
                 </button>
