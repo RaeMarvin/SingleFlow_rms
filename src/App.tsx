@@ -189,7 +189,7 @@ function AppContent() {
                 <h3 className="text-xl font-semibold text-neutral-800 dark:text-white mb-4">
                   Quick Action
                 </h3>
-                <button className="w-full max-w-md mx-auto block bg-primary-500 text-white border border-primary-600 rounded-xl py-4 px-6 text-lg font-medium hover:bg-primary-600 transition-colors duration-200">
+                <button className="w-full max-w-md mx-auto block text-white border rounded-xl py-4 px-6 text-lg font-medium transition-colors duration-200" style={{backgroundColor: '#7dc3ff', borderColor: '#6bb6ff'}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#6bb6ff'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7dc3ff'}>
                   Add a task
                 </button>
               </div>
