@@ -225,14 +225,14 @@ function AppContent() {
             <Header onShowWeeklyReview={() => setShowWeeklyReview(true)} />
             
             <main className="container mx-auto px-4 py-8">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Stats Panel */}
                 <div className="lg:col-span-1">
                   <StatsPanel />
                 </div>
                 
                 {/* Task Board */}
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-3">
                   <TaskBoard />
                 </div>
               </div>
