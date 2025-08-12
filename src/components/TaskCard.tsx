@@ -2,7 +2,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Check, Trash2 } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
 
@@ -102,7 +102,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   };
 
   // Handle mouse down (start of potential drag or click)
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = () => {
     dragStartTimeRef.current = Date.now();
     setIsDragStarted(false);
     
