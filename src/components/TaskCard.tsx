@@ -1,7 +1,8 @@
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, Trash2, GripVertical } from 'lucide-react';
+import { Check, Trash2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
 
@@ -13,7 +14,9 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
   const { toggleTaskComplete, deleteTask } = useSupabaseStore();
-  
+  const [isDragStarted, setIsDragStarted] = useState(false);
+  const dragStartTimeRef = useRef<number>(0);
+
   // Use sortable for within-column reordering
   const {
     attributes: sortableAttributes,
@@ -42,7 +45,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     setDraggableNodeRef(node);
   };
 
-  // Combine attributes and listeners (prefer sortable for within-column sorting)
+  // Combine attributes and listeners
   const attributes = { ...draggableAttributes, ...sortableAttributes };
   const listeners = { ...draggableListeners, ...sortableListeners };
   
@@ -84,30 +87,61 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     }
   };
 
+  // Handle task click (for opening modal)
+  const handleTaskClick = (e: React.MouseEvent) => {
+    // Only handle click if:
+    // 1. We have a click handler
+    // 2. We're not currently dragging
+    // 3. The click was quick (not a long press/drag)
+    const clickDuration = Date.now() - dragStartTimeRef.current;
+    
+    if (onTaskClick && !isDragStarted && !isDragActive && clickDuration < 200) {
+      e.stopPropagation();
+      onTaskClick(task);
+    }
+  };
+
+  // Handle mouse down (start of potential drag or click)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    dragStartTimeRef.current = Date.now();
+    setIsDragStarted(false);
+    
+    // Set drag started flag after a delay
+    setTimeout(() => {
+      const duration = Date.now() - dragStartTimeRef.current;
+      if (duration >= 150) { // If mouse has been down for 150ms, consider it a drag
+        setIsDragStarted(true);
+      }
+    }, 150);
+  };
+
+  // Handle mouse up (end of drag or click)
+  const handleMouseUp = () => {
+    setTimeout(() => {
+      setIsDragStarted(false);
+    }, 50);
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
       className={`
         group relative rounded-xl p-4 border border-gray-200 shadow-sm transition-all duration-200
         ${task.category === 'noise' ? 'bg-gray-50' : 'bg-white'}
         ${isDragging ? 'shadow-xl' : isDragActive ? 'shadow-xl rotate-1 scale-105 z-50' : 'hover:shadow-md'}
         ${task.completed ? 'opacity-75' : ''}
+        cursor-grab active:cursor-grabbing
       `}
+      {...listeners}
+      {...attributes}
     >
       {/* Main content area */}
-      <div className="flex items-center justify-between">
-        {/* Left side - drag handle, checkbox and task info */}
+      <div className="flex items-center justify-between" onClick={handleTaskClick}>
+        {/* Left side - checkbox and task info */}
         <div className="flex items-center space-x-3 flex-1 min-w-0">
-          {/* Drag handle */}
-          <div
-            {...listeners}
-            {...attributes}
-            className="cursor-grab active:cursor-grabbing flex-shrink-0"
-          >
-            <GripVertical className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-50" />
-          </div>
-          
           {/* Circular checkbox */}
           <button
             onClick={(e) => {
@@ -128,16 +162,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
             )}
           </button>
 
-          {/* Task content - clickable */}
-          <div 
-            className="flex-1 min-w-0 cursor-pointer"
-            onClick={(e) => {
-              if (onTaskClick && !isDragActive) {
-                e.stopPropagation();
-                onTaskClick(task);
-              }
-            }}
-          >
+          {/* Task content */}
+          <div className="flex-1 min-w-0">
             <h3 className={`
               font-medium text-neutral-800 text-sm leading-tight
               ${task.completed ? 'line-through text-gray-500' : ''}
