@@ -3,7 +3,11 @@ import { useState } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
 
-const StatsPanel: React.FC = () => {
+interface StatsPanelProps {
+  onTaskClick?: (task: Task) => void;
+}
+
+const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const { stats, dailyGoal, tasks, ideas, addIdea, deleteIdea, promoteIdea } = useSupabaseStore();
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
@@ -115,6 +119,7 @@ const StatsPanel: React.FC = () => {
         tasks={tasks}
         isOpen={showCompletedTasks}
         onToggle={() => setShowCompletedTasks(!showCompletedTasks)}
+        onTaskClick={onTaskClick}
       />
 
       {/* Ideas Dropdown */}
@@ -155,9 +160,10 @@ interface CompletedTasksDropdownProps {
   tasks: Task[];
   isOpen: boolean;
   onToggle: () => void;
+  onTaskClick?: (task: Task) => void;
 }
 
-const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, isOpen, onToggle }) => {
+const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, isOpen, onToggle, onTaskClick }) => {
   // Filter for completed tasks this week
   const getMonday = (date: Date) => {
     const d = new Date(date);
@@ -207,15 +213,21 @@ const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, 
       {isOpen && (
         <div className="px-4 pb-4 space-y-2 max-h-60 overflow-y-auto">
           {completedThisWeek.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">
+            <p className="text-sm text-gray-500 py-4 text-center">
               No tasks completed this week yet.
             </p>
           ) : (
             completedThisWeek.map(task => (
-              <div key={task.id} className="flex items-start space-x-3 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div 
+                key={task.id} 
+                className={`flex items-start space-x-3 p-2 bg-gray-50 rounded-lg transition-colors ${
+                  onTaskClick ? 'cursor-pointer hover:bg-gray-100' : ''
+                }`}
+                onClick={() => onTaskClick?.(task)}
+              >
                 <CheckCircle className="w-4 h-4 text-signal-500 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-gray-800 dark:text-white text-sm line-through">
+                  <h4 className="font-medium text-gray-800 text-sm line-through">
                     {task.title}
                   </h4>
                   <div className="flex items-center space-x-2 mt-1">

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Check, Signal, Volume2, Lightbulb, Trash2 } from 'lucide-react';
+import { X, Check, Signal, Volume2, Lightbulb, Trash2, Undo } from 'lucide-react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
 
@@ -42,10 +42,34 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
       await toggleTaskComplete(task.id);
       onClose();
     } catch (error) {
-      console.error('Error completing task:', error);
+      console.error('Error toggling task completion:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleMarkIncomplete = async () => {
+    setIsLoading(true);
+    try {
+      // Determine the category based on priority tag
+      const targetCategory = getOriginalCategory(priority);
+      
+      // Update the task to be incomplete and move to the correct category
+      await updateTask(task.id, {
+        completed: false,
+        category: targetCategory
+      });
+      onClose();
+    } catch (error) {
+      console.error('Error marking task as incomplete:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getOriginalCategory = (taskPriority: string): 'signal' | 'noise' => {
+    // High priority tasks go to Signal, Medium and Low go to Noise
+    return taskPriority === 'high' ? 'signal' : 'noise';
   };
 
   const handleMoveToIdea = async () => {
@@ -189,9 +213,14 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
           {/* Current Status */}
           {task.completed && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <div className="flex items-center text-green-700">
-                <Check className="w-4 h-4 mr-2" />
-                <span className="text-sm font-medium">Task Completed</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-green-700">
+                  <Check className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-medium">Task Completed</span>
+                </div>
+                <div className="text-xs text-green-600">
+                  Will restore to: {getOriginalCategory(priority) === 'signal' ? 'Signal' : 'Noise'}
+                </div>
               </div>
             </div>
           )}
@@ -208,13 +237,23 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
             >
               {isLoading ? 'Saving...' : 'Save Changes'}
             </button>
-            {!task.completed && (
+            {!task.completed ? (
               <button
                 onClick={handleComplete}
                 disabled={isLoading}
                 className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 transition-colors"
+                title="Mark as Complete"
               >
                 <Check className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={handleMarkIncomplete}
+                disabled={isLoading}
+                className="flex items-center justify-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-300 transition-colors"
+                title="Mark as Incomplete"
+              >
+                <Undo className="w-4 h-4" />
               </button>
             )}
           </div>

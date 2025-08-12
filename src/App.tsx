@@ -224,7 +224,7 @@ function AppContent() {
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Stats Panel */}
                 <div className="lg:col-span-1">
-                  <StatsPanel />
+                  <StatsPanel onTaskClick={(task) => setSelectedTask(task)} />
                 </div>
                 
                 {/* Task Board */}
