@@ -77,13 +77,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     
     switch (task.priority) {
       case 'high':
-        return 'border-signal-500';
+        return 'border-signal-400 bg-white hover:border-signal-500';
       case 'medium':
-        return 'border-purple-500';
+        return 'border-purple-400 bg-white hover:border-purple-500';
       case 'low':
-        return 'border-noise-500';
+        return 'border-noise-400 bg-white hover:border-noise-500';
       default:
-        return 'border-gray-300';
+        return 'border-gray-300 bg-white hover:border-gray-400';
     }
   };
 
