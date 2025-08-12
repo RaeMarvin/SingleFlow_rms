@@ -2,7 +2,6 @@ import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Check, Trash2 } from 'lucide-react';
-import { useState, useRef } from 'react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
 
@@ -14,8 +13,6 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
   const { toggleTaskComplete, deleteTask } = useSupabaseStore();
-  const [isDragStarted, setIsDragStarted] = useState(false);
-  const dragStartTimeRef = useRef<number>(0);
 
   // Use sortable for within-column reordering
   const {
@@ -87,47 +84,18 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     }
   };
 
-  // Handle task click (for opening modal)
-  const handleTaskClick = (e: React.MouseEvent) => {
-    // Only handle click if:
-    // 1. We have a click handler
-    // 2. We're not currently dragging
-    // 3. The click was quick (not a long press/drag)
-    const clickDuration = Date.now() - dragStartTimeRef.current;
-    
-    if (onTaskClick && !isDragStarted && !isDragActive && clickDuration < 200) {
-      e.stopPropagation();
+  // Handle double click to open task detail modal
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onTaskClick) {
       onTaskClick(task);
     }
-  };
-
-  // Handle mouse down (start of potential drag or click)
-  const handleMouseDown = () => {
-    dragStartTimeRef.current = Date.now();
-    setIsDragStarted(false);
-    
-    // Set drag started flag after a delay
-    setTimeout(() => {
-      const duration = Date.now() - dragStartTimeRef.current;
-      if (duration >= 150) { // If mouse has been down for 150ms, consider it a drag
-        setIsDragStarted(true);
-      }
-    }, 150);
-  };
-
-  // Handle mouse up (end of drag or click)
-  const handleMouseUp = () => {
-    setTimeout(() => {
-      setIsDragStarted(false);
-    }, 50);
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
       className={`
         group relative rounded-xl p-4 border border-gray-200 shadow-sm transition-all duration-200
         ${task.category === 'noise' ? 'bg-gray-50' : 'bg-white'}
@@ -139,7 +107,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
       {...attributes}
     >
       {/* Main content area */}
-      <div className="flex items-center justify-between" onClick={handleTaskClick}>
+      <div 
+        className="flex items-center justify-between" 
+        onDoubleClick={handleDoubleClick}
+        title="Double-click to edit task"
+      >
         {/* Left side - checkbox and task info */}
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           {/* Circular checkbox */}
