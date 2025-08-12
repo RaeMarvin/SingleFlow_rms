@@ -1,12 +1,15 @@
-import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus, X } from 'lucide-react';
+import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus, X, Signal, Volume2 } from 'lucide-react';
 import { useState } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
 
 const StatsPanel: React.FC = () => {
-  const { stats, dailyGoal, tasks, ideas, addIdea, deleteIdea } = useSupabaseStore();
+  const { stats, dailyGoal, tasks, ideas, addIdea, deleteIdea, promoteIdea } = useSupabaseStore();
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
+  
+  // Filter out promoted ideas
+  const availableIdeas = ideas.filter(idea => !idea.promoted);
   
   const progressPercentage = Math.min((stats.totalCompleted / dailyGoal.totalTasks) * 100, 100);
   // Use completedSignalRatio for today's completed tasks ratio
@@ -116,11 +119,12 @@ const StatsPanel: React.FC = () => {
 
       {/* Ideas Dropdown */}
       <IdeasDropdown 
-        ideas={ideas}
+        ideas={availableIdeas}
         isOpen={showIdeas}
         onToggle={() => setShowIdeas(!showIdeas)}
         onAddIdea={addIdea}
         onDeleteIdea={deleteIdea}
+        onPromoteIdea={promoteIdea}
       />
     </div>
   );
@@ -234,14 +238,15 @@ const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, 
 };
 
 interface IdeasDropdownProps {
-  ideas: { id: string; title: string; description?: string; createdAt: Date }[];
+  ideas: any[];
   isOpen: boolean;
   onToggle: () => void;
   onAddIdea: (idea: { title: string; description?: string }) => void;
   onDeleteIdea: (id: string) => void;
+  onPromoteIdea: (id: string, category: 'signal' | 'noise') => void;
 }
 
-const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle, onAddIdea, onDeleteIdea }) => {
+const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle, onAddIdea, onDeleteIdea, onPromoteIdea }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newIdea, setNewIdea] = useState({ title: '', description: '' });
 
@@ -259,6 +264,10 @@ const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle, 
 
   const handleDeleteIdea = (id: string) => {
     onDeleteIdea(id);
+  };
+
+  const handlePromoteIdea = (id: string, category: 'signal' | 'noise') => {
+    onPromoteIdea(id, category);
   };
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
@@ -356,13 +365,29 @@ const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle, 
                       </span>
                     )}
                   </div>
-                  <button
-                    onClick={() => handleDeleteIdea(idea.id)}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-all duration-200"
-                    title="Delete idea"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handlePromoteIdea(idea.id, 'signal')}
+                      className="p-1 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/20 rounded transition-colors duration-200"
+                      title="Promote to Signal task"
+                    >
+                      <Signal className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handlePromoteIdea(idea.id, 'noise')}
+                      className="p-1 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors duration-200"
+                      title="Promote to Noise task"
+                    >
+                      <Volume2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteIdea(idea.id)}
+                      className="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors duration-200"
+                      title="Delete idea"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))
             )}

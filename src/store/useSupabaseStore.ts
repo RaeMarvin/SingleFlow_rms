@@ -191,14 +191,14 @@ const useSupabaseStore = create<Store & {
     }
   },
 
-  promoteIdea: async (id) => {
+  promoteIdea: async (id: string, category: 'signal' | 'noise' = 'signal') => {
     const idea = get().ideas.find((i) => i.id === id);
     if (idea) {
       // Create the task
       await get().addTask({
         title: idea.title,
         description: idea.description,
-        category: 'signal',
+        category,
         priority: 'medium',
         completed: false,
       });
