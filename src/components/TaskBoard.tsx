@@ -55,7 +55,7 @@ const TaskBoard: React.FC = () => {
           icon={<Signal className="w-5 h-5" />}
           tasks={signalTasks}
           colorClass="border-signal-300 bg-signal-50 dark:bg-signal-900/10"
-          headerClass="bg-signal-600"
+          headerClass="bg-signal-600 text-white"
         />
 
         {/* Noise Column */}
@@ -66,7 +66,7 @@ const TaskBoard: React.FC = () => {
           icon={<Volume2 className="w-5 h-5" />}
           tasks={noiseTasks}
           colorClass="border-noise-300 bg-noise-50 dark:bg-noise-900/10"
-          headerClass="bg-noise-600"
+          headerClass="bg-purple-100 text-purple-700"
         />
       </div>
     </div>
@@ -109,7 +109,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
       `}
     >
       {/* Column Header */}
-      <div className={`${headerClass} text-white p-4 rounded-t-lg flex items-center space-x-3`}>
+      <div className={`${headerClass} p-4 rounded-t-lg flex items-center space-x-3`}>
         {icon}
         <div>
           <h3 className="font-semibold text-lg">{title}</h3>
