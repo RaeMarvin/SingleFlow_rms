@@ -29,7 +29,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
           </h2>
         </div>
 
-        {/* Progress Ring */}
+        {/* Fozzle Score Ring - Signal Percentage */}
         <div className="flex items-center justify-center mb-6">
           <div className="relative w-32 h-32">
             <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
@@ -49,17 +49,20 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
                 stroke="currentColor"
                 strokeWidth="8"
                 fill="none"
-                strokeDasharray={`${progressPercentage * 3.14} 314`}
-                className="text-primary-500 transition-all duration-500"
+                strokeDasharray={`${signalRatioPercentage * 3.14} 314`}
+                className={`transition-all duration-500 ${
+                  signalRatioPercentage >= 80 ? 'text-signal-500' :
+                  signalRatioPercentage >= 60 ? 'text-primary-500' : 'text-noise-500'
+                }`}
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
                 <div className="text-2xl font-bold text-neutral-800">
-                  {stats.totalCompleted}
+                  {signalRatioPercentage.toFixed(0)}%
                 </div>
                 <div className="text-sm text-neutral-500">
-                  completed today
+                  Fozzle Score
                 </div>
               </div>
             </div>
@@ -82,32 +85,32 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
             color="text-noise-600"
           />
 
-          <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="pt-3 border-t border-gray-200">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Today's Signal Ratio
+              <span className="text-sm font-medium text-gray-700">
+                Tasks Completed Today
               </span>
-              <span className="text-sm font-bold text-gray-900 dark:text-white">
-                {signalRatioPercentage.toFixed(0)}%
+              <span className="text-sm font-bold text-gray-900">
+                {stats.totalCompleted} / {dailyGoal.totalTasks}
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className={`h-2 rounded-full transition-all duration-500 ${
-                  signalRatioPercentage >= 80 ? 'bg-signal-500' :
-                  signalRatioPercentage >= 60 ? 'bg-primary-500' : 'bg-noise-500'
+                  progressPercentage >= 100 ? 'bg-signal-500' :
+                  progressPercentage >= 80 ? 'bg-primary-500' : 'bg-noise-500'
                 }`}
-                style={{ width: `${signalRatioPercentage}%` }}
+                style={{ width: `${progressPercentage}%` }}
               />
             </div>
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-              <span>Target: 80%</span>
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>Goal: {dailyGoal.totalTasks}</span>
               <span className={
-                signalRatioPercentage >= 80 ? 'text-signal-600' :
-                signalRatioPercentage >= 60 ? 'text-primary-600' : 'text-noise-600'
+                progressPercentage >= 100 ? 'text-signal-600' :
+                progressPercentage >= 80 ? 'text-primary-600' : 'text-noise-600'
               }>
-                {signalRatioPercentage >= 80 ? 'Great!' :
-                 signalRatioPercentage >= 60 ? 'Good' : 'Focus on Signal'}
+                {progressPercentage >= 100 ? 'Goal Achieved!' :
+                 progressPercentage >= 80 ? 'Almost There' : 'Keep Going!'}
               </span>
             </div>
           </div>
