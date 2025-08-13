@@ -51,8 +51,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
   const handleMarkIncomplete = async () => {
     setIsLoading(true);
     try {
-      // Determine the category based on priority tag
-      const targetCategory = getOriginalCategory(priority);
+      // Use the task's original priority to determine category
+      // This ensures consistent behavior regardless of current form state
+      const targetCategory = getOriginalCategory(task.priority);
+      
+      console.log('Marking incomplete - Original priority:', task.priority, 'Target category:', targetCategory);
       
       // Update the task to be incomplete and move to the correct category
       await updateTask(task.id, {
