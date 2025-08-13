@@ -46,12 +46,12 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
                 cx="60"
                 cy="60"
                 r="50"
-                stroke="currentColor"
+                stroke={signalRatioPercentage >= 80 ? '#7dc3ff' : 'currentColor'}
                 strokeWidth="8"
                 fill="none"
                 strokeDasharray={`${signalRatioPercentage * 3.14} 314`}
                 className={`transition-all duration-500 ${
-                  signalRatioPercentage >= 80 ? 'text-signal-500' :
+                  signalRatioPercentage >= 80 ? '' :
                   signalRatioPercentage >= 60 ? 'text-primary-500' : 'text-noise-500'
                 }`}
               />
