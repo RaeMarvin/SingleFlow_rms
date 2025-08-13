@@ -51,16 +51,14 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
   const handleMarkIncomplete = async () => {
     setIsLoading(true);
     try {
-      // Use the task's original priority to determine category
-      // This ensures consistent behavior regardless of current form state
-      const targetCategory = getOriginalCategory(task.priority);
+      // Use the category selected by the user in the modal
+      // This allows users to choose where they want the task restored to
+      console.log('Marking incomplete - User selected category:', category);
       
-      console.log('Marking incomplete - Original priority:', task.priority, 'Target category:', targetCategory);
-      
-      // Update the task to be incomplete and move to the correct category
+      // Update the task to be incomplete and move to the user-selected category
       await updateTask(task.id, {
         completed: false,
-        category: targetCategory
+        category: category // Use the category from the modal state
       });
       onClose();
     } catch (error) {
@@ -68,11 +66,6 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const getOriginalCategory = (taskPriority: string): 'signal' | 'noise' => {
-    // High priority tasks go to Signal, Medium and Low go to Noise
-    return taskPriority === 'high' ? 'signal' : 'noise';
   };
 
   const handleMoveToIdea = async () => {
@@ -222,7 +215,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
                   <span className="text-sm font-medium">Task Completed</span>
                 </div>
                 <div className="text-xs text-green-600">
-                  Will restore to: {getOriginalCategory(priority) === 'signal' ? 'Signal' : 'Noise'}
+                  Will restore to: {category.charAt(0).toUpperCase() + category.slice(1)}
                 </div>
               </div>
             </div>
