@@ -12,7 +12,7 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
-  const { deleteTask } = useSupabaseStore();
+  const { deleteTask, toggleTaskComplete } = useSupabaseStore();
 
   // Use sortable for within-column reordering
   const {
@@ -88,13 +88,17 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    console.log('Double click detected on task content area');
-    console.log('Double click event target:', e.target);
-    console.log('Double click currentTarget:', e.currentTarget);
     
     if (onTaskClick) {
       onTaskClick(task);
     }
+  };
+
+  // Handle checkbox click
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    toggleTaskComplete(task.id);
   };
 
   return (
@@ -121,14 +125,15 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         <div className="flex items-center justify-between">
           {/* Left side - checkbox and task info */}
           <div className="flex items-center space-x-3 flex-1 min-w-0">
-            {/* Circular checkbox - TEMPORARILY DISABLED FOR DEBUGGING */}
+            {/* Circular checkbox */}
             <div
               className={`
-                w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0
+                w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 cursor-pointer
                 ${getCheckboxColor()}
                 ${task.completed ? '' : 'hover:scale-110'}
               `}
-              title="Checkbox temporarily disabled for debugging"
+              onClick={handleCheckboxClick}
+              title={task.completed ? "Mark as incomplete" : "Mark as complete"}
             >
               {task.completed && (
                 <Check className="w-3 h-3 text-white" strokeWidth={3} />

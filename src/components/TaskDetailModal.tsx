@@ -10,8 +10,6 @@ interface TaskDetailModalProps {
 }
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose }) => {
-  console.log('TaskDetailModal - Rendering with isOpen:', isOpen, 'task:', task.id);
-  
   const { updateTask, deleteTask, toggleTaskComplete, addIdea } = useSupabaseStore();
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
@@ -19,12 +17,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
   const [category, setCategory] = useState(task.category);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!isOpen) {
-    console.log('TaskDetailModal - Not open, returning null');
-    return null;
-  }
-  
-  console.log('TaskDetailModal - Modal is open, rendering modal content');
+  if (!isOpen) return null;
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -35,9 +28,6 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
         priority,
         category
       };
-      
-      console.log('TaskDetailModal - Saving task with updates:', updates);
-      console.log('TaskDetailModal - Original task completed status:', task.completed);
       
       await updateTask(task.id, updates);
       onClose();
@@ -50,7 +40,6 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
 
   const handleComplete = async (e: React.MouseEvent) => {
     // Explicit user click protection
-    console.log('handleComplete - Explicit user click detected');
     e.preventDefault();
     e.stopPropagation();
     

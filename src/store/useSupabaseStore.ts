@@ -80,45 +80,27 @@ const useSupabaseStore = create<Store & {
   },
 
   updateTask: async (id: string, updates: Partial<Task>) => {
-    console.log('useSupabaseStore - updateTask called with:', { id, updates });
-    
-    const task = get().tasks.find(t => t.id === id);
-    if (!task) {
-      console.error('useSupabaseStore - Task not found:', id);
-      return;
-    }
-    
-    console.log('useSupabaseStore - Current task before update:', task);
-    
+    const originalTask = get().tasks.find(t => t.id === id);
+    if (!originalTask) return;
+
     // Optimistic update
-    const updatedTask = { ...task, ...updates };
-    console.log('useSupabaseStore - Updated task (optimistic):', updatedTask);
-    
     set(state => ({
-      ...state,
-      tasks: state.tasks.map(t => t.id === id ? updatedTask : t)
+      tasks: state.tasks.map(task => 
+        task.id === id ? { ...task, ...updates } : task
+      )
     }));
 
     try {
-      const dbTask = await taskService.update(id, updates);
-      console.log('useSupabaseStore - Task from database after update:', dbTask);
-      
-      // Update with database response
-      set(state => ({
-        ...state,
-        tasks: state.tasks.map(t => t.id === id ? dbTask : t)
-      }));
-      
-      get().updateStats();
+      await taskService.update(id, updates);
     } catch (error) {
-      console.error('useSupabaseStore - Error updating task:', error);
-      // Revert optimistic update
+      // Revert on error
+      console.error('Error updating task:', error);
       set(state => ({
-        ...state,
-        tasks: state.tasks.map(t => t.id === id ? task : t)
+        tasks: state.tasks.map(task => 
+          task.id === id ? originalTask : task
+        )
       }));
-      // Reload data to ensure consistency
-      await get().loadData();
+      throw error;
     }
   },
 
@@ -139,18 +121,39 @@ const useSupabaseStore = create<Store & {
     get().updateStats();
   },
 
-  toggleTaskComplete: async (id) => {
-    console.log('toggleTaskComplete called with id:', id);
-    const task = get().tasks.find((t) => t.id === id);
-    console.log('Found task:', task);
-    
-    if (task) {
-      const updates: Partial<Task> = {
-        completed: !task.completed,
-        completedAt: !task.completed ? new Date() : undefined,
-      };
-      console.log('Updating task with:', updates);
-      await get().updateTask(id, updates);
+    toggleTaskComplete: async (id: string) => {
+    const task = get().tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const newCompletedStatus = !task.completed;
+
+    // Optimistic update
+    set(state => ({
+      tasks: state.tasks.map(t => 
+        t.id === id 
+          ? { 
+              ...t, 
+              completed: newCompletedStatus,
+              completed_at: newCompletedStatus ? new Date().toISOString() : null
+            }
+          : t
+      )
+    }));
+
+    try {
+      await taskService.update(id, { 
+        completed: newCompletedStatus,
+        completedAt: newCompletedStatus ? new Date() : undefined
+      });
+    } catch (error) {
+      // Revert on error
+      console.error('Error toggling task completion:', error);
+      set(state => ({
+        tasks: state.tasks.map(t => 
+          t.id === id ? task : t
+        )
+      }));
+      throw error;
     }
   },
 

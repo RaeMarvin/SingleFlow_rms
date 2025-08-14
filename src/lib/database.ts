@@ -49,14 +49,10 @@ export const taskService = {
   },
 
   async create(task: Omit<Task, 'id' | 'createdAt' | 'order'>): Promise<Task | null> {
-    console.log('Creating task in database:', task);
     const userId = await getUserId();
     if (!userId) {
-      console.error('No authenticated user');
       return null;
     }
-    
-    console.log('User ID:', userId);
     
     // First, get all existing tasks in the same category to increment their orders
     const { data: existingTasks, error: fetchError } = await supabase
@@ -83,7 +79,6 @@ export const taskService = {
           console.error('Error updating task order for task:', existingTask.id, updateError);
         }
       }
-      console.log(`Incremented order for ${existingTasks.length} existing tasks`);
     }
 
     const insertData = {
@@ -98,8 +93,6 @@ export const taskService = {
       completed_at: task.completedAt?.toISOString() || null,
       user_id: userId,
     };
-    
-    console.log('Inserting data:', insertData);
 
     const { data, error } = await supabase
       .from('tasks')
@@ -112,13 +105,10 @@ export const taskService = {
       return null;
     }
 
-    console.log('Task created successfully:', data);
     return mapTaskFromDb(data);
   },
 
   async update(id: string, updates: Partial<Task>): Promise<Task> {
-    console.log('database.ts - taskService.update called with:', { id, updates });
-    
     const dbUpdates: Partial<TaskRow> = {
       ...(updates.title !== undefined && { title: updates.title }),
       ...(updates.description !== undefined && { description: updates.description }),
@@ -128,8 +118,6 @@ export const taskService = {
       ...(updates.completedAt !== undefined && { completed_at: updates.completedAt?.toISOString() || null }),
       ...(updates.order !== undefined && { task_order: updates.order }),
     };
-    
-    console.log('database.ts - dbUpdates object:', dbUpdates);
 
     const { data, error } = await supabase
       .from('tasks')
@@ -139,16 +127,10 @@ export const taskService = {
       .single();
 
     if (error) {
-      console.error('database.ts - Supabase update error:', error);
       throw error;
     }
     
-    console.log('database.ts - Raw response from Supabase:', data);
-
-    const task = mapTaskFromDb(data);
-    console.log('database.ts - Transformed task:', task);
-    
-    return task;
+    return mapTaskFromDb(data);
   },
 
   async delete(id: string): Promise<boolean> {
@@ -266,8 +248,6 @@ export const settingsService = {
       };
     }
     
-    console.log('Getting settings for user:', userId);
-    
     const { data, error } = await supabase
       .from('user_settings')
       .select('*')
@@ -289,7 +269,6 @@ export const settingsService = {
 
     // If no settings exist, return defaults
     if (!data || data.length === 0) {
-      console.log('No settings found, returning defaults');
       return {
         darkMode: false,
         notifications: true,
@@ -301,7 +280,6 @@ export const settingsService = {
       };
     }
 
-    console.log('Settings found:', data[0]);
     return {
       darkMode: data[0].dark_mode,
       notifications: data[0].notifications,
