@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -13,6 +14,7 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
   const { toggleTaskComplete, deleteTask } = useSupabaseStore();
+  const [isDoubleClickPending, setIsDoubleClickPending] = useState(false);
 
   // Use sortable for within-column reordering
   const {
@@ -87,9 +89,33 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   // Handle double click to open task detail modal
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsDoubleClickPending(true);
+    
+    // Reset the flag after a short delay to allow for proper double-click detection
+    setTimeout(() => {
+      setIsDoubleClickPending(false);
+    }, 300);
+    
     if (onTaskClick) {
       onTaskClick(task);
     }
+  };
+
+  // Handle checkbox click with double-click protection
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    // Prevent checkbox action if we're in a double-click sequence
+    if (isDoubleClickPending) {
+      return;
+    }
+    
+    // Add a small delay to allow double-click detection
+    setTimeout(() => {
+      if (!isDoubleClickPending) {
+        toggleTaskComplete(task.id);
+      }
+    }, 200);
   };
 
   return (
@@ -116,10 +142,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           {/* Circular checkbox */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleTaskComplete(task.id);
-            }}
+            onClick={handleCheckboxClick}
             className={`
               w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0
               ${getCheckboxColor()}
