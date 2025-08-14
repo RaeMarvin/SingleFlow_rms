@@ -12,7 +12,7 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
-  const { toggleTaskComplete, deleteTask } = useSupabaseStore();
+  const { deleteTask } = useSupabaseStore();
 
   // Use sortable for within-column reordering
   const {
@@ -87,18 +87,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   // Handle double click to open task detail modal
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     console.log('Double click detected on task content area');
+    console.log('Double click event target:', e.target);
+    console.log('Double click currentTarget:', e.currentTarget);
     
     if (onTaskClick) {
       onTaskClick(task);
     }
-  };
-
-  // Handle checkbox click - now completely separate from double-click
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    console.log('Checkbox clicked');
-    toggleTaskComplete(task.id);
   };
 
   return (
@@ -125,23 +121,22 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         <div className="flex items-center justify-between">
           {/* Left side - checkbox and task info */}
           <div className="flex items-center space-x-3 flex-1 min-w-0">
-            {/* Circular checkbox - completely separate */}
-            <button
-              onClick={handleCheckboxClick}
+            {/* Circular checkbox - TEMPORARILY DISABLED FOR DEBUGGING */}
+            <div
               className={`
                 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0
                 ${getCheckboxColor()}
                 ${task.completed ? '' : 'hover:scale-110'}
               `}
-              title="Click to mark complete/incomplete"
+              title="Checkbox temporarily disabled for debugging"
             >
-            {task.completed && (
-              <Check className="w-3 h-3 text-white" strokeWidth={3} />
-            )}
-            {!task.completed && task.priority === 'high' && (
-              <div className="w-2 h-2 bg-signal-500 rounded-full"></div>
-            )}
-          </button>
+              {task.completed && (
+                <Check className="w-3 h-3 text-white" strokeWidth={3} />
+              )}
+              {!task.completed && task.priority === 'high' && (
+                <div className="w-2 h-2 bg-signal-500 rounded-full"></div>
+              )}
+            </div>
 
           {/* Task content - double-click area */}
           <div 
