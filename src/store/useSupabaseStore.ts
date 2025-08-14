@@ -79,25 +79,47 @@ const useSupabaseStore = create<Store & {
     }
   },
 
-  updateTask: async (id, updates) => {
-    // Optimistically update UI
-    set((state) => ({
-      tasks: state.tasks.map((task) =>
-        task.id === id ? { ...task, ...updates } : task
-      ),
+  updateTask: async (id: string, updates: Partial<Task>) => {
+    console.log('useSupabaseStore - updateTask called with:', { id, updates });
+    
+    const task = get().tasks.find(t => t.id === id);
+    if (!task) {
+      console.error('useSupabaseStore - Task not found:', id);
+      return;
+    }
+    
+    console.log('useSupabaseStore - Current task before update:', task);
+    
+    // Optimistic update
+    const updatedTask = { ...task, ...updates };
+    console.log('useSupabaseStore - Updated task (optimistic):', updatedTask);
+    
+    set(state => ({
+      ...state,
+      tasks: state.tasks.map(t => t.id === id ? updatedTask : t)
     }));
 
-    // Sync with Supabase
-    const updatedTask = await taskService.update(id, updates);
-    
-    if (!updatedTask) {
-      // Revert on error
-      console.error('Failed to update task in Supabase');
-      get().loadData(); // Reload from server
+    try {
+      const dbTask = await taskService.update(id, updates);
+      console.log('useSupabaseStore - Task from database after update:', dbTask);
+      
+      // Update with database response
+      set(state => ({
+        ...state,
+        tasks: state.tasks.map(t => t.id === id ? dbTask : t)
+      }));
+      
+      get().updateStats();
+    } catch (error) {
+      console.error('useSupabaseStore - Error updating task:', error);
+      // Revert optimistic update
+      set(state => ({
+        ...state,
+        tasks: state.tasks.map(t => t.id === id ? task : t)
+      }));
+      // Reload data to ensure consistency
+      await get().loadData();
     }
-
-    // Always update stats when any task is modified
-    get().updateStats();
   },
 
   deleteTask: async (id) => {

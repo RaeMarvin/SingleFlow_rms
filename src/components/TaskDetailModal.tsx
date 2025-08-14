@@ -22,12 +22,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      await updateTask(task.id, {
+      const updates = {
         title: title.trim(),
         description: description.trim() || undefined,
         priority,
         category
-      });
+      };
+      
+      console.log('TaskDetailModal - Saving task with updates:', updates);
+      console.log('TaskDetailModal - Original task completed status:', task.completed);
+      
+      await updateTask(task.id, updates);
       onClose();
     } catch (error) {
       console.error('Error updating task:', error);

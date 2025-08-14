@@ -118,18 +118,20 @@ export const taskService = {
     return mapTaskFromDb(data);
   },
 
-  async update(id: string, updates: Partial<Task>): Promise<Task | null> {
+  async update(id: string, updates: Partial<Task>): Promise<Task> {
+    console.log('database.ts - taskService.update called with:', { id, updates });
+    
     const dbUpdates: Partial<TaskRow> = {
-      ...(updates.title && { title: updates.title }),
-      ...(updates.description !== undefined && { description: updates.description || null }),
-      ...(updates.category && { category: updates.category }),
-      ...(updates.priority && { priority: updates.priority }),
+      ...(updates.title !== undefined && { title: updates.title }),
+      ...(updates.description !== undefined && { description: updates.description }),
       ...(updates.completed !== undefined && { completed: updates.completed }),
+      ...(updates.priority !== undefined && { priority: updates.priority }),
+      ...(updates.category !== undefined && { category: updates.category }),
+      ...(updates.completedAt !== undefined && { completed_at: updates.completedAt?.toISOString() || null }),
       ...(updates.order !== undefined && { task_order: updates.order }),
-      ...(updates.completedAt !== undefined && { 
-        completed_at: updates.completedAt?.toISOString() || null 
-      }),
     };
+    
+    console.log('database.ts - dbUpdates object:', dbUpdates);
 
     const { data, error } = await supabase
       .from('tasks')
@@ -139,11 +141,16 @@ export const taskService = {
       .single();
 
     if (error) {
-      console.error('Error updating task:', error);
-      return null;
+      console.error('database.ts - Supabase update error:', error);
+      throw error;
     }
+    
+    console.log('database.ts - Raw response from Supabase:', data);
 
-    return mapTaskFromDb(data);
+    const task = mapTaskFromDb(data);
+    console.log('database.ts - Transformed task:', task);
+    
+    return task;
   },
 
   async delete(id: string): Promise<boolean> {
