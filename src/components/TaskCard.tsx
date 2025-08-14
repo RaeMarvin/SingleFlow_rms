@@ -87,6 +87,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   // Handle double click to open task detail modal
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Double click detected on task:', task.title);
+    console.log('onTaskClick function exists:', !!onTaskClick);
     
     if (onTaskClick) {
       onTaskClick(task);

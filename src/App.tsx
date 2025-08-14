@@ -26,7 +26,9 @@ function AppContent() {
   const { user, loading: authLoading } = useAuth();
 
   const handleTaskClick = (task: Task) => {
+    console.log('handleTaskClick called with task:', task.title);
     setSelectedTask(task);
+    console.log('selectedTask state should now be set');
   };
 
   // Configure sensors for both mouse and touch devices
