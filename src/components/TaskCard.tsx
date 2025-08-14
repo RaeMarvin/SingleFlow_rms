@@ -112,20 +112,20 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         ${task.completed ? 'opacity-75' : ''}
       `}
     >
-      {/* Drag handle - separate from interactive content */}
+      {/* Dedicated drag handle - top area only */}
       <div 
-        className="absolute inset-0 cursor-grab active:cursor-grabbing"
+        className="absolute top-0 left-0 right-0 h-3 cursor-grab active:cursor-grabbing"
         {...listeners}
         {...attributes}
-        style={{ zIndex: 1 }}
+        title="Drag to move task"
       />
 
-      {/* Main content area - higher z-index to be above drag handle */}
-      <div className="relative" style={{ zIndex: 2 }}>
+      {/* Main content area - NO drag handlers */}
+      <div className="relative">
         <div className="flex items-center justify-between">
           {/* Left side - checkbox and task info */}
           <div className="flex items-center space-x-3 flex-1 min-w-0">
-            {/* Circular checkbox - separate from double-click area */}
+            {/* Circular checkbox - completely separate */}
             <button
               onClick={handleCheckboxClick}
               className={`
@@ -186,7 +186,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         }}
         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-200 p-1 rounded"
         title="Delete task"
-        style={{ zIndex: 3 }}
       >
         <Trash2 className="w-4 h-4" />
       </button>
