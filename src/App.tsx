@@ -25,6 +25,11 @@ function AppContent() {
   const { isLoading } = useInitializeData();
   const { user, loading: authLoading } = useAuth();
 
+  const handleTaskClick = (task: Task) => {
+    console.log('App - handleTaskClick called with task:', task.id);
+    setSelectedTask(task);
+  };
+
   // Configure sensors for both mouse and touch devices
   const mouseSensor = useSensor(MouseSensor, {
     // Require the mouse to move by 10 pixels before activating
@@ -224,12 +229,12 @@ function AppContent() {
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Stats Panel */}
                 <div className="lg:col-span-1">
-                  <StatsPanel onTaskClick={(task) => setSelectedTask(task)} />
+                  <StatsPanel onTaskClick={handleTaskClick} />
                 </div>
                 
                 {/* Task Board */}
                 <div className="lg:col-span-3">
-                  <TaskBoard onTaskClick={(task) => setSelectedTask(task)} />
+                  <TaskBoard onTaskClick={handleTaskClick} />
                 </div>
               </div>
             </main>
