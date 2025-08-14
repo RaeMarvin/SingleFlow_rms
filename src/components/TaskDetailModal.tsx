@@ -49,6 +49,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
   };
 
   const handleComplete = async () => {
+    console.log('TaskDetailModal - handleComplete called! This should NOT happen automatically!');
+    console.log('TaskDetailModal - Stack trace:');
+    console.trace();
+    
     setIsLoading(true);
     try {
       await toggleTaskComplete(task.id);
