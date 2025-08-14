@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -14,7 +13,6 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
   const { toggleTaskComplete, deleteTask } = useSupabaseStore();
-  const [isDoubleClickPending, setIsDoubleClickPending] = useState(false);
 
   // Use sortable for within-column reordering
   const {
@@ -89,33 +87,18 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   // Handle double click to open task detail modal
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsDoubleClickPending(true);
-    
-    // Reset the flag after a short delay to allow for proper double-click detection
-    setTimeout(() => {
-      setIsDoubleClickPending(false);
-    }, 300);
+    console.log('Double click detected on task content area');
     
     if (onTaskClick) {
       onTaskClick(task);
     }
   };
 
-  // Handle checkbox click with double-click protection
+  // Handle checkbox click - now completely separate from double-click
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
-    // Prevent checkbox action if we're in a double-click sequence
-    if (isDoubleClickPending) {
-      return;
-    }
-    
-    // Add a small delay to allow double-click detection
-    setTimeout(() => {
-      if (!isDoubleClickPending) {
-        toggleTaskComplete(task.id);
-      }
-    }, 200);
+    console.log('Checkbox clicked');
+    toggleTaskComplete(task.id);
   };
 
   return (
@@ -133,14 +116,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
       {...attributes}
     >
       {/* Main content area */}
-      <div 
-        className="flex items-center justify-between" 
-        onDoubleClick={handleDoubleClick}
-        title="Double-click to edit task"
-      >
+      <div className="flex items-center justify-between">
         {/* Left side - checkbox and task info */}
         <div className="flex items-center space-x-3 flex-1 min-w-0">
-          {/* Circular checkbox */}
+          {/* Circular checkbox - separate from double-click area */}
           <button
             onClick={handleCheckboxClick}
             className={`
@@ -148,6 +127,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
               ${getCheckboxColor()}
               ${task.completed ? '' : 'hover:scale-110'}
             `}
+            title="Click to mark complete/incomplete"
           >
             {task.completed && (
               <Check className="w-3 h-3 text-white" strokeWidth={3} />
@@ -157,8 +137,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
             )}
           </button>
 
-          {/* Task content */}
-          <div className="flex-1 min-w-0">
+          {/* Task content - double-click area */}
+          <div 
+            className="flex-1 min-w-0 cursor-pointer"
+            onDoubleClick={handleDoubleClick}
+            title="Double-click to edit task"
+          >
             <h3 className={`
               font-medium text-neutral-800 text-sm leading-tight
               ${task.completed ? 'line-through text-gray-500' : ''}
