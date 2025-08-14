@@ -90,8 +90,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('Double click detected on task:', task.title);
-    console.log('onTaskClick function exists:', !!onTaskClick);
     
     if (onTaskClick) {
       onTaskClick(task);
@@ -105,9 +103,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     const DOUBLE_TAP_DELAY = 300; // 300ms window for double tap
     
     if (lastTap && (now - lastTap) < DOUBLE_TAP_DELAY) {
-      console.log('Double tap detected on mobile for task:', task.title);
-      console.log('onTaskClick function exists:', !!onTaskClick);
-      
       if (onTaskClick) {
         onTaskClick(task);
       }

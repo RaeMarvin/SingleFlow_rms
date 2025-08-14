@@ -23,39 +23,35 @@ const Header: React.FC<HeaderProps> = ({ onShowWeeklyReview }) => {
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <img 
-                  src={logoImage} 
-                  alt="Logo" 
-                  className="w-10 h-10 drop-shadow-md object-contain"
-                />
-                <img 
-                  src={wordmarkImage} 
-                  alt="Fozzle" 
-                  className="h-8 object-contain"
-                />
-              </div>
-              <div>
-                <p className="text-sm text-neutral-600">
-                  Focus on the next thing you need to do.
-                </p>
-              </div>
+            {/* Logo section */}
+            <div className="flex items-center space-x-2">
+              <img 
+                src={logoImage} 
+                alt="Logo" 
+                className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-md object-contain"
+              />
+              <img 
+                src={wordmarkImage} 
+                alt="Fozzle" 
+                className="h-6 sm:h-8 object-contain"
+              />
             </div>
 
-            <div className="flex items-center space-x-3">
+            {/* Action buttons */}
+            <div className="flex items-center space-x-2 sm:space-x-3">
               {user && (
                 <button
                   onClick={() => setShowAddTask(true)}
-                  className="inline-flex items-center px-6 py-2.5 text-white rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="inline-flex items-center px-3 py-2 sm:px-6 sm:py-2.5 text-white rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg text-sm"
                   style={{backgroundColor: '#7dc3ff'}}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#6bb6ff'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7dc3ff'}
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add a task
+                  <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="sm:hidden">Task</span>
+                  <span className="hidden sm:inline">Add a task</span>
                 </button>
               )}
               
