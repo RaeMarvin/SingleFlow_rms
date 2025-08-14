@@ -12,7 +12,7 @@ interface TaskDetailModalProps {
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose }) => {
   console.log('TaskDetailModal - Rendering with isOpen:', isOpen, 'task:', task.id);
   
-  const { updateTask, deleteTask, addIdea } = useSupabaseStore();
+  const { updateTask, deleteTask, toggleTaskComplete, addIdea } = useSupabaseStore();
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
   const [priority, setPriority] = useState(task.priority);
@@ -43,6 +43,23 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
       onClose();
     } catch (error) {
       console.error('Error updating task:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleComplete = async (e: React.MouseEvent) => {
+    // Explicit user click protection
+    console.log('handleComplete - Explicit user click detected');
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsLoading(true);
+    try {
+      await toggleTaskComplete(task.id);
+      onClose();
+    } catch (error) {
+      console.error('Error toggling task completion:', error);
     } finally {
       setIsLoading(false);
     }
@@ -235,13 +252,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
             </button>
             {!task.completed ? (
               <button
-                onClick={() => console.log('Complete button clicked - but disabled for debugging')}
-                disabled={true}
-                className="flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed transition-colors"
-                title="Complete button disabled for debugging"
+                onClick={handleComplete}
+                disabled={isLoading}
+                className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 transition-colors"
+                title="Mark as Complete"
                 type="button"
-                autoFocus={false}
-                tabIndex={-1}
+                tabIndex={10}
+                onFocus={(e) => e.currentTarget.blur()}
               >
                 <Check className="w-4 h-4" />
               </button>
