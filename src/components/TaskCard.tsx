@@ -87,7 +87,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   // Handle double click to open task detail modal
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    e.preventDefault();
     
     if (onTaskClick) {
       onTaskClick(task);
@@ -97,7 +96,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   // Handle checkbox click
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    e.preventDefault();
     toggleTaskComplete(task.id);
   };
 
@@ -112,16 +110,23 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         ${task.completed ? 'opacity-75' : ''}
       `}
     >
-      {/* Dedicated drag handle - top area only */}
+      {/* Dedicated drag handle - larger area for easier grabbing */}
       <div 
-        className="absolute top-0 left-0 right-0 h-3 cursor-grab active:cursor-grabbing"
+        className="absolute top-0 left-0 right-0 h-8 cursor-grab active:cursor-grabbing flex items-center justify-center"
         {...listeners}
         {...attributes}
         title="Drag to move task"
-      />
+      >
+        {/* Drag indicator dots */}
+        <div className="flex space-x-1 opacity-30 group-hover:opacity-60">
+          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+        </div>
+      </div>
 
-      {/* Main content area - NO drag handlers */}
-      <div className="relative">
+      {/* Main content area - offset to account for drag handle */}
+      <div className="relative mt-4">
         <div className="flex items-center justify-between">
           {/* Left side - checkbox and task info */}
           <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -143,38 +148,38 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
               )}
             </div>
 
-          {/* Task content - double-click area */}
-          <div 
-            className="flex-1 min-w-0 cursor-pointer"
-            onDoubleClick={handleDoubleClick}
-            title="Double-click to edit task"
-          >
-            <h3 className={`
-              font-medium text-neutral-800 text-sm leading-tight
-              ${task.completed ? 'line-through text-gray-500' : ''}
-            `}>
-              {task.title}
-            </h3>
-            {task.description && (
-              <p className={`
-                text-xs text-gray-600 mt-1 truncate
-                ${task.completed ? 'line-through' : ''}
+            {/* Task content - double-click area */}
+            <div 
+              className="flex-1 min-w-0 cursor-pointer"
+              onDoubleClick={handleDoubleClick}
+              title="Double-click to edit task"
+            >
+              <h3 className={`
+                font-medium text-neutral-800 text-sm leading-tight
+                ${task.completed ? 'line-through text-gray-500' : ''}
               `}>
-                {task.description}
-              </p>
-            )}
+                {task.title}
+              </h3>
+              {task.description && (
+                <p className={`
+                  text-xs text-gray-600 mt-1 truncate
+                  ${task.completed ? 'line-through' : ''}
+                `}>
+                  {task.description}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Right side - priority badge */}
-        <div className="flex items-center space-x-2 flex-shrink-0">
-          <span className={`
-            px-3 py-1 text-sm font-medium rounded-full border
-            ${getPriorityBadge()}
-          `}>
-            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
-          </span>
-        </div>
+          {/* Right side - priority badge */}
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            <span className={`
+              px-3 py-1 text-sm font-medium rounded-full border
+              ${getPriorityBadge()}
+            `}>
+              {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+            </span>
+          </div>
         </div>
       </div>
 
