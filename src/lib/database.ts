@@ -71,21 +71,19 @@ export const taskService = {
     
     // Increment order of all existing tasks in the same category
     if (existingTasks && existingTasks.length > 0) {
-      const updates = existingTasks.map(existingTask => ({
-        id: existingTask.id,
-        task_order: existingTask.task_order + 1
-      }));
-      
-      // Update all tasks in batch
-      const { error: updateError } = await supabase
-        .from('tasks')
-        .upsert(updates);
-      
-      if (updateError) {
-        console.error('Error updating task orders:', updateError);
-      } else {
-        console.log(`Incremented order for ${updates.length} existing tasks`);
+      // Update each task individually to avoid RLS issues with upsert
+      for (const existingTask of existingTasks) {
+        const { error: updateError } = await supabase
+          .from('tasks')
+          .update({ task_order: existingTask.task_order + 1 })
+          .eq('id', existingTask.id)
+          .eq('user_id', userId);
+        
+        if (updateError) {
+          console.error('Error updating task order for task:', existingTask.id, updateError);
+        }
       }
+      console.log(`Incremented order for ${existingTasks.length} existing tasks`);
     }
 
     const insertData = {

@@ -110,25 +110,31 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         ${task.category === 'noise' ? 'bg-gray-50' : 'bg-white'}
         ${isDragging ? 'shadow-xl' : isDragActive ? 'shadow-xl rotate-1 scale-105 z-50' : 'hover:shadow-md'}
         ${task.completed ? 'opacity-75' : ''}
-        cursor-grab active:cursor-grabbing
       `}
-      {...listeners}
-      {...attributes}
     >
-      {/* Main content area */}
-      <div className="flex items-center justify-between">
-        {/* Left side - checkbox and task info */}
-        <div className="flex items-center space-x-3 flex-1 min-w-0">
-          {/* Circular checkbox - separate from double-click area */}
-          <button
-            onClick={handleCheckboxClick}
-            className={`
-              w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0
-              ${getCheckboxColor()}
-              ${task.completed ? '' : 'hover:scale-110'}
-            `}
-            title="Click to mark complete/incomplete"
-          >
+      {/* Drag handle - separate from interactive content */}
+      <div 
+        className="absolute inset-0 cursor-grab active:cursor-grabbing"
+        {...listeners}
+        {...attributes}
+        style={{ zIndex: 1 }}
+      />
+
+      {/* Main content area - higher z-index to be above drag handle */}
+      <div className="relative" style={{ zIndex: 2 }}>
+        <div className="flex items-center justify-between">
+          {/* Left side - checkbox and task info */}
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            {/* Circular checkbox - separate from double-click area */}
+            <button
+              onClick={handleCheckboxClick}
+              className={`
+                w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0
+                ${getCheckboxColor()}
+                ${task.completed ? '' : 'hover:scale-110'}
+              `}
+              title="Click to mark complete/incomplete"
+            >
             {task.completed && (
               <Check className="w-3 h-3 text-white" strokeWidth={3} />
             )}
@@ -169,6 +175,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
             {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
           </span>
         </div>
+        </div>
       </div>
 
       {/* Delete button - appears on hover */}
@@ -179,6 +186,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         }}
         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-200 p-1 rounded"
         title="Delete task"
+        style={{ zIndex: 3 }}
       >
         <Trash2 className="w-4 h-4" />
       </button>
