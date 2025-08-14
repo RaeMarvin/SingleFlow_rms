@@ -10,6 +10,8 @@ interface TaskDetailModalProps {
 }
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose }) => {
+  console.log('TaskDetailModal - Rendering with isOpen:', isOpen, 'task:', task.id);
+  
   const { updateTask, deleteTask, toggleTaskComplete, addIdea } = useSupabaseStore();
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
@@ -17,7 +19,12 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
   const [category, setCategory] = useState(task.category);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    console.log('TaskDetailModal - Not open, returning null');
+    return null;
+  }
+  
+  console.log('TaskDetailModal - Modal is open, rendering modal content');
 
   const handleSave = async () => {
     setIsLoading(true);

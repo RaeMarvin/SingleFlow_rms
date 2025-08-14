@@ -27,7 +27,9 @@ function AppContent() {
 
   const handleTaskClick = (task: Task) => {
     console.log('App - handleTaskClick called with task:', task.id);
+    console.log('App - Setting selectedTask to:', task);
     setSelectedTask(task);
+    console.log('App - selectedTask has been set');
   };
 
   // Configure sensors for both mouse and touch devices
