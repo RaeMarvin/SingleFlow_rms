@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -84,7 +85,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     }
   };
 
-  // Handle double click to open task detail modal
+  // Handle double click/tap to open task detail modal
+  const [lastTap, setLastTap] = useState<number>(0);
+  
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     console.log('Double click detected on task:', task.title);
@@ -92,6 +95,25 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     
     if (onTaskClick) {
       onTaskClick(task);
+    }
+  };
+
+  // Handle mobile double-tap
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300; // 300ms window for double tap
+    
+    if (lastTap && (now - lastTap) < DOUBLE_TAP_DELAY) {
+      console.log('Double tap detected on mobile for task:', task.title);
+      console.log('onTaskClick function exists:', !!onTaskClick);
+      
+      if (onTaskClick) {
+        onTaskClick(task);
+      }
+      setLastTap(0); // Reset to prevent triple tap
+    } else {
+      setLastTap(now);
     }
   };
 
@@ -150,11 +172,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
               )}
             </div>
 
-            {/* Task content - double-click area */}
+            {/* Task content - double-click/tap area */}
             <div 
-              className="flex-1 min-w-0 cursor-pointer"
+              className="flex-1 min-w-0 cursor-pointer select-none"
               onDoubleClick={handleDoubleClick}
-              title="Double-click to edit task"
+              onTouchEnd={handleTouchEnd}
+              title="Double-click/tap to edit task"
             >
               <h3 className={`
                 font-medium text-neutral-800 text-sm leading-tight
