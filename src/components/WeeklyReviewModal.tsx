@@ -74,31 +74,51 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
   });
 
   const completedWeekTasks = weekTasks.filter(t => t.completed);
-  const weekSignalTasks = weekTasks.filter(t => t.category === 'signal');
   const completedWeekSignalTasks = completedWeekTasks.filter(t => t.category === 'signal');
+  const completedWeekNoiseTasks = completedWeekTasks.filter(t => t.category === 'noise');
   
-  const signalRatioPercentage = weekTasks.length > 0 ? (weekSignalTasks.length / weekTasks.length) * 100 : 0;
+  // Calculate Fozzle Score (completed Signal ratio)
+  const fozzleScore = completedWeekTasks.length > 0 ? (completedWeekSignalTasks.length / completedWeekTasks.length) * 100 : 0;
+  
   const completionRate = weekTasks.length > 0 ? (completedWeekTasks.length / weekTasks.length) * 100 : 0;
 
   // Daily breakdown for the week
   const getDayName = (date: Date) => date.toLocaleDateString('en-US', { weekday: 'short' });
-  const weekDays = [];
+  
+  interface WeekDay {
+    date: Date;
+    name: string;
+    isToday: boolean;
+    completedSignal: number;
+    completedNoise: number;
+    totalCompleted: number;
+    fozzleScore: number;
+  }
+  
+  const weekDays: WeekDay[] = [];
   for (let i = 0; i < 7; i++) {
     const day = new Date(weekStart);
     day.setDate(weekStart.getDate() + i);
-    const dayTasks = tasks.filter(task => {
-      const taskDate = new Date(task.createdAt);
-      return taskDate.toDateString() === day.toDateString();
+    
+    // Get tasks completed on this specific day
+    const dayCompletedTasks = tasks.filter(task => {
+      if (!task.completed || !task.completedAt) return false;
+      const completedDate = new Date(task.completedAt);
+      return completedDate.toDateString() === day.toDateString();
     });
-    const dayCompleted = dayTasks.filter(t => t.completed);
+    
+    const dayCompletedSignal = dayCompletedTasks.filter(t => t.category === 'signal');
+    const dayCompletedNoise = dayCompletedTasks.filter(t => t.category === 'noise');
+    const dayFozzleScore = dayCompletedTasks.length > 0 ? (dayCompletedSignal.length / dayCompletedTasks.length) * 100 : 0;
     
     weekDays.push({
       date: day,
       name: getDayName(day),
       isToday: day.toDateString() === today.toDateString(),
-      tasks: dayTasks.length,
-      completed: dayCompleted.length,
-      completionRate: dayTasks.length > 0 ? (dayCompleted.length / dayTasks.length) * 100 : 0
+      completedSignal: dayCompletedSignal.length,
+      completedNoise: dayCompletedNoise.length,
+      totalCompleted: dayCompletedTasks.length,
+      fozzleScore: dayFozzleScore
     });
   }
   
@@ -138,24 +158,23 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
           {/* Overview Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatBox
-              icon={<Target className="w-6 h-6 text-primary-600" />}
-              title="Week Tasks"
-              value={weekTasks.length}
-              subtitle={`${completedWeekTasks.length} completed`}
+              icon={<Award className="w-6 h-6 text-blue-600" />}
+              title="Fozzle Score (Week)"
+              value={`${fozzleScore.toFixed(0)}%`}
+              subtitle={getScoreLabel(fozzleScore)}
+              valueColor={getScoreColor(fozzleScore)}
             />
             <StatBox
-              icon={<TrendingUp className="w-6 h-6 text-signal-600" />}
-              title="Signal Focus"
-              value={`${signalRatioPercentage.toFixed(0)}%`}
-              subtitle={getScoreLabel(signalRatioPercentage)}
-              valueColor={getScoreColor(signalRatioPercentage)}
+              icon={<Target className="w-6 h-6 text-signal-600" />}
+              title="Signal Tasks Completed"
+              value={completedWeekSignalTasks.length}
+              subtitle={`Focus on what matters`}
             />
             <StatBox
-              icon={<Award className="w-6 h-6 text-accent-purple" />}
-              title="Completion Rate"
-              value={`${completionRate.toFixed(0)}%`}
-              subtitle={getScoreLabel(completionRate)}
-              valueColor={getScoreColor(completionRate)}
+              icon={<TrendingUp className="w-6 h-6 text-noise-600" />}
+              title="Noise Tasks Completed"
+              value={completedWeekNoiseTasks.length}
+              subtitle={`Distractions handled`}
             />
           </div>
 
@@ -178,14 +197,14 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
                   <div className="text-xs font-medium text-neutral-600 dark:text-gray-400 mb-1">
                     {day.name}
                   </div>
-                  <div className="text-sm font-bold text-neutral-800 dark:text-white">
-                    {day.completed}/{day.tasks}
-                  </div>
-                  <div className={`text-xs mt-1 ${
-                    day.completionRate >= 80 ? 'text-signal-600' :
-                    day.completionRate >= 60 ? 'text-primary-600' : 'text-noise-600'
+                  <div className={`text-lg font-bold mb-1 ${
+                    day.fozzleScore >= 80 ? 'text-signal-600' :
+                    day.fozzleScore >= 60 ? 'text-primary-600' : 'text-noise-600'
                   }`}>
-                    {day.tasks > 0 ? `${day.completionRate.toFixed(0)}%` : '-'}
+                    {day.totalCompleted > 0 ? `${day.fozzleScore.toFixed(0)}%` : '-'}
+                  </div>
+                  <div className="text-xs text-neutral-600 dark:text-gray-400">
+                    {day.totalCompleted > 0 ? 'Fozzle Score' : 'No tasks'}
                   </div>
                 </div>
               ))}
@@ -198,75 +217,61 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
               Signal vs. Noise Breakdown (This Week)
             </h3>
             
-            <div className="grid grid-cols-2 gap-6">
-              <div className="text-center">
-                <div className="w-24 h-24 mx-auto mb-3 relative">
-                  <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="none"
-                      className="text-gray-200 dark:text-gray-600"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="none"
-                      strokeDasharray={`${(completedWeekSignalTasks.length / Math.max(weekSignalTasks.length, 1)) * 251} 251`}
-                      className="text-signal-500"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-bold text-neutral-800 dark:text-white">
-                      {weekSignalTasks.length > 0 ? Math.round((completedWeekSignalTasks.length / weekSignalTasks.length) * 100) : 0}%
-                    </span>
-                  </div>
-                </div>
-                <h4 className="font-semibold text-signal-600 mb-1">Signal Tasks</h4>
-                <p className="text-sm text-neutral-600 dark:text-gray-400">
-                  {completedWeekSignalTasks.length} of {weekSignalTasks.length} completed
-                </p>
+            <div className="space-y-4">
+              <div className="grid grid-cols-7 gap-2">
+                {weekDays.map((day, index) => {
+                  const maxTasks = Math.max(...weekDays.map(d => Math.max(d.completedSignal, d.completedNoise)));
+                  const maxHeight = maxTasks > 0 ? 120 : 20; // px
+                  
+                  return (
+                    <div key={index} className="text-center">
+                      <div className="text-xs font-medium text-neutral-600 dark:text-gray-400 mb-2">
+                        {day.name}
+                      </div>
+                      
+                      {/* Bar Chart Container */}
+                      <div className="relative flex items-end justify-center space-x-1" style={{ height: `${maxHeight + 20}px` }}>
+                        {/* Signal Bar */}
+                        <div className="w-4 bg-signal-500 rounded-t" 
+                             style={{ 
+                               height: maxTasks > 0 ? `${(day.completedSignal / maxTasks) * maxHeight}px` : '4px',
+                               minHeight: day.completedSignal > 0 ? '8px' : '4px'
+                             }}
+                             title={`${day.completedSignal} Signal tasks completed`}>
+                        </div>
+                        
+                        {/* Noise Bar */}
+                        <div className="w-4 bg-noise-500 rounded-t" 
+                             style={{ 
+                               height: maxTasks > 0 ? `${(day.completedNoise / maxTasks) * maxHeight}px` : '4px',
+                               minHeight: day.completedNoise > 0 ? '8px' : '4px'
+                             }}
+                             title={`${day.completedNoise} Noise tasks completed`}>
+                        </div>
+                      </div>
+                      
+                      {/* Task Count Labels */}
+                      <div className="text-xs text-neutral-600 dark:text-gray-400 mt-2">
+                        <div className="flex justify-center space-x-2">
+                          <span className="text-signal-600">{day.completedSignal}S</span>
+                          <span className="text-noise-600">{day.completedNoise}N</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-
-              <div className="text-center">
-                <div className="w-24 h-24 mx-auto mb-3 relative">
-                  <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="none"
-                      className="text-gray-200 dark:text-gray-600"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="none"
-                      strokeDasharray={`${((completedWeekTasks.length - completedWeekSignalTasks.length) / Math.max(weekTasks.length - weekSignalTasks.length, 1)) * 251} 251`}
-                      className="text-noise-500"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-bold text-neutral-800 dark:text-white">
-                      {(weekTasks.length - weekSignalTasks.length) > 0 ? Math.round(((completedWeekTasks.length - completedWeekSignalTasks.length) / (weekTasks.length - weekSignalTasks.length)) * 100) : 0}%
-                    </span>
-                  </div>
+              
+              {/* Legend */}
+              <div className="flex justify-center space-x-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-signal-500 rounded"></div>
+                  <span className="text-sm text-neutral-600 dark:text-gray-400">Signal Tasks</span>
                 </div>
-                <h4 className="font-semibold text-noise-600 mb-1">Noise Tasks</h4>
-                <p className="text-sm text-neutral-600 dark:text-gray-400">
-                  {completedWeekTasks.length - completedWeekSignalTasks.length} of {weekTasks.length - weekSignalTasks.length} completed
-                </p>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-noise-500 rounded"></div>
+                  <span className="text-sm text-neutral-600 dark:text-gray-400">Noise Tasks</span>
+                </div>
               </div>
             </div>
           </div>
@@ -277,19 +282,19 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
               Weekly Insights
             </h3>
             <div className="space-y-2 text-sm">
-              {signalRatioPercentage >= 80 && (
+              {fozzleScore >= 80 && (
                 <p className="text-signal-700 dark:text-signal-300">
-                  🎉 Excellent focus this week! You maintained the 80/20 rule with {signalRatioPercentage.toFixed(0)}% signal tasks.
+                  🎉 Excellent Fozzle Score this week! You achieved {fozzleScore.toFixed(0)}% focus on Signal tasks.
                 </p>
               )}
-              {signalRatioPercentage < 80 && signalRatioPercentage >= 60 && (
+              {fozzleScore < 80 && fozzleScore >= 60 && (
                 <p className="text-primary-700 dark:text-primary-300">
-                  ⚡ Good focus this week with {signalRatioPercentage.toFixed(0)}% signal tasks. Try to get closer to 80% next week.
+                  ⚡ Good Fozzle Score with {fozzleScore.toFixed(0)}% Signal focus. Try to get closer to 80% next week.
                 </p>
               )}
-              {signalRatioPercentage < 60 && weekTasks.length > 0 && (
+              {fozzleScore < 60 && completedWeekTasks.length > 0 && (
                 <p className="text-noise-700 dark:text-noise-300">
-                  🎯 Focus improvement needed. Only {signalRatioPercentage.toFixed(0)}% of your tasks were signal. Try to prioritize more important work next week.
+                  🎯 Focus improvement needed. Your Fozzle Score is {fozzleScore.toFixed(0)}%. Try to prioritize more Signal work next week.
                 </p>
               )}
               {completionRate >= 80 && (
