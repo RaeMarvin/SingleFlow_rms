@@ -7,6 +7,7 @@ const useSupabaseStore = create<Store & {
   loadData: () => Promise<void>;
   syncWithSupabase: boolean;
   hasTriggeredConfetti: boolean;
+  previousCompletedSignalRatio: number;
   setConfettiTriggered: () => void;
   resetConfetti: () => void;
 }>()((set, get) => ({
@@ -16,6 +17,7 @@ const useSupabaseStore = create<Store & {
   isLoading: false,
   syncWithSupabase: true,
   hasTriggeredConfetti: false,
+  previousCompletedSignalRatio: 0,
   dailyGoal: {
     signalRatio: 0.8,
     totalTasks: 10,
@@ -298,16 +300,19 @@ const useSupabaseStore = create<Store & {
       totalCompleted,
       signalRatio,
       completedSignalRatio,
+      previousCompletedSignalRatio: get().previousCompletedSignalRatio,
       hasTriggeredConfetti: get().hasTriggeredConfetti
     });
 
-    // Check if we should trigger confetti (80%+ completed signal ratio, not overall signal ratio)
-    const shouldTriggerConfetti = completedSignalRatio >= 0.8 && !get().hasTriggeredConfetti && totalCompleted > 0;
+    // Check if we should trigger confetti: crossing from below 80% to 80%+ 
+    const previousRatio = get().previousCompletedSignalRatio;
+    const crossedThreshold = previousRatio < 0.8 && completedSignalRatio >= 0.8;
+    const shouldTriggerConfetti = crossedThreshold && totalCompleted > 0;
     
     console.log('Debug - Confetti trigger check:', {
-      completedSignalRatio,
-      isAbove80Percent: completedSignalRatio >= 0.8,
-      hasNotTriggered: !get().hasTriggeredConfetti,
+      previousRatio: (previousRatio * 100).toFixed(1) + '%',
+      currentRatio: (completedSignalRatio * 100).toFixed(1) + '%',
+      crossedThreshold,
       hasCompletedTasks: totalCompleted > 0,
       shouldTrigger: shouldTriggerConfetti
     });
@@ -320,22 +325,28 @@ const useSupabaseStore = create<Store & {
         signalRatio, // This is now the ratio of all Signal tasks to all tasks
         completedSignalRatio, // This is the ratio of completed Signal to completed tasks
       },
+      previousCompletedSignalRatio: completedSignalRatio, // Always update previous ratio
     });
 
-    // Trigger confetti if conditions are met
+    // Trigger confetti if conditions are met (crossed threshold)
     if (shouldTriggerConfetti) {
-      console.log('Debug - 🎉 TRIGGERING CONFETTI! Stats:', { completedSignalRatio, signalCompleted, totalCompleted });
-      // We'll dispatch a custom event that components can listen to
+      console.log('Debug - 🎉 THRESHOLD CROSSED! Triggering confetti!', { 
+        from: (previousRatio * 100).toFixed(1) + '%',
+        to: (completedSignalRatio * 100).toFixed(1) + '%',
+        signalCompleted, 
+        totalCompleted 
+      });
+      // Dispatch custom event that components can listen to
       window.dispatchEvent(new CustomEvent('fozzle-confetti-trigger', { 
         detail: { 
           completedSignalRatio,
           signalCompleted,
-          totalCompleted
+          totalCompleted,
+          crossedThreshold: true
         } 
       }));
-      get().setConfettiTriggered();
     } else {
-      console.log('Debug - No confetti triggered. Conditions not met.');
+      console.log('Debug - No confetti triggered. Threshold not crossed.');
     }
   },
 
@@ -382,7 +393,10 @@ const useSupabaseStore = create<Store & {
   },
 
   resetConfetti: () => {
-    set({ hasTriggeredConfetti: false });
+    set({ 
+      hasTriggeredConfetti: false,
+      previousCompletedSignalRatio: 0
+    });
   },
 }));
 

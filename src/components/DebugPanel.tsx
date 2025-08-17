@@ -197,7 +197,7 @@ export function DebugPanel() {
         <button
           onClick={() => {
             resetConfetti();
-            alert(`Confetti flag reset! Complete Signal tasks to get above 80% completed Signal ratio. Currently at ${((stats.completedSignalRatio || 0) * 100).toFixed(1)}%`);
+            alert(`Confetti threshold reset! Confetti will fire when you cross from below 80% to 80%+ completed Signal ratio. Currently at ${((stats.completedSignalRatio || 0) * 100).toFixed(1)}%`);
           }}
           className="bg-yellow-500 text-white px-2 py-1 rounded text-xs w-full"
         >
