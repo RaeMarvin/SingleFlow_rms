@@ -15,8 +15,19 @@ interface ConfettiConfig {
 }
 
 export const useConfetti = () => {
+  // Check if user is on mobile device
+  const isMobile = useCallback(() => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+           window.innerWidth <= 768;
+  }, []);
+
   const triggerConfetti = useCallback((config?: ConfettiConfig) => {
-    const isMobile = window.innerWidth <= 768;
+    if (!isMobile()) {
+      console.log('Desktop detected - skipping confetti, border flash will be handled elsewhere');
+      return;
+    }
+
+    console.log('Mobile detected - triggering confetti');
     
     // Default Fozzle brand colors
     const defaultColors = [
@@ -42,22 +53,8 @@ export const useConfetti = () => {
       scalar: 0.8,
     };
 
-    // Desktop settings
-    const desktopConfig: ConfettiConfig = {
-      particleCount: 60,
-      angle: 90,
-      spread: 55,
-      startVelocity: 30,
-      decay: 0.9,
-      gravity: 0.7,
-      drift: 0.1,
-      colors: defaultColors,
-      shapes: ['circle', 'square'],
-      scalar: 1,
-    };
-
-    // Use provided config or default based on device
-    const finalConfig = config || (isMobile ? mobileConfig : desktopConfig);
+    // Use provided config or mobile default
+    const finalConfig = config || mobileConfig;
 
     // Create multiple bursts for a more celebratory effect
     const duration = 3000; // 3 seconds
@@ -82,9 +79,14 @@ export const useConfetti = () => {
     };
 
     frame();
-  }, []);
+  }, [isMobile]);
 
   const triggerSuccess = useCallback(() => {
+    if (!isMobile()) {
+      console.log('Desktop detected - skipping success confetti');
+      return;
+    }
+    
     // Special success confetti with more celebration
     const count = 200;
     const defaults = {
@@ -123,7 +125,7 @@ export const useConfetti = () => {
       spread: 120,
       startVelocity: 45,
     });
-  }, []);
+  }, [isMobile]);
 
   return {
     triggerConfetti,

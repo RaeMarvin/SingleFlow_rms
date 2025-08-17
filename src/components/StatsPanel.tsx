@@ -1,5 +1,5 @@
 import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus, X, Signal, Volume2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
 
@@ -11,6 +11,26 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const { stats, dailyGoal, tasks, ideas, addIdea, deleteIdea, promoteIdea } = useSupabaseStore();
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
+  const [isFlashing, setIsFlashing] = useState(false);
+  
+  // Listen for border flash events (desktop achievement celebration)
+  useEffect(() => {
+    const handleBorderFlash = (event: CustomEvent) => {
+      console.log('Debug - StatsPanel received border flash event:', event.detail);
+      setIsFlashing(true);
+      
+      // Stop flashing after 3 seconds
+      setTimeout(() => {
+        setIsFlashing(false);
+      }, 3000);
+    };
+
+    window.addEventListener('fozzle-border-flash-trigger', handleBorderFlash as EventListener);
+    
+    return () => {
+      window.removeEventListener('fozzle-border-flash-trigger', handleBorderFlash as EventListener);
+    };
+  }, []);
   
   // Filter out promoted ideas
   const availableIdeas = ideas.filter(idea => !idea.promoted);
@@ -21,7 +41,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-xl shadow-sm p-6">
+      <div className={`bg-white rounded-xl shadow-sm p-6 border-2 border-transparent transition-all duration-200 ${isFlashing ? 'flash-border' : ''}`}>
         <div className="flex items-center space-x-3 mb-4">
           <Target className="w-6 h-6 text-blue-600" />
           <h2 className="text-xl font-semibold text-gray-900">
