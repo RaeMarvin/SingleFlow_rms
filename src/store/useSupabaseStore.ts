@@ -292,8 +292,8 @@ const useSupabaseStore = create<Store & {
       completedSignalRatio
     });
 
-    // Check if we should trigger confetti (80%+ signal ratio)
-    const shouldTriggerConfetti = signalRatio >= 0.8 && !get().hasTriggeredConfetti && totalTasks > 0;
+    // Check if we should trigger confetti (80%+ completed signal ratio, not overall signal ratio)
+    const shouldTriggerConfetti = completedSignalRatio >= 0.8 && !get().hasTriggeredConfetti && totalCompleted > 0;
 
     set({
       stats: {
@@ -309,7 +309,11 @@ const useSupabaseStore = create<Store & {
     if (shouldTriggerConfetti) {
       // We'll dispatch a custom event that components can listen to
       window.dispatchEvent(new CustomEvent('fozzle-confetti-trigger', { 
-        detail: { signalRatio } 
+        detail: { 
+          completedSignalRatio,
+          signalCompleted,
+          totalCompleted
+        } 
       }));
       get().setConfettiTriggered();
     }

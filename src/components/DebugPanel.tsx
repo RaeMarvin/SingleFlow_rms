@@ -16,6 +16,7 @@ interface DebugInfo {
 
 export function DebugPanel() {
   const { triggerConfetti } = useConfetti();
+  const { resetConfetti } = useSupabaseStore();
   const [debugInfo, setDebugInfo] = useState<DebugInfo>({
     userId: '',
     tasksCount: 0,
@@ -103,7 +104,8 @@ export function DebugPanel() {
         <div><strong>Signal Tasks:</strong> {debugInfo.signalTasks}</div>
         <div><strong>Noise Tasks:</strong> {debugInfo.noiseTasks}</div>
         <div><strong>Completed:</strong> {debugInfo.completedTasks}</div>
-        <div><strong>Signal Ratio:</strong> {(stats.signalRatio * 100).toFixed(1)}%</div>
+        <div><strong>Signal Ratio (all):</strong> {(stats.signalRatio * 100).toFixed(1)}%</div>
+        <div><strong>Signal Ratio (completed):</strong> {((stats.completedSignalRatio || 0) * 100).toFixed(1)}%</div>
         <div><strong>Stats Signal:</strong> {debugInfo.statsSignalCompleted}</div>
         <div><strong>Supabase:</strong> 
           <span className={debugInfo.supabaseConnection ? 'text-green-600' : 'text-red-600'}>
@@ -194,8 +196,8 @@ export function DebugPanel() {
 
         <button
           onClick={() => {
-            useSupabaseStore.getState().resetConfetti();
-            alert('Confetti flag reset! Next 80%+ ratio will trigger confetti.');
+            resetConfetti();
+            alert(`Confetti flag reset! Complete Signal tasks to get above 80% completed Signal ratio. Currently at ${((stats.completedSignalRatio || 0) * 100).toFixed(1)}%`);
           }}
           className="bg-yellow-500 text-white px-2 py-1 rounded text-xs w-full"
         >
