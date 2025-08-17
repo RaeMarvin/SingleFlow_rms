@@ -1,17 +1,16 @@
 import { useEffect } from 'react';
 import { useConfetti } from '../hooks/useConfetti';
 
-const ConfettiHandler: React.FC = () => {
+export function ConfettiHandler() {
   const { triggerConfetti } = useConfetti();
 
   useEffect(() => {
     const handleConfettiTrigger = (event: CustomEvent) => {
-      const { signalRatio } = event.detail;
-      console.log('🎉 Confetti triggered! Signal ratio:', signalRatio);
+      console.log('Debug - ConfettiHandler received event:', event.detail);
       triggerConfetti();
     };
 
-    // Listen for confetti trigger events
+    // Listen for the custom confetti trigger event
     window.addEventListener('fozzle-confetti-trigger', handleConfettiTrigger as EventListener);
 
     // Cleanup
@@ -20,8 +19,8 @@ const ConfettiHandler: React.FC = () => {
     };
   }, [triggerConfetti]);
 
-  // This component doesn't render anything
+  // This component renders nothing - it just handles events
   return null;
-};
+}
 
 export default ConfettiHandler;

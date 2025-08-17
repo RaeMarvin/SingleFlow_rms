@@ -125,11 +125,13 @@ const useSupabaseStore = create<Store & {
     get().updateStats();
   },
 
-    toggleTaskComplete: async (id: string) => {
-    const task = get().tasks.find(t => t.id === id);
+    toggleTaskComplete: async (id) => {
+    const { tasks } = get();
+    const task = tasks.find(t => t.id === id);
     if (!task) return;
 
     const newCompletedStatus = !task.completed;
+    const completedAt = newCompletedStatus ? new Date() : undefined;
 
     // Optimistic update
     set(state => ({
@@ -138,20 +140,23 @@ const useSupabaseStore = create<Store & {
           ? { 
               ...t, 
               completed: newCompletedStatus,
-              completed_at: newCompletedStatus ? new Date().toISOString() : null
+              completedAt
             }
           : t
       )
     }));
 
+    // Update stats immediately after optimistic update for instant UI feedback
+    get().updateStats();
+
     try {
       await taskService.update(id, { 
         completed: newCompletedStatus,
-        completedAt: newCompletedStatus ? new Date() : undefined
+        completedAt
       });
       
-      // Update stats after successful completion toggle
-      get().updateStats();
+      // Don't update stats again - the optimistic update should have handled UI updates
+      console.log('Debug - Task completion synced to server successfully');
     } catch (error) {
       // Revert on error
       console.error('Error toggling task completion:', error);
@@ -160,6 +165,8 @@ const useSupabaseStore = create<Store & {
           t.id === id ? task : t
         )
       }));
+      // Update stats after revert
+      get().updateStats();
       throw error;
     }
   },
@@ -269,9 +276,10 @@ const useSupabaseStore = create<Store & {
       const completedDate = new Date(task.completedAt);
       const completedDateString = completedDate.toISOString().split('T')[0];
       
-      console.log('Debug - Task completed date:', completedDateString, 'vs today:', todayDateString);
+      const isToday = completedDateString === todayDateString;
+      console.log('Debug - Task', task.id.slice(0, 8), 'completed:', completedDateString, 'vs today:', todayDateString, 'isToday:', isToday, 'category:', task.category);
       
-      return completedDateString === todayDateString;
+      return isToday;
     });
     
     console.log('Debug - Completed today:', completedToday.length);
@@ -289,11 +297,20 @@ const useSupabaseStore = create<Store & {
       noiseCompleted,
       totalCompleted,
       signalRatio,
-      completedSignalRatio
+      completedSignalRatio,
+      hasTriggeredConfetti: get().hasTriggeredConfetti
     });
 
     // Check if we should trigger confetti (80%+ completed signal ratio, not overall signal ratio)
     const shouldTriggerConfetti = completedSignalRatio >= 0.8 && !get().hasTriggeredConfetti && totalCompleted > 0;
+    
+    console.log('Debug - Confetti trigger check:', {
+      completedSignalRatio,
+      isAbove80Percent: completedSignalRatio >= 0.8,
+      hasNotTriggered: !get().hasTriggeredConfetti,
+      hasCompletedTasks: totalCompleted > 0,
+      shouldTrigger: shouldTriggerConfetti
+    });
 
     set({
       stats: {
@@ -307,6 +324,7 @@ const useSupabaseStore = create<Store & {
 
     // Trigger confetti if conditions are met
     if (shouldTriggerConfetti) {
+      console.log('Debug - 🎉 TRIGGERING CONFETTI! Stats:', { completedSignalRatio, signalCompleted, totalCompleted });
       // We'll dispatch a custom event that components can listen to
       window.dispatchEvent(new CustomEvent('fozzle-confetti-trigger', { 
         detail: { 
@@ -316,6 +334,8 @@ const useSupabaseStore = create<Store & {
         } 
       }));
       get().setConfettiTriggered();
+    } else {
+      console.log('Debug - No confetti triggered. Conditions not met.');
     }
   },
 
