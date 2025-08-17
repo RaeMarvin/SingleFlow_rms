@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { supabase } from '../lib/supabase';
+import { useConfetti } from '../hooks/useConfetti';
 
 interface DebugInfo {
   userId: string;
@@ -14,6 +15,7 @@ interface DebugInfo {
 }
 
 export function DebugPanel() {
+  const { triggerConfetti } = useConfetti();
   const [debugInfo, setDebugInfo] = useState<DebugInfo>({
     userId: '',
     tasksCount: 0,
@@ -179,6 +181,25 @@ export function DebugPanel() {
           className="bg-green-500 text-white px-2 py-1 rounded text-xs w-full"
         >
           Create Test Task
+        </button>
+
+        <button
+          onClick={() => {
+            triggerConfetti();
+          }}
+          className="bg-purple-500 text-white px-2 py-1 rounded text-xs w-full"
+        >
+          Test Confetti 🎉
+        </button>
+
+        <button
+          onClick={() => {
+            useSupabaseStore.getState().resetConfetti();
+            alert('Confetti flag reset! Next 80%+ ratio will trigger confetti.');
+          }}
+          className="bg-yellow-500 text-white px-2 py-1 rounded text-xs w-full"
+        >
+          Reset Confetti
         </button>
       </div>
     </div>

@@ -12,6 +12,7 @@ import {
   TaskDetailModal,
   DebugPanel
 } from './components';
+import ConfettiHandler from './components/ConfettiHandler';
 import { Task } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import logoImage from './assets/logo.png';
@@ -264,6 +265,9 @@ function AppContent() {
 
         {/* Only show DebugPanel in development mode */}
         {import.meta.env.DEV && <DebugPanel />}
+
+        {/* Confetti handler for celebration animations */}
+        <ConfettiHandler />
       </div>
     </div>
   );

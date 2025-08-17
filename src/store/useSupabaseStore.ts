@@ -6,12 +6,16 @@ const useSupabaseStore = create<Store & {
   isLoading: boolean;
   loadData: () => Promise<void>;
   syncWithSupabase: boolean;
+  hasTriggeredConfetti: boolean;
+  setConfettiTriggered: () => void;
+  resetConfetti: () => void;
 }>()((set, get) => ({
   // Initial state
   tasks: [],
   ideas: [],
   isLoading: false,
   syncWithSupabase: true,
+  hasTriggeredConfetti: false,
   dailyGoal: {
     signalRatio: 0.8,
     totalTasks: 10,
@@ -145,6 +149,9 @@ const useSupabaseStore = create<Store & {
         completed: newCompletedStatus,
         completedAt: newCompletedStatus ? new Date() : undefined
       });
+      
+      // Update stats after successful completion toggle
+      get().updateStats();
     } catch (error) {
       // Revert on error
       console.error('Error toggling task completion:', error);
@@ -159,6 +166,7 @@ const useSupabaseStore = create<Store & {
 
   moveTask: async (id, category) => {
     await get().updateTask(id, { category });
+    get().updateStats(); // Ensure stats are updated after moving tasks
   },
 
   reorderTasks: async (_category, taskIds) => {
@@ -284,6 +292,9 @@ const useSupabaseStore = create<Store & {
       completedSignalRatio
     });
 
+    // Check if we should trigger confetti (80%+ signal ratio)
+    const shouldTriggerConfetti = signalRatio >= 0.8 && !get().hasTriggeredConfetti && totalTasks > 0;
+
     set({
       stats: {
         signalCompleted,
@@ -293,6 +304,15 @@ const useSupabaseStore = create<Store & {
         completedSignalRatio, // This is the ratio of completed Signal to completed tasks
       },
     });
+
+    // Trigger confetti if conditions are met
+    if (shouldTriggerConfetti) {
+      // We'll dispatch a custom event that components can listen to
+      window.dispatchEvent(new CustomEvent('fozzle-confetti-trigger', { 
+        detail: { signalRatio } 
+      }));
+      get().setConfettiTriggered();
+    }
   },
 
   updateSettings: async (newSettings) => {
@@ -331,6 +351,14 @@ const useSupabaseStore = create<Store & {
         signalRatio: 0,
       },
     });
+  },
+
+  setConfettiTriggered: () => {
+    set({ hasTriggeredConfetti: true });
+  },
+
+  resetConfetti: () => {
+    set({ hasTriggeredConfetti: false });
   },
 }));
 
