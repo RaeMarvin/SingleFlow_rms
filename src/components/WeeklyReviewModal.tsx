@@ -188,16 +188,16 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
               {weekDays.map((day, index) => (
                 <div 
                   key={index} 
-                  className={`text-center p-3 rounded-lg border-2 transition-all ${
+                  className={`text-center p-2 sm:p-3 transition-all ${
                     day.isToday 
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' 
-                      : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800'
+                      ? 'sm:border-2 sm:border-primary-500 sm:bg-primary-50 sm:dark:bg-primary-900/20 sm:rounded-lg' 
+                      : 'sm:border-2 sm:border-gray-200 sm:dark:border-gray-600 sm:bg-white sm:dark:bg-gray-800 sm:rounded-lg'
                   }`}
                 >
                   <div className="text-xs font-medium text-neutral-600 dark:text-gray-400 mb-1">
                     {day.name}
                   </div>
-                  <div className={`text-lg font-bold mb-1 ${
+                  <div className={`text-base sm:text-lg font-bold mb-1 ${
                     day.fozzleScore >= 80 ? 'text-signal-600' :
                     day.fozzleScore >= 60 ? 'text-primary-600' : 'text-noise-600'
                   }`}>
