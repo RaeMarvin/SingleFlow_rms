@@ -8,7 +8,7 @@ interface StatsPanelProps {
 }
 
 const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
-  const { stats, dailyGoal, tasks, ideas, addIdea, deleteIdea, promoteIdea } = useSupabaseStore();
+  const { stats, dailyGoal, tasks, ideas, addIdea, deleteIdea, promoteIdea, moveTask } = useSupabaseStore();
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showRejectedTasks, setShowRejectedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
@@ -152,6 +152,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
         isOpen={showRejectedTasks}
         onToggle={() => setShowRejectedTasks(!showRejectedTasks)}
         onTaskClick={onTaskClick}
+        onMoveTask={moveTask}
       />
 
       {/* Ideas Dropdown */}
@@ -286,9 +287,10 @@ interface RejectedTasksDropdownProps {
   isOpen: boolean;
   onToggle: () => void;
   onTaskClick?: (task: Task) => void;
+  onMoveTask: (id: string, category: 'signal' | 'noise') => void;
 }
 
-const RejectedTasksDropdown: React.FC<RejectedTasksDropdownProps> = ({ tasks, isOpen, onToggle, onTaskClick }) => {
+const RejectedTasksDropdown: React.FC<RejectedTasksDropdownProps> = ({ tasks, isOpen, onToggle, onTaskClick, onMoveTask }) => {
   // Filter for rejected tasks this week
   const getMonday = (date: Date) => {
     const d = new Date(date);
@@ -349,14 +351,16 @@ const RejectedTasksDropdown: React.FC<RejectedTasksDropdownProps> = ({ tasks, is
             rejectedThisWeek.map(task => (
               <div 
                 key={task.id} 
-                className={`flex items-start space-x-3 p-2 bg-red-50 rounded-lg transition-colors ${
-                  onTaskClick ? 'cursor-pointer hover:bg-red-100' : ''
-                }`}
-                onClick={() => onTaskClick?.(task)}
+                className="flex items-start space-x-3 p-2 bg-red-50 rounded-lg border border-red-200 transition-colors group"
               >
                 <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-gray-800 text-sm line-through">
+                  <h4 
+                    className={`font-medium text-gray-800 text-sm line-through ${
+                      onTaskClick ? 'cursor-pointer hover:text-gray-600' : ''
+                    }`}
+                    onClick={() => onTaskClick?.(task)}
+                  >
                     {task.title}
                   </h4>
                   <div className="flex items-center space-x-2 mt-1">
@@ -371,6 +375,30 @@ const RejectedTasksDropdown: React.FC<RejectedTasksDropdownProps> = ({ tasks, is
                       Said NO 🚫
                     </span>
                   </div>
+                </div>
+                
+                {/* Restore buttons */}
+                <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMoveTask(task.id, 'signal');
+                    }}
+                    className="p-1 text-signal-600 hover:bg-signal-100 rounded transition-colors duration-200"
+                    title="Restore to Signal (Important)"
+                  >
+                    <Signal className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMoveTask(task.id, 'noise');
+                    }}
+                    className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors duration-200"
+                    title="Restore to Noise (Less Critical)"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             ))

@@ -223,7 +223,14 @@ const useSupabaseStore = create<Store & {
   },
 
   moveTask: async (id, category) => {
-    await get().updateTask(id, { category });
+    // When moving a task to Signal or Noise, clear rejected status
+    const updates: Partial<Task> = {
+      category,
+      rejected: false, // Clear rejected status
+      rejectedAt: undefined, // Clear rejected timestamp
+    };
+    
+    await get().updateTask(id, updates);
     get().updateStats(); // Ensure stats are updated after moving tasks
   },
 

@@ -101,7 +101,13 @@ const useStore = create<Store>()(
       },
 
       moveTask: (id, category) => {
-        get().updateTask(id, { category });
+        // When moving a task to Signal or Noise, clear rejected status
+        const updates: Partial<Task> = {
+          category,
+          rejected: false, // Clear rejected status
+          rejectedAt: undefined, // Clear rejected timestamp
+        };
+        get().updateTask(id, updates);
       },
 
       reorderTasks: (category, taskIds) => {
