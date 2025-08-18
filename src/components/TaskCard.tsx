@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, Trash2, X } from 'lucide-react';
+import { Check, Trash2, X, Edit3 } from 'lucide-react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { useSignalFlash } from '../hooks/useSignalFlash';
@@ -137,6 +137,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     rejectTask(task.id);
   };
 
+  // Handle edit click
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onTaskClick) {
+      onTaskClick(task);
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -193,6 +201,17 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
                 )}
               </div>
 
+              {/* Edit icon - for Signal tasks, show to the right of checkbox */}
+              {task.category === 'signal' && !task.completed && (
+                <div
+                  className="w-5 h-5 rounded-full border-2 border-blue-300 bg-white hover:bg-blue-50 hover:border-blue-400 flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
+                  onClick={handleEditClick}
+                  title="Edit task"
+                >
+                  <Edit3 className="w-3 h-3 text-blue-500" strokeWidth={2} />
+                </div>
+              )}
+
               {/* Reject button - only show for Noise tasks that aren't completed */}
               {task.category === 'noise' && !task.completed && (
                 <div
@@ -201,6 +220,17 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
                   title="Say NO to this task"
                 >
                   <X className="w-3 h-3 text-red-500" strokeWidth={3} />
+                </div>
+              )}
+
+              {/* Edit icon - for Noise tasks, show to the right of reject button */}
+              {task.category === 'noise' && !task.completed && (
+                <div
+                  className="w-5 h-5 rounded-full border-2 border-blue-300 bg-white hover:bg-blue-50 hover:border-blue-400 flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
+                  onClick={handleEditClick}
+                  title="Edit task"
+                >
+                  <Edit3 className="w-3 h-3 text-blue-500" strokeWidth={2} />
                 </div>
               )}
             </div>
