@@ -309,90 +309,52 @@ const useSupabaseStore = create<Store & {
   // Stats and settings
   updateStats: () => {
     const { tasks } = get();
-    
     // Get today's date (start of day) in local timezone
     const today = new Date();
     const todayDateString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
-    
-    console.log('Debug - Today date string:', todayDateString);
-    console.log('Debug - All tasks:', tasks.map(t => ({ 
-      id: t.id.slice(0,8), 
-      completed: t.completed, 
-      completedAt: t.completedAt,
-      category: t.category 
-    })));
-    
-    // All tasks (completed and incomplete)
-    const signalTasks = tasks.filter((task) => task.category === 'signal');
-    const totalTasks = tasks.length;
-    
+
     // Filter for tasks completed today only
     const completedToday = tasks.filter((task) => {
       if (!task.completed || !task.completedAt) return false;
-      
-      // Convert completedAt to date string (YYYY-MM-DD)
       const completedDate = new Date(task.completedAt);
       const completedDateString = completedDate.toISOString().split('T')[0];
-      
-      const isToday = completedDateString === todayDateString;
-      console.log('Debug - Task', task.id.slice(0, 8), 'completed:', completedDateString, 'vs today:', todayDateString, 'isToday:', isToday, 'category:', task.category);
-      
-      return isToday;
+      return completedDateString === todayDateString;
     });
-    
-    console.log('Debug - Completed today:', completedToday.length);
-    
+
+    // Filter for NO (rejected) tasks today
+    const noToday = tasks.filter((task) => {
+      if (!task.rejected || !task.rejectedAt) return false;
+      const rejectedDate = new Date(task.rejectedAt);
+      const rejectedDateString = rejectedDate.toISOString().split('T')[0];
+      return rejectedDateString === todayDateString;
+    });
+
     const signalCompleted = completedToday.filter((task) => task.category === 'signal').length;
     const noiseCompleted = completedToday.filter((task) => task.category === 'noise').length;
     const totalCompleted = completedToday.length;
-    
-    // Calculate ratios
-    const signalRatio = totalTasks > 0 ? signalTasks.length / totalTasks : 0;
-    const completedSignalRatio = totalCompleted > 0 ? signalCompleted / totalCompleted : 0;
 
-    console.log('Debug - Final stats:', {
-      signalCompleted,
-      noiseCompleted,
-      totalCompleted,
-      signalRatio,
-      completedSignalRatio,
-      previousCompletedSignalRatio: get().previousCompletedSignalRatio,
-      hasTriggeredConfetti: get().hasTriggeredConfetti
-    });
+    // New Fozzle Score calculation: numerator is completed Signal + NO tasks, denominator is completed + NO tasks
+    const fozzleNumerator = signalCompleted + noToday.length;
+    const fozzleDenominator = totalCompleted + noToday.length;
+    const completedSignalRatio = fozzleDenominator > 0 ? fozzleNumerator / fozzleDenominator : 0;
 
     // Check if we should trigger confetti: crossing from below 80% to 80%+ 
     const previousRatio = get().previousCompletedSignalRatio;
     const crossedThreshold = previousRatio < 0.8 && completedSignalRatio >= 0.8;
     const shouldTriggerConfetti = crossedThreshold && totalCompleted > 0;
-    
-    console.log('Debug - Confetti trigger check:', {
-      previousRatio: (previousRatio * 100).toFixed(1) + '%',
-      currentRatio: (completedSignalRatio * 100).toFixed(1) + '%',
-      crossedThreshold,
-      hasCompletedTasks: totalCompleted > 0,
-      shouldTrigger: shouldTriggerConfetti
-    });
 
     set({
       stats: {
         signalCompleted,
         noiseCompleted,
         totalCompleted,
-        signalRatio, // This is now the ratio of all Signal tasks to all tasks
-        completedSignalRatio, // This is the ratio of completed Signal to completed tasks
+        completedSignalRatio, // This is now the ratio of (completed Signal + NO) to (completed + NO)
       },
       previousCompletedSignalRatio: completedSignalRatio, // Always update previous ratio
     });
 
     // Trigger confetti if conditions are met (crossed threshold)
     if (shouldTriggerConfetti) {
-      console.log('Debug - 🎉 THRESHOLD CROSSED! Triggering confetti!', { 
-        from: (previousRatio * 100).toFixed(1) + '%',
-        to: (completedSignalRatio * 100).toFixed(1) + '%',
-        signalCompleted, 
-        totalCompleted 
-      });
-      // Dispatch custom event that components can listen to
       window.dispatchEvent(new CustomEvent('fozzle-confetti-trigger', { 
         detail: { 
           completedSignalRatio,
@@ -401,26 +363,15 @@ const useSupabaseStore = create<Store & {
           crossedThreshold: true
         } 
       }));
-    } else {
-      console.log('Debug - No confetti triggered. Threshold not crossed.');
     }
   },
 
   updateSettings: async (newSettings) => {
     const currentSettings = get().settings;
     const updatedSettings = { ...currentSettings, ...newSettings };
-    
     set({ settings: updatedSettings });
-
     // Sync with Supabase
-    const success = await settingsService.update({
-      ...updatedSettings,
-      dailyGoal: get().dailyGoal,
-    });
-    
-    if (!success) {
-      console.error('Failed to update settings in Supabase');
-    }
+    await settingsService.update(updatedSettings);
   },
 
   resetDailyProgress: async () => {
@@ -434,7 +385,6 @@ const useSupabaseStore = create<Store & {
 
     set({
       tasks: [],
-      ideas: [],
       stats: {
         signalCompleted: 0,
         noiseCompleted: 0,
@@ -454,6 +404,6 @@ const useSupabaseStore = create<Store & {
       previousCompletedSignalRatio: 0
     });
   },
-}));
+}))
 
 export default useSupabaseStore;

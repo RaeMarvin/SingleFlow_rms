@@ -104,7 +104,7 @@ export function DebugPanel() {
         <div><strong>Signal Tasks:</strong> {debugInfo.signalTasks}</div>
         <div><strong>Noise Tasks:</strong> {debugInfo.noiseTasks}</div>
         <div><strong>Completed:</strong> {debugInfo.completedTasks}</div>
-        <div><strong>Signal Ratio (all):</strong> {(stats.signalRatio * 100).toFixed(1)}%</div>
+        <div><strong>Signal Ratio (all):</strong> {((stats.signalRatio ?? 0) * 100).toFixed(1)}%</div>
         <div><strong>Signal Ratio (completed):</strong> {((stats.completedSignalRatio || 0) * 100).toFixed(1)}%</div>
         <div><strong>Stats Signal:</strong> {debugInfo.statsSignalCompleted}</div>
         <div><strong>Supabase:</strong> 

@@ -33,7 +33,7 @@ export interface AppState {
     signalCompleted: number;
     noiseCompleted: number;
     totalCompleted: number;
-    signalRatio: number; // ratio of Signal tasks to all tasks
+    signalRatio?: number; // ratio of Signal tasks to all tasks (optional)
     completedSignalRatio?: number; // ratio of completed Signal to completed tasks
   };
   settings: {
