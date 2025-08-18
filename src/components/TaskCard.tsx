@@ -5,6 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Check, Trash2 } from 'lucide-react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
+import { useSignalFlash } from '../hooks/useSignalFlash';
 
 interface TaskCardProps {
   task: Task;
@@ -14,6 +15,7 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
   const { deleteTask, toggleTaskComplete } = useSupabaseStore();
+  const { isFlashing, triggerSignalFlash } = useSignalFlash();
 
   // Use sortable for within-column reordering
   const {
@@ -115,18 +117,34 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   // Handle checkbox click
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleTaskComplete(task.id);
+    
+    // If this is a Signal task being completed (not uncompleted), trigger flash
+    if (!task.completed && task.category === 'signal') {
+      triggerSignalFlash();
+      // Delay the actual completion to allow the flash to be visible
+      setTimeout(() => {
+        toggleTaskComplete(task.id);
+      }, 100);
+    } else {
+      // For all other cases (uncompleting tasks, completing Noise tasks), complete immediately
+      toggleTaskComplete(task.id);
+    }
   };
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        borderColor: isFlashing ? '#7dc3ff' : undefined,
+        boxShadow: isFlashing ? '0 0 20px rgba(125, 195, 255, 0.4)' : undefined,
+      }}
       className={`
-        group relative rounded-xl p-4 border border-gray-200 shadow-sm transition-all duration-200
+        group relative rounded-xl p-4 border transition-all duration-200
         ${task.category === 'noise' ? 'bg-gray-50' : 'bg-white'}
         ${isDragging ? 'shadow-xl' : isDragActive ? 'shadow-xl rotate-1 scale-105 z-50' : 'hover:shadow-md'}
         ${task.completed ? 'opacity-75' : ''}
+        ${isFlashing ? 'border-2 shadow-lg' : 'border border-gray-200 shadow-sm'}
       `}
     >
       {/* Dedicated drag handle - larger area for easier grabbing */}
