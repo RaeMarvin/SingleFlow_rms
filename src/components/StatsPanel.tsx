@@ -118,10 +118,10 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
           />
           {/* New StatCard for Noise Said No To Today */}
           <StatCard
-            icon={<X className="w-5 h-5 text-red-600" />}
+            icon={<X className="w-5 h-5 text-[#7dc3ff]" />}
             label="Noise Said No To Today"
             value={noiseRejectedToday}
-            color="text-red-600"
+            color="text-[#7dc3ff]"
           />
           <div className="pt-3 border-t border-gray-200">
             <div className="flex items-center justify-between mb-2">
@@ -336,13 +336,13 @@ const RejectedTasksDropdown: React.FC<RejectedTasksDropdownProps> = ({ tasks, is
   });
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div className="bg-white rounded-xl shadow-sm border border-[#7dc3ff]">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 rounded-xl"
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-[#eaf6fd] dark:hover:bg-blue-700/50 transition-colors duration-200 rounded-xl"
       >
         <div className="flex items-center space-x-3">
-          <X className="w-5 h-5 text-red-600" />
+          <X className="w-5 h-5 text-[#7dc3ff]" />
           <span className="font-medium text-gray-900 dark:text-white">
             Said NO To ({rejectedThisWeek.length})
           </span>
@@ -368,9 +368,9 @@ const RejectedTasksDropdown: React.FC<RejectedTasksDropdownProps> = ({ tasks, is
             rejectedThisWeek.map(task => (
               <div 
                 key={task.id} 
-                className="flex items-start space-x-3 p-2 bg-red-50 rounded-lg border border-red-200 transition-colors group"
+                className="flex items-start space-x-3 p-2 bg-[#eaf6fd] rounded-lg border border-[#7dc3ff] transition-colors group"
               >
-                <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                <X className="w-4 h-4 text-[#7dc3ff] mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <h4 
                     className={`font-medium text-gray-800 text-sm line-through ${
@@ -388,7 +388,7 @@ const RejectedTasksDropdown: React.FC<RejectedTasksDropdownProps> = ({ tasks, is
                     }`}>
                       {task.category}
                     </span>
-                    <span className="text-xs text-red-600 font-medium">
+                    <span className="text-xs font-medium text-[#7dc3ff]">
                       Said NO 🚫
                     </span>
                   </div>
