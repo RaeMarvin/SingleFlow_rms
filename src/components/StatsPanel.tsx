@@ -13,6 +13,18 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const [showRejectedTasks, setShowRejectedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
   const [isFlashing, setIsFlashing] = useState(false);
+
+  // Calculate Noise Said No To Today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const noiseRejectedToday = tasks.filter(task => {
+    if (task.category !== 'noise' || !task.rejected) return false;
+    if (!task.rejectedAt) return false;
+    const rejectedDate = new Date(task.rejectedAt);
+    return rejectedDate.getFullYear() === today.getFullYear() &&
+      rejectedDate.getMonth() === today.getMonth() &&
+      rejectedDate.getDate() === today.getDate();
+  }).length;
   
   // Listen for border flash events (desktop achievement celebration)
   useEffect(() => {
@@ -98,14 +110,19 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
             value={stats.signalCompleted}
             color="text-signal-600"
           />
-          
           <StatCard
             icon={<Circle className="w-5 h-5 text-noise-600" />}
             label="Noise Completed Today"
             value={stats.noiseCompleted}
             color="text-noise-600"
           />
-
+          {/* New StatCard for Noise Said No To Today */}
+          <StatCard
+            icon={<X className="w-5 h-5 text-red-600" />}
+            label="Noise Said No To Today"
+            value={noiseRejectedToday}
+            color="text-red-600"
+          />
           <div className="pt-3 border-t border-gray-200">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700">
