@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, Trash2, X, Edit3 } from 'lucide-react';
+import { Check, Trash2, Edit3 } from 'lucide-react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { useSignalFlash } from '../hooks/useSignalFlash';
+import NoiseTaskChoiceModal from './NoiseTaskChoiceModal';
 
 interface TaskCardProps {
   task: Task;
@@ -16,6 +17,7 @@ interface TaskCardProps {
 const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
   const { deleteTask, toggleTaskComplete, rejectTask } = useSupabaseStore();
   const { isFlashing, triggerSignalFlash } = useSignalFlash();
+  const [showChoiceModal, setShowChoiceModal] = useState(false);
 
   // Use sortable for within-column reordering
   const {
@@ -118,6 +120,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     
+    // If this is a Noise task being completed (not uncompleted), show choice modal
+    if (!task.completed && task.category === 'noise') {
+      setShowChoiceModal(true);
+      return;
+    }
+    
     // If this is a Signal task being completed (not uncompleted), trigger flash
     if (!task.completed && task.category === 'signal') {
       triggerSignalFlash();
@@ -126,15 +134,24 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         toggleTaskComplete(task.id);
       }, 100);
     } else {
-      // For all other cases (uncompleting tasks, completing Noise tasks), complete immediately
+      // For all other cases (uncompleting tasks), complete immediately
       toggleTaskComplete(task.id);
     }
   };
 
-  // Handle reject click - only for Noise tasks
-  const handleRejectClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  // Handle modal choices
+  const handleModalCompleted = () => {
+    setShowChoiceModal(false);
+    toggleTaskComplete(task.id);
+  };
+
+  const handleModalDeclined = () => {
+    setShowChoiceModal(false);
     rejectTask(task.id);
+  };
+
+  const handleModalClose = () => {
+    setShowChoiceModal(false);
   };
 
   // Handle edit click
@@ -212,18 +229,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
                 </div>
               )}
 
-              {/* Reject button - only show for Noise tasks that aren't completed */}
-              {task.category === 'noise' && !task.completed && (
-                <div
-                  className="w-5 h-5 rounded-full border-2 border-red-300 bg-white hover:bg-red-50 hover:border-red-400 flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
-                  onClick={handleRejectClick}
-                  title="Say NO to this task"
-                >
-                  <X className="w-3 h-3 text-red-500" strokeWidth={3} />
-                </div>
-              )}
-
-              {/* Edit icon - for Noise tasks, show to the right of reject button */}
+              {/* Edit icon - for Noise tasks, show next to checkbox */}
               {task.category === 'noise' && !task.completed && (
                 <div
                   className="w-5 h-5 rounded-full border-2 border-blue-300 bg-white hover:bg-blue-50 hover:border-blue-400 flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
@@ -282,6 +288,15 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
       >
         <Trash2 className="w-4 h-4" />
       </button>
+
+      {/* Noise Task Choice Modal */}
+      <NoiseTaskChoiceModal
+        isOpen={showChoiceModal}
+        onClose={handleModalClose}
+        onCompleted={handleModalCompleted}
+        onDeclined={handleModalDeclined}
+        taskTitle={task.title}
+      />
     </div>
   );
 };
