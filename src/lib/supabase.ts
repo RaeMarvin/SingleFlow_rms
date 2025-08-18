@@ -20,6 +20,8 @@ export interface TaskRow {
   category: 'signal' | 'noise';
   priority: 'high' | 'medium' | 'low';
   completed: boolean;
+  rejected?: boolean;
+  rejected_at?: string | null;
   task_order: number;
   created_at: string;
   completed_at: string | null;

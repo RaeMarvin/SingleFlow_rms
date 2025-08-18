@@ -15,6 +15,8 @@ const mapTaskFromDb = (row: TaskRow): Task => ({
   category: row.category,
   priority: row.priority,
   completed: row.completed,
+  rejected: row.rejected ?? false,
+  rejectedAt: row.rejected_at ? new Date(row.rejected_at) : undefined,
   order: row.task_order,
   createdAt: new Date(row.created_at),
   completedAt: row.completed_at ? new Date(row.completed_at) : undefined,
@@ -88,6 +90,8 @@ export const taskService = {
       category: task.category,
       priority: task.priority,
       completed: task.completed,
+      rejected: task.rejected ?? false,
+      rejected_at: task.rejectedAt?.toISOString() || null,
       task_order: 0, // Always insert new tasks at the top
       created_at: new Date().toISOString(),
       completed_at: task.completedAt?.toISOString() || null,
@@ -117,6 +121,8 @@ export const taskService = {
       ...(updates.category !== undefined && { category: updates.category }),
       ...(updates.completedAt !== undefined && { completed_at: updates.completedAt?.toISOString() || null }),
       ...(updates.order !== undefined && { task_order: updates.order }),
+      ...(updates.rejected !== undefined && { rejected: updates.rejected }),
+      ...(updates.rejectedAt !== undefined && { rejected_at: updates.rejectedAt?.toISOString() || null }),
     };
 
     const { data, error } = await supabase
