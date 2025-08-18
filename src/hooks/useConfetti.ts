@@ -41,7 +41,7 @@ export const useConfetti = () => {
 
     // Mobile-optimized settings
     const mobileConfig: ConfettiConfig = {
-      particleCount: 30,
+      particleCount: 15, // Reduced by half from 30
       angle: 90,
       spread: 45,
       startVelocity: 25,
@@ -57,7 +57,7 @@ export const useConfetti = () => {
     const finalConfig = config || mobileConfig;
 
     // Create multiple bursts for a more celebratory effect
-    const duration = 3000; // 3 seconds
+    const duration = 2000; // 2 seconds (reduced by 1/3 from 3000ms)
     const animationEnd = Date.now() + duration;
     
     const randomInRange = (min: number, max: number) => {
@@ -88,7 +88,7 @@ export const useConfetti = () => {
     }
     
     // Special success confetti with more celebration
-    const count = 200;
+    const count = 100; // Reduced by half from 200
     const defaults = {
       origin: { y: 0.7 }
     };
