@@ -16,9 +16,9 @@ interface TaskBoardProps {
 const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick }) => {
   const { tasks } = useSupabaseStore();
   
-  // Only show incomplete tasks on the board
-  const signalTasks = tasks.filter((task) => task.category === 'signal' && !task.completed);
-  const noiseTasks = tasks.filter((task) => task.category === 'noise' && !task.completed);
+  // Only show incomplete and non-rejected tasks on the board
+  const signalTasks = tasks.filter((task) => task.category === 'signal' && !task.completed && !task.rejected);
+  const noiseTasks = tasks.filter((task) => task.category === 'noise' && !task.completed && !task.rejected);
 
   return (
     <div className="space-y-4">

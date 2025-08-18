@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, Trash2 } from 'lucide-react';
+import { Check, Trash2, X } from 'lucide-react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { useSignalFlash } from '../hooks/useSignalFlash';
@@ -14,7 +14,7 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
-  const { deleteTask, toggleTaskComplete } = useSupabaseStore();
+  const { deleteTask, toggleTaskComplete, rejectTask } = useSupabaseStore();
   const { isFlashing, triggerSignalFlash } = useSignalFlash();
 
   // Use sortable for within-column reordering
@@ -131,6 +131,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     }
   };
 
+  // Handle reject click - only for Noise tasks
+  const handleRejectClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    rejectTask(task.id);
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -165,23 +171,37 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
       {/* Main content area - offset to account for drag handle */}
       <div className="relative mt-4">
         <div className="flex items-center justify-between">
-          {/* Left side - checkbox and task info */}
+          {/* Left side - checkbox, reject button (for Noise), and task info */}
           <div className="flex items-center space-x-3 flex-1 min-w-0">
-            {/* Circular checkbox */}
-            <div
-              className={`
-                w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 cursor-pointer
-                ${getCheckboxColor()}
-                ${task.completed ? '' : 'hover:scale-110'}
-              `}
-              onClick={handleCheckboxClick}
-              title={task.completed ? "Mark as incomplete" : "Mark as complete"}
-            >
-              {task.completed && (
-                <Check className="w-3 h-3 text-white" strokeWidth={3} />
-              )}
-              {!task.completed && task.priority === 'high' && (
-                <div className="w-2 h-2 bg-signal-500 rounded-full"></div>
+            {/* Action buttons container */}
+            <div className="flex items-center space-x-2 flex-shrink-0">
+              {/* Circular checkbox */}
+              <div
+                className={`
+                  w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 cursor-pointer
+                  ${getCheckboxColor()}
+                  ${task.completed ? '' : 'hover:scale-110'}
+                `}
+                onClick={handleCheckboxClick}
+                title={task.completed ? "Mark as incomplete" : "Mark as complete"}
+              >
+                {task.completed && (
+                  <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                )}
+                {!task.completed && task.priority === 'high' && (
+                  <div className="w-2 h-2 bg-signal-500 rounded-full"></div>
+                )}
+              </div>
+
+              {/* Reject button - only show for Noise tasks that aren't completed */}
+              {task.category === 'noise' && !task.completed && (
+                <div
+                  className="w-5 h-5 rounded-full border-2 border-red-300 bg-white hover:bg-red-50 hover:border-red-400 flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
+                  onClick={handleRejectClick}
+                  title="Say NO to this task"
+                >
+                  <X className="w-3 h-3 text-red-500" strokeWidth={3} />
+                </div>
               )}
             </div>
 

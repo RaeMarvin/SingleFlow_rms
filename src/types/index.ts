@@ -6,9 +6,11 @@ export interface Task {
   category: 'signal' | 'noise';
   priority: 'high' | 'medium' | 'low';
   completed: boolean;
+  rejected?: boolean; // New field for NO list
   order: number; // for ordering within each category
   createdAt: Date;
   completedAt?: Date;
+  rejectedAt?: Date; // New field for when task was rejected
 }
 
 export interface Idea {
@@ -48,6 +50,7 @@ export interface StoreActions {
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   toggleTaskComplete: (id: string) => void;
+  rejectTask: (id: string) => void; // New action for rejecting tasks
   moveTask: (id: string, category: 'signal' | 'noise') => void;
   reorderTasks: (category: 'signal' | 'noise', taskIds: string[]) => void;
   

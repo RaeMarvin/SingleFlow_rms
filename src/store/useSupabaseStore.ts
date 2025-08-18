@@ -173,6 +173,55 @@ const useSupabaseStore = create<Store & {
     }
   },
 
+  rejectTask: async (id) => {
+    const { tasks } = get();
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const newRejectedStatus = !task.rejected;
+    const rejectedAt = newRejectedStatus ? new Date() : undefined;
+
+    // Optimistic update
+    set(state => ({
+      tasks: state.tasks.map(t => 
+        t.id === id 
+          ? { 
+              ...t, 
+              rejected: newRejectedStatus,
+              rejectedAt,
+              completed: false, // Reset completed status when rejecting
+              completedAt: undefined
+            }
+          : t
+      )
+    }));
+
+    // Update stats immediately after optimistic update for instant UI feedback
+    get().updateStats();
+
+    try {
+      await taskService.update(id, { 
+        rejected: newRejectedStatus,
+        rejectedAt,
+        completed: false,
+        completedAt: undefined
+      });
+      
+      console.log('Debug - Task rejection synced to server successfully');
+    } catch (error) {
+      // Revert on error
+      console.error('Error rejecting task:', error);
+      set(state => ({
+        tasks: state.tasks.map(t => 
+          t.id === id ? task : t
+        )
+      }));
+      // Update stats after revert
+      get().updateStats();
+      throw error;
+    }
+  },
+
   moveTask: async (id, category) => {
     await get().updateTask(id, { category });
     get().updateStats(); // Ensure stats are updated after moving tasks

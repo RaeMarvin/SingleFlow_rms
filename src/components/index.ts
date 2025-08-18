@@ -7,5 +7,6 @@ export { default as IdeaParkingLot } from './IdeaParkingLot';
 export { default as WeeklyReviewModal } from './WeeklyReviewModal';
 export { default as AddTaskModal } from './AddTaskModal';
 export { default as CompletedTasksThisWeek } from './CompletedTasksThisWeek';
+export { default as RejectedTasksThisWeek } from './RejectedTasksThisWeek';
 export { DebugPanel } from './DebugPanel';
 export { AuthModal } from './AuthModal';

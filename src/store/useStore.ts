@@ -84,6 +84,22 @@ const useStore = create<Store>()(
         }
       },
 
+      rejectTask: (id) => {
+        console.log('rejectTask called with id:', id);
+        const task = get().tasks.find((t) => t.id === id);
+        console.log('Found task:', task);
+        if (task) {
+          const updates: Partial<Task> = {
+            rejected: !task.rejected,
+            rejectedAt: !task.rejected ? new Date() : undefined,
+            completed: false, // Reset completed status when rejecting
+            completedAt: undefined
+          };
+          console.log('Updating task with:', updates);
+          get().updateTask(id, updates);
+        }
+      },
+
       moveTask: (id, category) => {
         get().updateTask(id, { category });
       },

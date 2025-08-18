@@ -10,6 +10,7 @@ interface StatsPanelProps {
 const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const { stats, dailyGoal, tasks, ideas, addIdea, deleteIdea, promoteIdea } = useSupabaseStore();
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
+  const [showRejectedTasks, setShowRejectedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
   const [isFlashing, setIsFlashing] = useState(false);
   
@@ -145,6 +146,14 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
         onTaskClick={onTaskClick}
       />
 
+      {/* Rejected Tasks Dropdown (NO List) */}
+      <RejectedTasksDropdown 
+        tasks={tasks}
+        isOpen={showRejectedTasks}
+        onToggle={() => setShowRejectedTasks(!showRejectedTasks)}
+        onTaskClick={onTaskClick}
+      />
+
       {/* Ideas Dropdown */}
       <IdeasDropdown 
         ideas={availableIdeas}
@@ -260,6 +269,106 @@ const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, 
                         : 'text-noise-600 bg-noise-50 border border-noise-200'
                     }`}>
                       {task.category}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+interface RejectedTasksDropdownProps {
+  tasks: Task[];
+  isOpen: boolean;
+  onToggle: () => void;
+  onTaskClick?: (task: Task) => void;
+}
+
+const RejectedTasksDropdown: React.FC<RejectedTasksDropdownProps> = ({ tasks, isOpen, onToggle, onTaskClick }) => {
+  // Filter for rejected tasks this week
+  const getMonday = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    d.setDate(diff);
+    return d;
+  };
+
+  const getSunday = (monday: Date) => {
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    return sunday;
+  };
+
+  const today = new Date();
+  const weekStart = getMonday(new Date(today));
+  const weekEnd = getSunday(new Date(weekStart));
+
+  const rejectedThisWeek = tasks.filter(task => {
+    if (!task.rejected) return false;
+    const rejectedDate = task.rejectedAt ? new Date(task.rejectedAt) : new Date(task.createdAt);
+    return rejectedDate >= weekStart && rejectedDate <= weekEnd;
+  });
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 rounded-xl"
+      >
+        <div className="flex items-center space-x-3">
+          <X className="w-5 h-5 text-red-600" />
+          <span className="font-medium text-gray-900 dark:text-white">
+            Said NO To ({rejectedThisWeek.length})
+          </span>
+        </div>
+        {isOpen ? (
+          <ChevronDown className="w-5 h-5 text-gray-400" />
+        ) : (
+          <ChevronRight className="w-5 h-5 text-gray-400" />
+        )}
+      </button>
+      
+      {isOpen && (
+        <div className="px-4 pb-4 space-y-2 max-h-60 overflow-y-auto">
+          {rejectedThisWeek.length === 0 ? (
+            <p className="text-sm text-gray-500 py-4 text-center">
+              No tasks rejected this week yet.
+              <br />
+              <span className="text-xs text-gray-400 mt-1 block">
+                Use the ❌ button on Noise tasks to practice saying NO
+              </span>
+            </p>
+          ) : (
+            rejectedThisWeek.map(task => (
+              <div 
+                key={task.id} 
+                className={`flex items-start space-x-3 p-2 bg-red-50 rounded-lg transition-colors ${
+                  onTaskClick ? 'cursor-pointer hover:bg-red-100' : ''
+                }`}
+                onClick={() => onTaskClick?.(task)}
+              >
+                <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-gray-800 text-sm line-through">
+                    {task.title}
+                  </h4>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                      task.category === 'signal' 
+                        ? 'text-signal-600 bg-signal-50 border border-signal-200' 
+                        : 'text-noise-600 bg-noise-50 border border-noise-200'
+                    }`}>
+                      {task.category}
+                    </span>
+                    <span className="text-xs text-red-600 font-medium">
+                      Said NO 🚫
                     </span>
                   </div>
                 </div>
