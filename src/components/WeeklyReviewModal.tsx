@@ -76,6 +76,7 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
   const completedWeekTasks = weekTasks.filter(t => t.completed);
   const completedWeekSignalTasks = completedWeekTasks.filter(t => t.category === 'signal');
   const completedWeekNoiseTasks = completedWeekTasks.filter(t => t.category === 'noise');
+  const rejectedWeekTasks = weekTasks.filter(t => t.rejected);
   
   // Calculate Fozzle Score (completed Signal ratio)
   const fozzleScore = completedWeekTasks.length > 0 ? (completedWeekSignalTasks.length / completedWeekTasks.length) * 100 : 0;
@@ -92,6 +93,7 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
     completedSignal: number;
     completedNoise: number;
     totalCompleted: number;
+    rejectedTasks: number;
     fozzleScore: number;
   }
   
@@ -107,6 +109,15 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
       return completedDate.toDateString() === day.toDateString();
     });
     
+    // Get tasks rejected on this specific day
+    const dayRejectedTasks = tasks.filter(task => {
+      if (!task.rejected) return false;
+      
+      // Use rejectedAt if available, otherwise fall back to createdAt
+      const rejectedDate = task.rejectedAt ? new Date(task.rejectedAt) : new Date(task.createdAt);
+      return rejectedDate.toDateString() === day.toDateString();
+    });
+    
     const dayCompletedSignal = dayCompletedTasks.filter(t => t.category === 'signal');
     const dayCompletedNoise = dayCompletedTasks.filter(t => t.category === 'noise');
     const dayFozzleScore = dayCompletedTasks.length > 0 ? (dayCompletedSignal.length / dayCompletedTasks.length) * 100 : 0;
@@ -118,6 +129,7 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
       completedSignal: dayCompletedSignal.length,
       completedNoise: dayCompletedNoise.length,
       totalCompleted: dayCompletedTasks.length,
+      rejectedTasks: dayRejectedTasks.length,
       fozzleScore: dayFozzleScore
     });
   }
@@ -156,7 +168,7 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
 
         <div className="p-6 space-y-6">
           {/* Overview Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatBox
               icon={<Award className="w-6 h-6 text-blue-600" />}
               title="Fozzle Score (Week)"
@@ -175,6 +187,13 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
               title="Noise Tasks Completed"
               value={completedWeekNoiseTasks.length}
               subtitle={`Distractions handled`}
+            />
+            <StatBox
+              icon={<X className="w-6 h-6 text-red-600" />}
+              title="Tasks Rejected This Week"
+              value={rejectedWeekTasks.length}
+              subtitle="Said NO to distractions"
+              valueColor="text-red-600"
             />
           </div>
 
@@ -214,13 +233,13 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
           {/* Signal vs Noise Breakdown */}
           <div className="bg-neutral-50 dark:bg-gray-700 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-neutral-800 dark:text-white mb-4">
-              Signal vs. Noise Breakdown (This Week)
+              Daily Task Actions (This Week)
             </h3>
             
             <div className="space-y-4">
               <div className="grid grid-cols-7 gap-2">
                 {weekDays.map((day, index) => {
-                  const maxTasks = Math.max(...weekDays.map(d => Math.max(d.completedSignal, d.completedNoise)));
+                  const maxTasks = Math.max(...weekDays.map(d => Math.max(d.completedSignal, d.completedNoise, d.rejectedTasks)));
                   const maxHeight = maxTasks > 0 ? 120 : 20; // px
                   
                   return (
@@ -230,9 +249,9 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
                       </div>
                       
                       {/* Bar Chart Container */}
-                      <div className="relative flex items-end justify-center space-x-1" style={{ height: `${maxHeight + 20}px` }}>
+                      <div className="relative flex items-end justify-center space-x-0.5" style={{ height: `${maxHeight + 20}px` }}>
                         {/* Signal Bar */}
-                        <div className="w-4 bg-signal-500 rounded-t" 
+                        <div className="w-3 bg-signal-500 rounded-t" 
                              style={{ 
                                height: maxTasks > 0 ? `${(day.completedSignal / maxTasks) * maxHeight}px` : '4px',
                                minHeight: day.completedSignal > 0 ? '8px' : '4px'
@@ -241,20 +260,30 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
                         </div>
                         
                         {/* Noise Bar */}
-                        <div className="w-4 bg-noise-500 rounded-t" 
+                        <div className="w-3 bg-noise-500 rounded-t" 
                              style={{ 
                                height: maxTasks > 0 ? `${(day.completedNoise / maxTasks) * maxHeight}px` : '4px',
                                minHeight: day.completedNoise > 0 ? '8px' : '4px'
                              }}
                              title={`${day.completedNoise} Noise tasks completed`}>
                         </div>
+                        
+                        {/* Rejected Bar */}
+                        <div className="w-3 bg-red-500 rounded-t" 
+                             style={{ 
+                               height: maxTasks > 0 ? `${(day.rejectedTasks / maxTasks) * maxHeight}px` : '4px',
+                               minHeight: day.rejectedTasks > 0 ? '8px' : '4px'
+                             }}
+                             title={`${day.rejectedTasks} tasks rejected`}>
+                        </div>
                       </div>
                       
                       {/* Task Count Labels */}
                       <div className="text-xs text-neutral-600 dark:text-gray-400 mt-2">
-                        <div className="flex justify-center space-x-2">
+                        <div className="flex justify-center space-x-1">
                           <span className="text-signal-600">{day.completedSignal}S</span>
                           <span className="text-noise-600">{day.completedNoise}N</span>
+                          <span className="text-red-600">{day.rejectedTasks}R</span>
                         </div>
                       </div>
                     </div>
@@ -263,7 +292,7 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
               </div>
               
               {/* Legend */}
-              <div className="flex justify-center space-x-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+              <div className="flex justify-center space-x-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-signal-500 rounded"></div>
                   <span className="text-sm text-neutral-600 dark:text-gray-400">Signal Tasks</span>
@@ -271,6 +300,10 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-noise-500 rounded"></div>
                   <span className="text-sm text-neutral-600 dark:text-gray-400">Noise Tasks</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded"></div>
+                  <span className="text-sm text-neutral-600 dark:text-gray-400">Rejected Tasks</span>
                 </div>
               </div>
             </div>
@@ -285,6 +318,11 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
               {fozzleScore >= 80 && (
                 <p className="text-signal-700 dark:text-signal-300">
                   🎉 Excellent Fozzle Score this week! You achieved {fozzleScore.toFixed(0)}% focus on Signal tasks.
+                </p>
+              )}
+              {rejectedWeekTasks.length > 0 && (
+                <p className="text-red-700 dark:text-red-300">
+                  💪 Great job saying NO to {rejectedWeekTasks.length} distracting task{rejectedWeekTasks.length !== 1 ? 's' : ''} this week!
                 </p>
               )}
               {fozzleScore < 80 && fozzleScore >= 60 && (
