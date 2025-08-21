@@ -2,6 +2,7 @@ import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus
 import { useState, useEffect } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
+import CardConfetti from './CardConfetti';
 
 interface StatsPanelProps {
   onTaskClick?: (task: Task) => void;
@@ -12,7 +13,8 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showRejectedTasks, setShowRejectedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
-  const [isFlashing, setIsFlashing] = useState(false);
+  // Removed isFlashing, not used
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Calculate Noise Said No To Today
   const today = new Date();
@@ -26,22 +28,18 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
       rejectedDate.getDate() === today.getDate();
   }).length;
   
-  // Listen for border flash events (desktop achievement celebration)
+  // Listen for confetti trigger events (desktop achievement celebration)
   useEffect(() => {
-    const handleBorderFlash = (event: CustomEvent) => {
-      console.log('Debug - StatsPanel received border flash event:', event.detail);
-      setIsFlashing(true);
-      
-      // Stop flashing after 3 seconds
-      setTimeout(() => {
-        setIsFlashing(false);
-      }, 3000);
+    const handleConfetti = () => {
+      // Only show confetti on desktop
+      if (window.innerWidth > 768) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 2000); // Match mobile duration
+      }
     };
-
-    window.addEventListener('fozzle-border-flash-trigger', handleBorderFlash as EventListener);
-    
+    window.addEventListener('fozzle-confetti-trigger', handleConfetti as EventListener);
     return () => {
-      window.removeEventListener('fozzle-border-flash-trigger', handleBorderFlash as EventListener);
+      window.removeEventListener('fozzle-confetti-trigger', handleConfetti as EventListener);
     };
   }, []);
   
@@ -54,102 +52,106 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
 
   return (
     <div className="space-y-4">
-      <div className={`bg-white rounded-xl shadow-sm p-6 border-2 border-transparent transition-all duration-200 ${isFlashing ? 'flash-border' : ''}`}>
-        <div className="flex items-center space-x-3 mb-4">
-          <Target className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-900">
-            Daily Progress
-          </h2>
-        </div>
+      <div className="relative">
+        {/* Confetti only for desktop, inside card */}
+        <CardConfetti trigger={showConfetti} duration={2000} />
+        <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-transparent transition-all duration-200">
+          <div className="flex items-center space-x-3 mb-4">
+            <Target className="w-6 h-6 text-blue-600" />
+            <h2 className="text-xl font-semibold text-gray-900">
+              Daily Progress
+            </h2>
+          </div>
 
-        {/* Fozzle Score Ring - Signal Percentage */}
-        <div className="flex items-center justify-center mb-6">
-          <div className="relative w-32 h-32">
-            <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-              <circle
-                cx="60"
-                cy="60"
-                r="50"
-                stroke="currentColor"
-                strokeWidth="8"
-                fill="none"
-                className="text-gray-200"
-              />
-              <circle
-                cx="60"
-                cy="60"
-                r="50"
-                stroke={signalRatioPercentage >= 80 ? '#7dc3ff' : 'currentColor'}
-                strokeWidth="8"
-                fill="none"
-                strokeDasharray={`${signalRatioPercentage * 3.14} 314`}
-                className={`transition-all duration-500 ${
-                  signalRatioPercentage >= 80 ? '' :
-                  signalRatioPercentage >= 60 ? 'text-primary-500' : 'text-noise-500'
-                }`}
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-neutral-800">
-                  {signalRatioPercentage.toFixed(0)}%
-                </div>
-                <div className="text-sm text-neutral-500">
-                  Fozzle Score
+          {/* Fozzle Score Ring - Signal Percentage */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="relative w-32 h-32">
+              <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="50"
+                  stroke="currentColor"
+                  strokeWidth="8"
+                  fill="none"
+                  className="text-gray-200"
+                />
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="50"
+                  stroke={signalRatioPercentage >= 80 ? '#7dc3ff' : 'currentColor'}
+                  strokeWidth="8"
+                  fill="none"
+                  strokeDasharray={`${signalRatioPercentage * 3.14} 314`}
+                  className={`transition-all duration-500 ${
+                    signalRatioPercentage >= 80 ? '' :
+                    signalRatioPercentage >= 60 ? 'text-primary-500' : 'text-noise-500'
+                  }`}
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-neutral-800">
+                    {signalRatioPercentage.toFixed(0)}%
+                  </div>
+                  <div className="text-sm text-neutral-500">
+                    Fozzle Score
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Stats Cards */}
-        <div className="space-y-3">
-          <StatCard
-            icon={<CheckCircle className="w-5 h-5 text-signal-600" />}
-            label="Signal Completed Today"
-            value={stats.signalCompleted}
-            color="text-signal-600"
-          />
-          <StatCard
-            icon={<Circle className="w-5 h-5 text-noise-600" />}
-            label="Noise Completed Today"
-            value={stats.noiseCompleted}
-            color="text-noise-600"
-          />
-          {/* New StatCard for Noise Said No To Today */}
-          <StatCard
-            icon={<X className="w-5 h-5 text-[#7dc3ff]" />}
-            label="Noise Said No To Today"
-            value={noiseRejectedToday}
-            color="text-[#7dc3ff]"
-          />
-          <div className="pt-3 border-t border-gray-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">
-                Tasks Completed Today
-              </span>
-              <span className="text-sm font-bold text-gray-900">
-                {stats.totalCompleted} / {dailyGoal.totalTasks}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className={`h-2 rounded-full transition-all duration-500 ${
-                  progressPercentage >= 100 ? 'bg-signal-500' :
-                  progressPercentage >= 80 ? 'bg-primary-500' : 'bg-noise-500'
-                }`}
-                style={{ width: `${progressPercentage}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>Goal: {dailyGoal.totalTasks}</span>
-              <span className={
-                progressPercentage >= 100 ? 'text-signal-600' :
-                progressPercentage >= 80 ? 'text-primary-600' : 'text-noise-600'
-              }>
-                {progressPercentage >= 100 ? 'Goal Achieved!' :
-                 progressPercentage >= 80 ? 'Almost There' : 'Keep Going!'}
-              </span>
+          {/* Stats Cards */}
+          <div className="space-y-3">
+            <StatCard
+              icon={<CheckCircle className="w-5 h-5 text-signal-600" />}
+              label="Signal Completed Today"
+              value={stats.signalCompleted}
+              color="text-signal-600"
+            />
+            <StatCard
+              icon={<Circle className="w-5 h-5 text-noise-600" />}
+              label="Noise Completed Today"
+              value={stats.noiseCompleted}
+              color="text-noise-600"
+            />
+            {/* New StatCard for Noise Said No To Today */}
+            <StatCard
+              icon={<X className="w-5 h-5 text-[#7dc3ff]" />}
+              label="Noise Said No To Today"
+              value={noiseRejectedToday}
+              color="text-[#7dc3ff]"
+            />
+            <div className="pt-3 border-t border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">
+                  Tasks Completed Today
+                </span>
+                <span className="text-sm font-bold text-gray-900">
+                  {stats.totalCompleted} / {dailyGoal.totalTasks}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full transition-all duration-500 ${
+                    progressPercentage >= 100 ? 'bg-signal-500' :
+                    progressPercentage >= 80 ? 'bg-primary-500' : 'bg-noise-500'
+                  }`}
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Goal: {dailyGoal.totalTasks}</span>
+                <span className={
+                  progressPercentage >= 100 ? 'text-signal-600' :
+                  progressPercentage >= 80 ? 'text-primary-600' : 'text-noise-600'
+                }>
+                  {progressPercentage >= 100 ? 'Goal Achieved!' :
+                   progressPercentage >= 80 ? 'Almost There' : 'Keep Going!'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
