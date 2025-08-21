@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Zap } from 'lucide-react';
+import { ThumbsUp } from 'lucide-react';
 
 interface BicepsFlexedAnimationProps {
   show: boolean;
@@ -23,7 +23,7 @@ const BicepsFlexedAnimation: React.FC<BicepsFlexedAnimationProps> = ({ show, onC
     <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
       <div className="animate-bounce">
         <div className="rounded-full p-8 shadow-2xl" style={{ backgroundColor: '#5dccdb' }}>
-          <Zap 
+          <ThumbsUp 
             className="w-16 h-16 sm:w-20 sm:h-20 text-white" 
             strokeWidth={2}
           />
