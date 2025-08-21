@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { ThumbsUp } from 'lucide-react';
 
 interface ThumbsUpAnimationProps {
   show: boolean;
@@ -21,11 +22,12 @@ const ThumbsUpAnimation: React.FC<ThumbsUpAnimationProps> = ({ show, onComplete 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
       <div className="animate-bounce">
-        <img 
-          src="/thumbs-up.png" 
-          alt="Great job completing a Signal task!" 
-          className="w-32 h-32 sm:w-40 sm:h-40 drop-shadow-2xl transition-opacity duration-300"
-        />
+        <div className="bg-green-500 rounded-full p-8 shadow-2xl">
+          <ThumbsUp 
+            className="w-16 h-16 sm:w-20 sm:h-20 text-white" 
+            strokeWidth={2}
+          />
+        </div>
       </div>
     </div>
   );
