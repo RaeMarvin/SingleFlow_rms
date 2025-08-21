@@ -12,6 +12,7 @@ import {
   TaskDetailModal,
   DebugPanel
 } from './components';
+import ThumbsUpAnimation from './components/ThumbsUpAnimation';
 import ConfettiHandler from './components/ConfettiHandler';
 import { Task } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -22,12 +23,17 @@ function AppContent() {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [showThumbsUp, setShowThumbsUp] = useState(false);
   const { moveTask, reorderTasks, tasks } = useSupabaseStore();
   const { isLoading } = useInitializeData();
   const { user, loading: authLoading } = useAuth();
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
+  };
+
+  const triggerThumbsUp = () => {
+    setShowThumbsUp(true);
   };
 
   // Configure sensors for both mouse and touch devices
@@ -234,7 +240,7 @@ function AppContent() {
                 
                 {/* Task Board */}
                 <div className="lg:col-span-3">
-                  <TaskBoard onTaskClick={handleTaskClick} />
+                  <TaskBoard onTaskClick={handleTaskClick} onSignalComplete={triggerThumbsUp} />
                 </div>
               </div>
             </main>
@@ -268,6 +274,12 @@ function AppContent() {
 
         {/* Confetti handler for celebration animations */}
         <ConfettiHandler />
+
+        {/* Thumbs up animation for Signal task completion */}
+        <ThumbsUpAnimation 
+          show={showThumbsUp} 
+          onComplete={() => setShowThumbsUp(false)} 
+        />
       </div>
     </div>
   );

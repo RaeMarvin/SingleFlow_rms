@@ -12,9 +12,10 @@ interface TaskCardProps {
   task: Task;
   isDragging?: boolean;
   onTaskClick?: (task: Task) => void;
+  onSignalComplete?: () => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick, onSignalComplete }) => {
   const { deleteTask, toggleTaskComplete, rejectTask } = useSupabaseStore();
   const { isFlashing, triggerSignalFlash } = useSignalFlash();
   const [showChoiceModal, setShowChoiceModal] = useState(false);
@@ -126,9 +127,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
       return;
     }
     
-    // If this is a Signal task being completed (not uncompleted), trigger flash
+    // If this is a Signal task being completed (not uncompleted), trigger flash and thumbs up
     if (!task.completed && task.category === 'signal') {
       triggerSignalFlash();
+      onSignalComplete?.();
       // Delay the actual completion to allow the flash to be visible
       setTimeout(() => {
         toggleTaskComplete(task.id);

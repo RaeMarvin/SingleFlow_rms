@@ -11,9 +11,10 @@ import { Task } from '../types';
 
 interface TaskBoardProps {
   onTaskClick?: (task: Task) => void;
+  onSignalComplete?: () => void;
 }
 
-const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick }) => {
+const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete }) => {
   const { tasks } = useSupabaseStore();
   
   // Only show incomplete and non-rejected tasks on the board
@@ -63,6 +64,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick }) => {
           colorClass="border-signal-300 bg-signal-50"
           headerClass="bg-signal-600 text-white"
           onTaskClick={onTaskClick}
+          onSignalComplete={onSignalComplete}
         />
 
         {/* Noise Column */}
@@ -90,6 +92,7 @@ interface TaskColumnProps {
   colorClass: string;
   headerClass: string;
   onTaskClick?: (task: Task) => void;
+  onSignalComplete?: () => void;
 }
 
 const TaskColumn: React.FC<TaskColumnProps> = ({
@@ -101,6 +104,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
   colorClass,
   headerClass,
   onTaskClick,
+  onSignalComplete,
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id,
@@ -149,7 +153,12 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
         ) : (
           <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
             {sortedTasks.map((task) => (
-              <TaskCard key={task.id} task={task} onTaskClick={onTaskClick} />
+              <TaskCard 
+                key={task.id} 
+                task={task} 
+                onTaskClick={onTaskClick} 
+                onSignalComplete={id === 'signal' ? onSignalComplete : undefined} 
+              />
             ))}
           </SortableContext>
         )}
