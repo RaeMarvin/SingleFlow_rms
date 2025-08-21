@@ -13,9 +13,10 @@ interface TaskCardProps {
   isDragging?: boolean;
   onTaskClick?: (task: Task) => void;
   onSignalComplete?: () => void;
+  onNoiseReject?: () => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick, onSignalComplete }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskClick, onSignalComplete, onNoiseReject }) => {
   const { deleteTask, toggleTaskComplete, rejectTask } = useSupabaseStore();
   const { isFlashing, triggerSignalFlash } = useSignalFlash();
   const [showChoiceModal, setShowChoiceModal] = useState(false);
@@ -149,6 +150,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
 
   const handleModalDeclined = () => {
     setShowChoiceModal(false);
+    onNoiseReject?.();
     rejectTask(task.id);
   };
 

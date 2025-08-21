@@ -13,6 +13,7 @@ import {
   DebugPanel
 } from './components';
 import ThumbsUpAnimation from './components/ThumbsUpAnimation';
+import BicepsFlexedAnimation from './components/BicepsFlexedAnimation';
 import ConfettiHandler from './components/ConfettiHandler';
 import { Task } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -24,6 +25,7 @@ function AppContent() {
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showThumbsUp, setShowThumbsUp] = useState(false);
+  const [showBicepsFlexed, setShowBicepsFlexed] = useState(false);
   const { moveTask, reorderTasks, tasks } = useSupabaseStore();
   const { isLoading } = useInitializeData();
   const { user, loading: authLoading } = useAuth();
@@ -34,6 +36,10 @@ function AppContent() {
 
   const triggerThumbsUp = () => {
     setShowThumbsUp(true);
+  };
+
+  const triggerBicepsFlexed = () => {
+    setShowBicepsFlexed(true);
   };
 
   // Configure sensors for both mouse and touch devices
@@ -240,7 +246,11 @@ function AppContent() {
                 
                 {/* Task Board */}
                 <div className="lg:col-span-3">
-                  <TaskBoard onTaskClick={handleTaskClick} onSignalComplete={triggerThumbsUp} />
+                  <TaskBoard 
+                    onTaskClick={handleTaskClick} 
+                    onSignalComplete={triggerThumbsUp}
+                    onNoiseReject={triggerBicepsFlexed}
+                  />
                 </div>
               </div>
             </main>
@@ -279,6 +289,12 @@ function AppContent() {
         <ThumbsUpAnimation 
           show={showThumbsUp} 
           onComplete={() => setShowThumbsUp(false)} 
+        />
+
+        {/* Biceps flexed animation for Noise task rejection */}
+        <BicepsFlexedAnimation 
+          show={showBicepsFlexed} 
+          onComplete={() => setShowBicepsFlexed(false)} 
         />
       </div>
     </div>
