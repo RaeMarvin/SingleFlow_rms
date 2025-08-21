@@ -1,5 +1,5 @@
 import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus, X, Signal, Volume2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
 import CardConfetti from './CardConfetti';
@@ -13,8 +13,16 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showRejectedTasks, setShowRejectedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
-  // Removed isFlashing, not used
+  // Add showConfetti state for mobile confetti
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // Example: trigger confetti when achievement is reached
+  // Replace this logic with your actual achievement event
+  function handleAchievement() {
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 2000);
+  }
+  // Removed isFlashing, not used
 
   // Calculate Noise Said No To Today
   const today = new Date();
@@ -28,20 +36,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
       rejectedDate.getDate() === today.getDate();
   }).length;
   
-  // Listen for confetti trigger events (desktop achievement celebration)
-  useEffect(() => {
-    const handleConfetti = () => {
-      // Only show confetti on desktop
-      if (window.innerWidth > 768) {
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 2000); // Match mobile duration
-      }
-    };
-    window.addEventListener('fozzle-confetti-trigger', handleConfetti as EventListener);
-    return () => {
-      window.removeEventListener('fozzle-confetti-trigger', handleConfetti as EventListener);
-    };
-  }, []);
+  // Confetti logic removed. No-op for desktop confetti event.
   
   // Filter out promoted ideas
   const availableIdeas = ideas.filter(idea => !idea.promoted);
@@ -53,8 +48,10 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   return (
     <div className="space-y-4">
       <div className="relative">
-        {/* Confetti only for desktop, inside card */}
+        {/* Confetti only for mobile, inside card */}
         <CardConfetti trigger={showConfetti} duration={2000} />
+        {/* Example button to trigger confetti for testing. Remove or replace with your achievement logic. */}
+        <button onClick={handleAchievement} className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded">Test Confetti</button>
         <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-transparent transition-all duration-200">
           <div className="flex items-center space-x-3 mb-4">
             <Target className="w-6 h-6 text-blue-600" />

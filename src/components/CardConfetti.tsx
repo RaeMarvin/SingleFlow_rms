@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 
-interface CardConfettiProps {
+type CardConfettiProps = {
   trigger: boolean;
   duration?: number;
   config?: {
@@ -16,7 +16,7 @@ interface CardConfettiProps {
     shapes?: ('square' | 'circle')[];
     scalar?: number;
   };
-}
+};
 
 const defaultConfig = {
   particleCount: 15,
@@ -27,36 +27,30 @@ const defaultConfig = {
   gravity: 0.8,
   drift: 0,
   colors: [
-    '#22c55e', // Signal green
-    '#a78bfa', // Accent purple
-    '#7dc3ff', // Fozzle blue
-    '#6ee7b7', // Mint green
-    '#fb7185', // Coral
-    '#ffffff', // White
+    '#22c55e',
+    '#a78bfa',
+    '#7dc3ff',
+    '#6ee7b7',
+    '#fb7185',
+    '#ffffff',
   ],
-  shapes: ['circle', 'square'] as ('circle' | 'square')[],
+  shapes: ['circle', 'square'],
   scalar: 0.8,
 };
+
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+}
 
 const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, config }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    if (trigger) {
+    if (trigger && isMobileDevice()) {
       const canvas = canvasRef.current;
-      console.debug('[CardConfetti] Triggered:', { canvas, trigger, duration, config });
-      if (!canvas) {
-        console.warn('[CardConfetti] canvasRef.current is null or undefined');
-      } else if (!(canvas instanceof HTMLCanvasElement)) {
-        console.warn('[CardConfetti] canvasRef.current is not an HTMLCanvasElement:', canvas);
-      } else if (!document.body.contains(canvas)) {
-        console.warn('[CardConfetti] Canvas is not attached to DOM:', canvas);
-      }
-      // Only run confetti if canvas exists and is attached to DOM
       if (canvas && canvas instanceof HTMLCanvasElement && document.body.contains(canvas)) {
         setActive(true);
-        console.debug('[CardConfetti] Canvas is valid and attached, starting confetti');
         const myConfetti = confetti.create(canvas, { resize: true, useWorker: true });
         const animationEnd = Date.now() + duration;
         const finalConfig = config || defaultConfig;
@@ -65,7 +59,6 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
         const frame = () => {
           if (Date.now() > animationEnd) {
             setActive(false);
-            console.debug('[CardConfetti] Animation ended');
             return;
           }
           myConfetti({
@@ -79,14 +72,11 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
           requestAnimationFrame(frame);
         };
         frame();
-      } else {
-        // Canvas not available, log warning
-        console.warn('[CardConfetti] Canvas not available, confetti not triggered.');
       }
     }
   }, [trigger, duration, config]);
 
-  return (
+  return isMobileDevice() ? (
     <canvas
       ref={canvasRef}
       style={{
@@ -100,7 +90,7 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
         display: active ? 'block' : 'none',
       }}
     />
-  );
+  ) : null;
 };
 
 export default CardConfetti;
