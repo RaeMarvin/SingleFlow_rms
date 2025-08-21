@@ -70,11 +70,8 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
         };
         frame();
       } else {
-        // Fallback: trigger border flash event for desktop
-        if (window.innerWidth > 768) {
-          window.dispatchEvent(new CustomEvent('fozzle-border-flash-trigger'));
-          console.warn('CardConfetti: Canvas not available, triggering border flash instead.');
-        }
+        // Canvas not available, log warning
+        console.warn('CardConfetti: Canvas not available, confetti not triggered.');
       }
     }
   }, [trigger, duration, config]);
