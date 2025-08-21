@@ -44,9 +44,11 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
 
   useEffect(() => {
     if (trigger) {
-      if (canvasRef.current && canvasRef.current instanceof HTMLCanvasElement) {
+      const canvas = canvasRef.current;
+      // Only run confetti if canvas exists and is attached to DOM
+      if (canvas && canvas instanceof HTMLCanvasElement && document.body.contains(canvas)) {
         setActive(true);
-        const myConfetti = confetti.create(canvasRef.current, { resize: true, useWorker: true });
+        const myConfetti = confetti.create(canvas, { resize: true, useWorker: true });
         const animationEnd = Date.now() + duration;
         const finalConfig = config || defaultConfig;
         const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
@@ -71,7 +73,7 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
         // Fallback: trigger border flash event for desktop
         if (window.innerWidth > 768) {
           window.dispatchEvent(new CustomEvent('fozzle-border-flash-trigger'));
-          console.log('Desktop detected - triggering border flash');
+          console.warn('CardConfetti: Canvas not available, triggering border flash instead.');
         }
       }
     }
