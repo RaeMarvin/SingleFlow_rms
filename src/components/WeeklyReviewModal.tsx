@@ -189,11 +189,11 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
               subtitle={`Distractions handled`}
             />
             <StatBox
-              icon={<X className="w-6 h-6 text-red-600" />}
+              icon={<X className="w-6 h-6 text-primary-600" />}
               title="Tasks Rejected This Week"
               value={rejectedWeekTasks.length}
               subtitle="Said NO to distractions"
-              valueColor="text-red-600"
+              valueColor="text-primary-600"
             />
           </div>
 
@@ -269,7 +269,7 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
                         </div>
                         
                         {/* Rejected Bar */}
-                        <div className="w-3 bg-red-500 rounded-t" 
+                        <div className="w-3 bg-primary-500 rounded-t" 
                              style={{ 
                                height: maxTasks > 0 ? `${(day.rejectedTasks / maxTasks) * maxHeight}px` : '4px',
                                minHeight: day.rejectedTasks > 0 ? '8px' : '4px'
@@ -283,7 +283,7 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
                         <div className="flex justify-center space-x-1">
                           <span className="text-signal-600">{day.completedSignal}S</span>
                           <span className="text-noise-600">{day.completedNoise}N</span>
-                          <span className="text-red-600">{day.rejectedTasks}R</span>
+                          <span className="text-primary-600">{day.rejectedTasks}R</span>
                         </div>
                       </div>
                     </div>
@@ -302,7 +302,7 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
                   <span className="text-sm text-neutral-600 dark:text-gray-400">Noise Tasks</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-red-500 rounded"></div>
+                  <div className="w-3 h-3 bg-primary-500 rounded"></div>
                   <span className="text-sm text-neutral-600 dark:text-gray-400">Rejected Tasks</span>
                 </div>
               </div>
@@ -321,7 +321,7 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
                 </p>
               )}
               {rejectedWeekTasks.length > 0 && (
-                <p className="text-red-700 dark:text-red-300">
+                <p className="text-primary-700 dark:text-primary-300">
                   💪 Great job saying NO to {rejectedWeekTasks.length} distracting task{rejectedWeekTasks.length !== 1 ? 's' : ''} this week!
                 </p>
               )}
