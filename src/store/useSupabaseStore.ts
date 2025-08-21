@@ -98,6 +98,8 @@ const useSupabaseStore = create<Store & {
 
     try {
       await taskService.update(id, updates);
+      // Update stats after successful task update
+      get().updateStats();
     } catch (error) {
       // Revert on error
       console.error('Error updating task:', error);
