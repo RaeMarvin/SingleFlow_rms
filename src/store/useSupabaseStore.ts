@@ -363,6 +363,14 @@ const useSupabaseStore = create<Store & {
           crossedThreshold: true
         } 
       }));
+      window.dispatchEvent(new CustomEvent('fozzle-border-flash-trigger', {
+        detail: {
+          completedSignalRatio,
+          signalCompleted,
+          totalCompleted,
+          crossedThreshold: true
+        }
+      }));
     }
   },
 

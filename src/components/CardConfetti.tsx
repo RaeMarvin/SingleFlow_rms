@@ -43,29 +43,37 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    if (trigger && canvasRef.current) {
-      setActive(true);
-      const myConfetti = confetti.create(canvasRef.current, { resize: true, useWorker: true });
-      const animationEnd = Date.now() + duration;
-      const finalConfig = config || defaultConfig;
-      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+    if (trigger) {
+      if (canvasRef.current && canvasRef.current instanceof HTMLCanvasElement) {
+        setActive(true);
+        const myConfetti = confetti.create(canvasRef.current, { resize: true, useWorker: true });
+        const animationEnd = Date.now() + duration;
+        const finalConfig = config || defaultConfig;
+        const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-      const frame = () => {
-        if (Date.now() > animationEnd) {
-          setActive(false);
-          return;
+        const frame = () => {
+          if (Date.now() > animationEnd) {
+            setActive(false);
+            return;
+          }
+          myConfetti({
+            ...finalConfig,
+            shapes: (finalConfig.shapes ?? defaultConfig.shapes) as ('circle' | 'square')[],
+            origin: {
+              x: randomInRange(0.1, 0.9),
+              y: Math.random() - 0.2,
+            },
+          });
+          requestAnimationFrame(frame);
+        };
+        frame();
+      } else {
+        // Fallback: trigger border flash event for desktop
+        if (window.innerWidth > 768) {
+          window.dispatchEvent(new CustomEvent('fozzle-border-flash-trigger'));
+          console.log('Desktop detected - triggering border flash');
         }
-      myConfetti({
-        ...finalConfig,
-        shapes: (finalConfig.shapes ?? defaultConfig.shapes) as ('circle' | 'square')[],
-        origin: {
-          x: randomInRange(0.1, 0.9),
-          y: Math.random() - 0.2,
-        },
-      });
-        requestAnimationFrame(frame);
-      };
-      frame();
+      }
     }
   }, [trigger, duration, config]);
 
