@@ -20,13 +20,13 @@ const ThumbsUpAnimation: React.FC<ThumbsUpAnimationProps> = ({ show, onComplete 
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-      <div className="relative animate-bounce">
-        {/* Main Logo */}
+    <div className="fixed inset-0 flex items-center justify-center lg:justify-start lg:pl-[calc(25%+18.75%)] z-50 pointer-events-none">
+      <div className="relative">
+        {/* Main Logo - Static */}
         <img 
           src={logoImage} 
           alt="Great job completing a Signal task!" 
-          className="w-32 h-32 sm:w-40 sm:h-40 drop-shadow-2xl transition-opacity duration-300"
+          className="w-32 h-32 sm:w-40 sm:h-40 drop-shadow-2xl"
         />
         
         {/* Sparkle Effects */}

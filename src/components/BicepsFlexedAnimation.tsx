@@ -20,25 +20,22 @@ const BicepsFlexedAnimation: React.FC<BicepsFlexedAnimationProps> = ({ show, onC
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-      <div className="relative animate-bounce">
-        {/* Main Logo with teal tint */}
+    <div className="fixed inset-0 flex items-center justify-center lg:justify-start lg:pl-[calc(25%+56.25%)] z-50 pointer-events-none">
+      <div className="relative">
+        {/* Main Logo - Static */}
         <img 
           src={logoImage} 
           alt="Great job saying NO to distractions!" 
-          className="w-32 h-32 sm:w-40 sm:h-40 drop-shadow-2xl transition-opacity duration-300"
-          style={{
-            filter: `hue-rotate(180deg) saturate(1.5) brightness(0.9)`
-          }}
+          className="w-32 h-32 sm:w-40 sm:h-40 drop-shadow-2xl"
         />
         
-        {/* Sparkle Effects with teal theme */}
-        <div className="absolute -top-3 -left-3 text-2xl animate-ping" style={{color: '#5dccdb'}}>✨</div>
-        <div className="absolute -top-3 -right-3 text-cyan-300 text-xl animate-pulse" style={{animationDelay: '0.2s'}}>⭐</div>
-        <div className="absolute -bottom-3 -left-3 text-teal-400 text-xl animate-bounce" style={{animationDelay: '0.4s'}}>✨</div>
-        <div className="absolute -bottom-3 -right-3 text-2xl animate-ping" style={{animationDelay: '0.6s', color: '#5dccdb'}}>⭐</div>
-        <div className="absolute top-1/2 -left-4 text-cyan-200 text-lg animate-pulse" style={{animationDelay: '0.8s'}}>✨</div>
-        <div className="absolute top-1/2 -right-4 text-teal-300 text-lg animate-bounce" style={{animationDelay: '1s'}}>⭐</div>
+        {/* Sparkle Effects */}
+        <div className="absolute -top-3 -left-3 text-yellow-400 text-2xl animate-ping">✨</div>
+        <div className="absolute -top-3 -right-3 text-white text-xl animate-pulse" style={{animationDelay: '0.2s'}}>⭐</div>
+        <div className="absolute -bottom-3 -left-3 text-blue-400 text-xl animate-bounce" style={{animationDelay: '0.4s'}}>✨</div>
+        <div className="absolute -bottom-3 -right-3 text-yellow-300 text-2xl animate-ping" style={{animationDelay: '0.6s'}}>⭐</div>
+        <div className="absolute top-1/2 -left-4 text-white text-lg animate-pulse" style={{animationDelay: '0.8s'}}>✨</div>
+        <div className="absolute top-1/2 -right-4 text-blue-300 text-lg animate-bounce" style={{animationDelay: '1s'}}>⭐</div>
       </div>
     </div>
   );
