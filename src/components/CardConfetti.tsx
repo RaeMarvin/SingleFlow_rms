@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
+import DesktopConfetti from './DesktopConfetti';
 
 type CardConfettiProps = {
   trigger: boolean;
@@ -76,6 +77,7 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
     }
   }, [trigger, duration, config]);
 
+  // Render appropriate confetti for the platform
   return isMobileDevice() ? (
     <canvas
       ref={canvasRef}
@@ -90,7 +92,9 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
         display: active ? 'block' : 'none',
       }}
     />
-  ) : null;
+  ) : (
+    <DesktopConfetti trigger={trigger} duration={duration} />
+  );
 };
 
 export default CardConfetti;

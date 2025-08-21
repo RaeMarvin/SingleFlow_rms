@@ -2,6 +2,7 @@ import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus
 import { useState } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
+import CardConfetti from './CardConfetti';
 
 interface StatsPanelProps {
   onTaskClick?: (task: Task) => void;
@@ -36,10 +37,15 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const progressPercentage = Math.min((stats.totalCompleted / dailyGoal.totalTasks) * 100, 100);
   // Use completedSignalRatio for today's completed tasks ratio
   const signalRatioPercentage = (stats.completedSignalRatio || 0) * 100;
+  
+  // Trigger confetti when signal ratio reaches 80% or above
+  const shouldShowConfetti = signalRatioPercentage >= 80;
 
   return (
     <div className="space-y-4">
       <div className="relative">
+        {/* Confetti for both mobile and desktop when score >= 80% */}
+        <CardConfetti trigger={shouldShowConfetti} duration={2000} />
         <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-transparent transition-all duration-200">
           <div className="flex items-center space-x-3 mb-4">
             <Target className="w-6 h-6 text-blue-600" />
