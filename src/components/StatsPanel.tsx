@@ -2,7 +2,6 @@ import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus
 import { useState } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
-import CardConfetti from './CardConfetti';
 
 interface StatsPanelProps {
   onTaskClick?: (task: Task) => void;
@@ -14,14 +13,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const [showRejectedTasks, setShowRejectedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
   // Add showConfetti state for mobile confetti
-  const [showConfetti, setShowConfetti] = useState(false);
 
-  // Example: trigger confetti when achievement is reached
-  // Replace this logic with your actual achievement event
-  function handleAchievement() {
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 2000);
-  }
   // Removed isFlashing, not used
 
   // Calculate Noise Said No To Today
@@ -48,10 +40,6 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   return (
     <div className="space-y-4">
       <div className="relative">
-        {/* Confetti only for mobile, inside card */}
-        <CardConfetti trigger={showConfetti} duration={2000} />
-        {/* Example button to trigger confetti for testing. Remove or replace with your achievement logic. */}
-        <button onClick={handleAchievement} className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded">Test Confetti</button>
         <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-transparent transition-all duration-200">
           <div className="flex items-center space-x-3 mb-4">
             <Target className="w-6 h-6 text-blue-600" />
