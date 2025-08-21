@@ -45,9 +45,18 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
   useEffect(() => {
     if (trigger) {
       const canvas = canvasRef.current;
+      console.debug('[CardConfetti] Triggered:', { canvas, trigger, duration, config });
+      if (!canvas) {
+        console.warn('[CardConfetti] canvasRef.current is null or undefined');
+      } else if (!(canvas instanceof HTMLCanvasElement)) {
+        console.warn('[CardConfetti] canvasRef.current is not an HTMLCanvasElement:', canvas);
+      } else if (!document.body.contains(canvas)) {
+        console.warn('[CardConfetti] Canvas is not attached to DOM:', canvas);
+      }
       // Only run confetti if canvas exists and is attached to DOM
       if (canvas && canvas instanceof HTMLCanvasElement && document.body.contains(canvas)) {
         setActive(true);
+        console.debug('[CardConfetti] Canvas is valid and attached, starting confetti');
         const myConfetti = confetti.create(canvas, { resize: true, useWorker: true });
         const animationEnd = Date.now() + duration;
         const finalConfig = config || defaultConfig;
@@ -56,6 +65,7 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
         const frame = () => {
           if (Date.now() > animationEnd) {
             setActive(false);
+            console.debug('[CardConfetti] Animation ended');
             return;
           }
           myConfetti({
@@ -71,7 +81,7 @@ const CardConfetti: React.FC<CardConfettiProps> = ({ trigger, duration = 2000, c
         frame();
       } else {
         // Canvas not available, log warning
-        console.warn('CardConfetti: Canvas not available, confetti not triggered.');
+        console.warn('[CardConfetti] Canvas not available, confetti not triggered.');
       }
     }
   }, [trigger, duration, config]);
