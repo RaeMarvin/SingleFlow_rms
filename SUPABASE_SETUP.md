@@ -9,6 +9,9 @@ Your SingleFlow app now supports **persistent cloud storage** with Supabase! Fol
 
 ## 🔧 Setup Steps
 
+
+
+
 ### Step 1: Create Supabase Project
 
 1. Go to [https://app.supabase.com](https://app.supabase.com)
