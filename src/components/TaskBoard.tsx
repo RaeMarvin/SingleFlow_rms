@@ -21,6 +21,7 @@ interface TaskBoardProps {
 const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, onNoiseReject }) => {
   const { tasks } = useSupabaseStore();
   const signalFigureRef = useRef<HTMLDivElement>(null);
+  const signalLabelRef = useRef<HTMLDivElement>(null);
   const [showSignalCompletionPopup, setShowSignalCompletionPopup] = useState(false);
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number; } | null>(null);
   const isDesktop = useMediaQuery('(min-width: 1024px)');
@@ -30,9 +31,10 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
   const noiseTasks = tasks.filter((task) => task.category === 'noise' && !task.completed && !task.rejected);
 
   const handleSignalTaskComplete = () => {
-    if (signalFigureRef.current) {
-      const rect = signalFigureRef.current.getBoundingClientRect();
-      setPopupCoords({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    if (signalLabelRef.current) {
+      const rect = signalLabelRef.current.getBoundingClientRect();
+      // Position above the label, centered horizontally
+      setPopupCoords({ x: rect.left + rect.width / 2, y: rect.top - 21 }); // 21 = 16 (popup height) + 5 (padding)
     }
     setShowSignalCompletionPopup(true);
     // Original onSignalComplete from App.tsx
@@ -66,7 +68,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
             <div className="text-lg font-semibold text-signal-600">
               {signalTasks.length}
             </div>
-            <div className="text-xs text-gray-600">
+            <div className="text-xs text-gray-600" ref={signalLabelRef}>
               Signal
             </div>
           </div>
