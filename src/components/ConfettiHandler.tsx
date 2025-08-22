@@ -6,6 +6,16 @@ export function ConfettiHandler() {
   const { triggerConfetti } = useConfetti();
   const { triggerBorderFlash } = useBorderFlash();
 
+  // TEMPORARY DEBUG: Force trigger confetti on mobile after 3 seconds
+  useEffect(() => {
+    const debugTimer = setTimeout(() => {
+      console.log('DEBUG - Force triggering confetti for mobile testing...');
+      triggerConfetti();
+    }, 3000); // 3 seconds after app loads
+
+    return () => clearTimeout(debugTimer);
+  }, [triggerConfetti]);
+
   useEffect(() => {
     const handleAchievementTrigger = (event: CustomEvent) => {
       console.log('Debug - Achievement event received:', event.detail);
