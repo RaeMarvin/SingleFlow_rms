@@ -4,9 +4,11 @@ import logoImage from '../assets/logo.png';
 interface ThumbsUpAnimationProps {
   show: boolean;
   onComplete: () => void;
+  coords: { x: number; y: number; } | null;
+  isDesktop: boolean;
 }
 
-const ThumbsUpAnimation: React.FC<ThumbsUpAnimationProps> = ({ show, onComplete }) => {
+const ThumbsUpAnimation: React.FC<ThumbsUpAnimationProps> = ({ show, onComplete, coords, isDesktop }) => {
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
@@ -19,8 +21,22 @@ const ThumbsUpAnimation: React.FC<ThumbsUpAnimationProps> = ({ show, onComplete 
 
   if (!show) return null;
 
+  const desktopStyle: React.CSSProperties = isDesktop && coords ? {
+    position: 'fixed',
+    left: coords.x,
+    top: coords.y,
+    transform: 'translate(-50%, -50%) scale(0.25)', // Center and scale to 1/4
+    zIndex: 50, // Ensure it's above other content
+    pointerEvents: 'none',
+  } : {};
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center lg:items-start lg:justify-start lg:pt-48 lg:pl-[calc(25%+18.75%)] z-40 pointer-events-none">
+    <div 
+      className={`
+        ${isDesktop ? '' : 'fixed inset-0 flex items-center justify-center lg:items-start lg:justify-start lg:pt-48 lg:pl-[calc(25%+18.75%)] z-40 pointer-events-none'}
+      `}
+      style={desktopStyle}
+    >
       <div className="relative">
         {/* Main Logo - Static */}
         <img 

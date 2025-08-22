@@ -12,7 +12,7 @@ interface TaskCardProps {
   task: Task;
   isDragging?: boolean;
   onTaskClick?: (task: Task) => void;
-  onSignalComplete?: () => void;
+  onSignalComplete?: (coords: { x: number; y: number; }) => void;
   onNoiseReject?: () => void;
 }
 
@@ -136,7 +136,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
       }, 100);
       // Delay the thumbs up animation to avoid conflict with confetti
       setTimeout(() => {
-        onSignalComplete?.();
+        const rect = e.currentTarget.getBoundingClientRect();
+        onSignalComplete?.({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
       }, 200);
     } else {
       // For all other cases (uncompleting tasks), complete immediately
