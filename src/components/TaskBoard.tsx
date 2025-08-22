@@ -11,7 +11,7 @@ import { Task } from '../types';
 
 interface TaskBoardProps {
   onTaskClick?: (task: Task) => void;
-  onSignalComplete?: (coords: { x: number; y: number; }) => void;
+  onSignalComplete?: () => void;
   onNoiseReject?: () => void;
 }
 
@@ -94,7 +94,7 @@ interface TaskColumnProps {
   colorClass: string;
   headerClass: string;
   onTaskClick?: (task: Task) => void;
-  onSignalComplete?: (coords: { x: number; y: number; }) => void;
+  onSignalComplete?: () => void;
   onNoiseReject?: () => void;
 }
 

@@ -3,7 +3,6 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { useState } from 'react';
 import useSupabaseStore from './store/useSupabaseStore';
 import { useInitializeData } from './hooks/useInitializeData';
-import useMediaQuery from './hooks/useMediaQuery';
 import { 
   TaskBoard, 
   Header, 
@@ -24,7 +23,6 @@ function AppContent() {
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showThumbsUp, setShowThumbsUp] = useState(false);
-  const [thumbsUpCoords, setThumbsUpCoords] = useState<{ x: number; y: number } | null>(null);
   const [showBicepsFlexed, setShowBicepsFlexed] = useState(false);
   const { moveTask, reorderTasks, tasks } = useSupabaseStore();
   const { isLoading } = useInitializeData();
@@ -34,8 +32,7 @@ function AppContent() {
     setSelectedTask(task);
   };
 
-  const triggerThumbsUp = (coords: { x: number; y: number; }) => {
-    setThumbsUpCoords(coords);
+  const triggerThumbsUp = () => {
     setShowThumbsUp(true);
   };
 
@@ -60,8 +57,6 @@ function AppContent() {
   });
   
   const sensors = useSensors(mouseSensor, touchSensor);
-
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   function handleDragStart(event: DragStartEvent) {
     const taskId = event.active.id as string;
@@ -288,8 +283,6 @@ function AppContent() {
         <ThumbsUpAnimation 
           show={showThumbsUp} 
           onComplete={() => setShowThumbsUp(false)} 
-          coords={thumbsUpCoords}
-          isDesktop={isDesktop}
         />
 
         {/* Biceps flexed animation for Noise task rejection */}
