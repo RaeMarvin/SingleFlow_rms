@@ -22,7 +22,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
   const { tasks } = useSupabaseStore();
   const signalFigureRef = useRef<HTMLDivElement>(null);
   const signalLabelRef = useRef<HTMLDivElement>(null);
-  const [isFlashing, setIsFlashing] = useState(false);
+  const [highlightSignalHeader, setHighlightSignalHeader] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   
   // Only show incomplete and non-rejected tasks on the board
@@ -34,15 +34,10 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
     onSignalComplete?.();
 
     if (isDesktop) {
-      let flashCount = 0;
-      const flashInterval = setInterval(() => {
-        setIsFlashing(prev => !prev);
-        flashCount++;
-        if (flashCount === 6) { // 3 flashes (on/off cycles)
-          clearInterval(flashInterval);
-          setIsFlashing(false); // Ensure it ends in off state
-        }
-      }, 150); // Flash every 150ms
+      setHighlightSignalHeader(true);
+      setTimeout(() => {
+        setHighlightSignalHeader(false);
+      }, 1000); // Highlight for 1 second
     }
   };
 
@@ -60,7 +55,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <div ref={signalFigureRef} className={`text-center p-2 bg-signal-50 rounded ${isFlashing ? 'border-2 border-[#7dc3ff]' : ''}`}>
+          <div ref={signalFigureRef} className={`text-center p-2 rounded transition-colors duration-100 ${highlightSignalHeader ? 'bg-[#7dc3ff]' : 'bg-signal-50'}`}>
             <div className="text-lg font-semibold text-signal-600">
               {signalTasks.length}
             </div>
