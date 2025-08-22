@@ -20,7 +20,7 @@ const BicepsFlexedAnimation: React.FC<BicepsFlexedAnimationProps> = ({ show, onC
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center lg:items-start lg:justify-start lg:pt-48 lg:pl-[calc(62.5%-5rem)] z-50 pointer-events-none">
+    <div className="fixed inset-0 flex items-center justify-center lg:items-start lg:justify-start lg:pt-48 lg:pl-[calc(62.5%-5rem)] z-40 pointer-events-none">
       <div className="relative">
         {/* Main Logo - Static */}
         <img 

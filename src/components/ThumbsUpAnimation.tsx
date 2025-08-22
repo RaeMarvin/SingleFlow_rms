@@ -20,7 +20,7 @@ const ThumbsUpAnimation: React.FC<ThumbsUpAnimationProps> = ({ show, onComplete 
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center lg:items-start lg:justify-start lg:pt-48 lg:pl-[calc(25%+18.75%)] z-50 pointer-events-none">
+    <div className="fixed inset-0 flex items-center justify-center lg:items-start lg:justify-start lg:pt-48 lg:pl-[calc(25%+18.75%)] z-40 pointer-events-none">
       <div className="relative">
         {/* Main Logo - Static */}
         <img 
