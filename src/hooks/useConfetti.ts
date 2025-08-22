@@ -17,13 +17,25 @@ interface ConfettiConfig {
 export const useConfetti = () => {
   // Check if user is on mobile device
   const isMobile = useCallback(() => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-           window.innerWidth <= 768;
+    // Check for touch capability and user agent
+    const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const userAgentMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const smallScreen = window.innerWidth <= 768;
+    
+    // Consider it mobile if it has touch AND (mobile user agent OR small screen)
+    return hasTouchScreen && (userAgentMobile || smallScreen);
   }, []);
 
   const triggerConfetti = useCallback((config?: ConfettiConfig) => {
     const mobileCheck = isMobile();
-    console.log('Triggering confetti - isMobile:', mobileCheck);
+    console.log('Confetti trigger - isMobile:', mobileCheck, 'userAgent:', navigator.userAgent, 'width:', window.innerWidth);
+    
+    if (!mobileCheck) {
+      console.log('Desktop detected - skipping confetti');
+      return;
+    }
+
+    console.log('Mobile detected - triggering confetti');
     
     // Default Fozzle brand colors
     const defaultColors = [
@@ -78,7 +90,12 @@ export const useConfetti = () => {
   }, [isMobile]);
 
   const triggerSuccess = useCallback(() => {
-    console.log('Triggering success confetti');
+    if (!isMobile()) {
+      console.log('Desktop detected - skipping success confetti');
+      return;
+    }
+    
+    console.log('Mobile detected - triggering success confetti');
     
     // Special success confetti with more celebration
     const count = 100; // Reduced by half from 200
