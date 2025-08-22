@@ -130,11 +130,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     // If this is a Signal task being completed (not uncompleted), trigger flash and thumbs up
     if (!task.completed && task.category === 'signal') {
       triggerSignalFlash();
-      onSignalComplete?.();
       // Delay the actual completion to allow the flash to be visible
       setTimeout(() => {
         toggleTaskComplete(task.id);
       }, 100);
+      // Delay the thumbs up animation to avoid conflict with confetti
+      setTimeout(() => {
+        onSignalComplete?.();
+      }, 200);
     } else {
       // For all other cases (uncompleting tasks), complete immediately
       toggleTaskComplete(task.id);
