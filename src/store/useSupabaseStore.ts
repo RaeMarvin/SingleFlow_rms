@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Task, Store } from '../types';
 import { taskService, ideaService, settingsService } from '../lib/database';
+import { v4 as uuidv4 } from 'uuid';
 
 const useSupabaseStore = create<Store & { 
   isLoading: boolean;
@@ -62,26 +63,48 @@ const useSupabaseStore = create<Store & {
 
   // Task actions
   addTask: async (taskData) => {
-    console.log('Adding task:', taskData);
+    const tempId = uuidv4(); // Generate a temporary ID
+    const optimisticTask = { ...taskData, id: tempId, completed: false, createdAt: new Date(), order: 0 }; // Add createdAt and order for consistency
+
+    // Optimistically add the task to the store
+    set((state) => ({
+      tasks: [optimisticTask, ...state.tasks],
+    }));
+    get().updateStats(); // Update stats immediately for UI feedback
+    console.log('Optimistically added task:', optimisticTask);
+
     try {
       const newTask = await taskService.create({
         ...taskData,
         completed: false,
       });
 
-      console.log('Task created:', newTask);
+      console.log('Task created on server:', newTask);
 
       if (newTask) {
+        // Replace the optimistic task with the actual task from the server
         set((state) => ({
-          tasks: [newTask, ...state.tasks],
+          tasks: state.tasks.map((task) =>
+            task.id === tempId ? newTask : task
+          ),
         }));
-        get().updateStats();
-        console.log('Task added to store');
+        get().updateStats(); // Update stats again with the actual task
+        console.log('Task updated in store with actual ID');
       } else {
-        console.error('Failed to create task - no task returned');
+        // If no task is returned, remove the optimistic task
+        set((state) => ({
+          tasks: state.tasks.filter((task) => task.id !== tempId),
+        }));
+        get().updateStats(); // Revert stats
+        console.error('Failed to create task - no task returned, reverting optimistic update');
       }
     } catch (error) {
-      console.error('Error in addTask:', error);
+      // Revert optimistic update on error
+      set((state) => ({
+        tasks: state.tasks.filter((task) => task.id !== tempId),
+      }));
+      get().updateStats(); // Revert stats
+      console.error('Error in addTask, reverting optimistic update:', error);
     }
   },
 
