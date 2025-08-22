@@ -178,10 +178,12 @@ function AppContent() {
                   {/* Home priority task */}
                   <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                     <div className="flex items-center space-x-3">
-                      <div className="w-5 h-5 rounded-full border-2 border-accent-mint"></div>
+                      <div className="w-5 h-5 rounded-full border-2 border-signal-200 flex items-center justify-center">
+                        <div className="w-2 h-2 bg-signal-700 rounded-full"></div>
+                      </div>
                       <span className="text-neutral-800 font-medium">Task</span>
                     </div>
-                    <span className="px-3 py-1 bg-accent-mint text-accent-purple text-sm font-medium rounded-full border border-accent-mint">
+                    <span className="px-3 py-1 bg-signal-100 text-signal-700 text-sm font-medium rounded-full border border-signal-200">
                       Home
                     </span>
                   </div>

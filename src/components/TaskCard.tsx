@@ -66,7 +66,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
       case 'work':
         return 'bg-primary-100 text-primary-700 border-primary-200';
       case 'home':
-        return 'bg-accent-mint text-accent-purple border-accent-mint';
+        return 'bg-signal-100 text-signal-700 border-signal-200';
       case 'social':
         return 'bg-noise-100 text-noise-700 border-noise-200';
       default:
