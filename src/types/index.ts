@@ -4,7 +4,7 @@ export interface Task {
   title: string;
   description?: string;
   category: 'signal' | 'noise';
-  priority: 'high' | 'medium' | 'low';
+  priority: 'work' | 'home' | 'social';
   completed: boolean;
   rejected?: boolean; // New field for NO list
   order: number; // for ordering within each category

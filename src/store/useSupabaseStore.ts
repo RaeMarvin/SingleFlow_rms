@@ -299,7 +299,7 @@ const useSupabaseStore = create<Store & {
         title: idea.title,
         description: idea.description,
         category,
-        priority: 'medium',
+        priority: 'work',
         completed: false,
       });
 

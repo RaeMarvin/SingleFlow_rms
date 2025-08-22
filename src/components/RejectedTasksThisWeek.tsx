@@ -86,9 +86,9 @@ const RejectedTasksThisWeek: React.FC = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-signal-600';
-      case 'medium': return 'text-accent-purple';  
-      case 'low': return 'text-accent-coral';
+      case 'work': return 'text-primary-600';
+      case 'home': return 'text-accent-mint';
+      case 'social': return 'text-noise-600';
       default: return 'text-neutral-600';
     }
   };
@@ -143,7 +143,7 @@ const RejectedTasksThisWeek: React.FC = () => {
                           {task.category}
                         </span>
                         <span className={`text-xs font-medium ${getPriorityColor(task.priority)}`}>
-                          {task.priority}
+                          {task.priority === 'work' ? 'Work' : task.priority === 'home' ? 'Home' : task.priority === 'social' ? 'Social' : task.priority}
                         </span>
                         {task.rejectedAt && (
                           <span className="text-xs text-neutral-500 dark:text-gray-400">

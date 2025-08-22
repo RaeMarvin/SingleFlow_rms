@@ -108,9 +108,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
 
   const getPriorityColor = (p: string) => {
     switch (p) {
-      case 'high': return 'bg-signal-100 text-signal-700 border-signal-200';
-      case 'medium': return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'low': return 'bg-noise-100 text-noise-700 border-noise-200';
+      case 'work': return 'bg-primary-100 text-primary-700 border-primary-200';
+      case 'home': return 'bg-accent-mint text-accent-purple border-accent-mint';
+      case 'social': return 'bg-noise-100 text-noise-700 border-noise-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
@@ -196,17 +196,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
               Priority
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {['high', 'medium', 'low'].map((p) => (
+              {['work', 'home', 'social'].map((p) => (
                 <button
                   key={p}
-                  onClick={() => setPriority(p as 'high' | 'medium' | 'low')}
+                  onClick={() => setPriority(p as 'work' | 'home' | 'social')}
                   className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                     priority === p
                       ? getPriorityColor(p)
                       : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
                   }`}
                 >
-                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                  {p === 'work' ? 'Work' : p === 'home' ? 'Home' : 'Social'}
                 </button>
               ))}
             </div>

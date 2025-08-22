@@ -63,11 +63,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
 
   const getPriorityBadge = () => {
     switch (task.priority) {
-      case 'high':
-        return 'bg-signal-100 text-signal-700 border-signal-200';
-      case 'medium':
-        return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'low':
+      case 'work':
+        return 'bg-primary-100 text-primary-700 border-primary-200';
+      case 'home':
+        return 'bg-accent-mint text-accent-purple border-accent-mint';
+      case 'social':
         return 'bg-noise-100 text-noise-700 border-noise-200';
       default:
         return 'bg-gray-100 text-gray-700 border-gray-200';
@@ -78,13 +78,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
     if (task.completed) {
       return 'border-signal-500 bg-signal-500';
     }
-    
     switch (task.priority) {
-      case 'high':
-        return 'border-signal-400 bg-white hover:border-signal-500';
-      case 'medium':
-        return 'border-purple-400 bg-white hover:border-purple-500';
-      case 'low':
+      case 'work':
+        return 'border-primary-400 bg-white hover:border-primary-500';
+      case 'home':
+        return 'border-accent-mint bg-white hover:border-accent-mint';
+      case 'social':
         return 'border-noise-400 bg-white hover:border-noise-500';
       default:
         return 'border-gray-300 bg-white hover:border-gray-400';
@@ -217,9 +216,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
                 {task.completed && (
                   <Check className="w-3 h-3 text-white" strokeWidth={3} />
                 )}
-                {!task.completed && task.priority === 'high' && (
-                  <div className="w-2 h-2 bg-signal-500 rounded-full"></div>
-                )}
+                {/* No special indicator for priority, only completed state shown */}
               </div>
 
               {/* Edit icon - for Signal tasks, show to the right of checkbox */}
@@ -275,7 +272,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
               px-3 py-1 text-sm font-medium rounded-full border
               ${getPriorityBadge()}
             `}>
-              {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+              {task.priority === 'work' ? 'Work' : task.priority === 'home' ? 'Home' : task.priority === 'social' ? 'Social' : task.priority}
             </span>
           </div>
         </div>

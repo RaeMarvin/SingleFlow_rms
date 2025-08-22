@@ -147,7 +147,7 @@ const useStore = create<Store>()(
             title: idea.title,
             description: idea.description,
             category: 'signal',
-            priority: 'medium',
+            priority: 'work',
             completed: false,
           });
           set((state) => ({

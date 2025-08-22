@@ -18,7 +18,7 @@ export interface TaskRow {
   title: string;
   description: string | null;
   category: 'signal' | 'noise';
-  priority: 'high' | 'medium' | 'low';
+  priority: 'work' | 'home' | 'social';
   completed: boolean;
   rejected?: boolean;
   rejected_at?: string | null;
