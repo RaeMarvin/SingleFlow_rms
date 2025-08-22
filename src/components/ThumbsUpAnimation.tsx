@@ -25,7 +25,7 @@ const ThumbsUpAnimation: React.FC<ThumbsUpAnimationProps> = ({ show, onComplete,
     position: 'absolute',
     left: coords.x,
     top: coords.y,
-    transform: 'translate(-50%, -50%) scale(0.25)', // Center and scale to 1/4
+    transform: 'translate(-50%, -50%) scale(0.1)', // Center and scale to 1/10
     zIndex: 50, // Ensure it's above other content
     pointerEvents: 'none',
   } : {};
