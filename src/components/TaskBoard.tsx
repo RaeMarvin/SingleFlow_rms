@@ -4,7 +4,7 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { Signal, Volume2, TrendingUp } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import TaskCard from './TaskCard';
 // import ThumbsUpAnimation from './ThumbsUpAnimation'; // Assuming ThumbsUpAnimation is in the same components folder
@@ -22,7 +22,6 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
   const { tasks } = useSupabaseStore();
   const signalFigureRef = useRef<HTMLDivElement>(null);
   const signalLabelRef = useRef<HTMLDivElement>(null);
-  const [highlightSignalHeader, setHighlightSignalHeader] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   
   // Only show incomplete and non-rejected tasks on the board
@@ -34,10 +33,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
     onSignalComplete?.();
 
     if (isDesktop) {
-      setHighlightSignalHeader(true);
-      setTimeout(() => {
-        setHighlightSignalHeader(false);
-      }, 1000); // Highlight for 1 second
+      // No desktop-specific visual feedback for now
     }
   };
 
@@ -55,7 +51,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <div ref={signalFigureRef} className={`text-center p-2 rounded transition-colors duration-100 ${highlightSignalHeader ? 'bg-[#7dc3ff]' : 'bg-signal-50'}`}>
+          <div ref={signalFigureRef} className="text-center p-2 bg-signal-50 rounded">
             <div className="text-lg font-semibold text-signal-600">
               {signalTasks.length}
             </div>
