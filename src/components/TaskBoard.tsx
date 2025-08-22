@@ -4,8 +4,11 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { Signal, Volume2, TrendingUp } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import TaskCard from './TaskCard';
+import ThumbsUpAnimation from './ThumbsUpAnimation'; // Assuming ThumbsUpAnimation is in the same components folder
+import useMediaQuery from '../hooks/useMediaQuery';
 
 import { Task } from '../types';
 
@@ -17,15 +20,40 @@ interface TaskBoardProps {
 
 const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, onNoiseReject }) => {
   const { tasks } = useSupabaseStore();
+  const signalFigureRef = useRef<HTMLDivElement>(null);
+  const [showSignalCompletionPopup, setShowSignalCompletionPopup] = useState(false);
+  const [popupCoords, setPopupCoords] = useState<{ x: number; y: number; } | null>(null);
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
   
   // Only show incomplete and non-rejected tasks on the board
   const signalTasks = tasks.filter((task) => task.category === 'signal' && !task.completed && !task.rejected);
   const noiseTasks = tasks.filter((task) => task.category === 'noise' && !task.completed && !task.rejected);
 
+  const handleSignalTaskComplete = () => {
+    if (signalFigureRef.current) {
+      const rect = signalFigureRef.current.getBoundingClientRect();
+      setPopupCoords({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    }
+    setShowSignalCompletionPopup(true);
+    // Original onSignalComplete from App.tsx
+    onSignalComplete?.();
+  };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (showSignalCompletionPopup) {
+      timer = setTimeout(() => {
+        setShowSignalCompletionPopup(false);
+        setPopupCoords(null);
+      }, 1500); // Show for 1.5 seconds
+    }
+    return () => clearTimeout(timer);
+  }, [showSignalCompletionPopup]);
+
   return (
     <div className="space-y-4">
       {/* Current Tasks Overview */}
-      <div className="bg-gray-50 rounded-lg border border-gray-200 p-3">
+      <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 relative">
         <div className="flex items-center space-x-2 mb-2">
           <TrendingUp className="w-4 h-4 text-purple-600" />
           <h3 className="text-sm font-medium text-gray-700">
@@ -34,7 +62,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <div className="text-center p-2 bg-signal-50 rounded">
+          <div ref={signalFigureRef} className="text-center p-2 bg-signal-50 rounded">
             <div className="text-lg font-semibold text-signal-600">
               {signalTasks.length}
             </div>
@@ -42,6 +70,15 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
               Signal
             </div>
           </div>
+          
+          {isDesktop && showSignalCompletionPopup && popupCoords && (
+            <ThumbsUpAnimation 
+              show={showSignalCompletionPopup} 
+              onComplete={() => setShowSignalCompletionPopup(false)} 
+              coords={popupCoords}
+              isDesktop={isDesktop}
+            />
+          )}
           
           <div className="text-center p-2 bg-noise-50 rounded">
             <div className="text-lg font-semibold text-noise-600">
@@ -65,7 +102,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
           colorClass="border-signal-300 bg-signal-50"
           headerClass="bg-signal-600 text-white"
           onTaskClick={onTaskClick}
-          onSignalComplete={onSignalComplete}
+          onSignalComplete={handleSignalTaskComplete}
         />
 
         {/* Noise Column */}
@@ -94,7 +131,7 @@ interface TaskColumnProps {
   colorClass: string;
   headerClass: string;
   onTaskClick?: (task: Task) => void;
-  onSignalComplete?: () => void;
+  onSignalComplete?: () => void; // This is the prop from TaskBoard
   onNoiseReject?: () => void;
 }
 
@@ -107,7 +144,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
   colorClass,
   headerClass,
   onTaskClick,
-  onSignalComplete,
+  onSignalComplete, // Destructure the prop
   onNoiseReject,
 }) => {
   const { isOver, setNodeRef } = useDroppable({
@@ -161,7 +198,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
                 key={task.id} 
                 task={task} 
                 onTaskClick={onTaskClick} 
-                onSignalComplete={id === 'signal' ? onSignalComplete : undefined}
+                onSignalComplete={id === 'signal' ? onSignalComplete : undefined} // Pass the prop down
                 onNoiseReject={id === 'noise' ? onNoiseReject : undefined}
               />
             ))}
