@@ -108,8 +108,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
 
   const getPriorityColor = (p: string) => {
     switch (p) {
-      case 'work': return 'bg-primary-100 text-primary-700 border-primary-200';
-      case 'home': return 'bg-accent-mint text-accent-purple border-accent-mint';
+      case 'work': return 'bg-signal-100 text-signal-700 border-signal-200';
+      case 'home': return 'bg-purple-100 text-purple-700 border-purple-200';
       case 'social': return 'bg-noise-100 text-noise-700 border-noise-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }

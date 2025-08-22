@@ -162,7 +162,7 @@ function AppContent() {
                 </h2>
                 
                 <div className="space-y-3">
-                  {/* High priority task */}
+                  {/* Work priority task */}
                   <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                     <div className="flex items-center space-x-3">
                       <div className="w-5 h-5 rounded-full border-2 border-primary-500 flex items-center justify-center">
@@ -170,30 +170,30 @@ function AppContent() {
                       </div>
                       <span className="text-neutral-800 font-medium">Task</span>
                     </div>
-                    <span className="px-3 py-1 bg-signal-100 text-signal-700 text-sm font-medium rounded-full border border-signal-200">
-                      High
+                    <span className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full border border-primary-200">
+                      Work
                     </span>
                   </div>
 
-                  {/* Medium priority task */}
+                  {/* Home priority task */}
                   <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                     <div className="flex items-center space-x-3">
-                      <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
+                      <div className="w-5 h-5 rounded-full border-2 border-accent-mint"></div>
                       <span className="text-neutral-800 font-medium">Task</span>
                     </div>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full border border-purple-200">
-                      Medium
+                    <span className="px-3 py-1 bg-accent-mint text-accent-purple text-sm font-medium rounded-full border border-accent-mint">
+                      Home
                     </span>
                   </div>
 
-                  {/* Low priority task */}
+                  {/* Social priority task */}
                   <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                     <div className="flex items-center space-x-3">
-                      <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
+                      <div className="w-5 h-5 rounded-full border-2 border-noise-400"></div>
                       <span className="text-neutral-800 font-medium">Task</span>
                     </div>
                     <span className="px-3 py-1 bg-noise-100 text-noise-700 text-sm font-medium rounded-full border border-noise-200">
-                      Low
+                      Social
                     </span>
                   </div>
                 </div>
