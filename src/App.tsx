@@ -9,12 +9,10 @@ import {
   StatsPanel, 
   WeeklyReviewModal, 
   TaskCard,
-  TaskDetailModal,
-  DebugPanel
+  TaskDetailModal
 } from './components';
 import ThumbsUpAnimation from './components/ThumbsUpAnimation';
 import BicepsFlexedAnimation from './components/BicepsFlexedAnimation';
-import ConfettiHandler from './components/ConfettiHandler';
 import { Task } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import logoImage from './assets/logo.png';
@@ -280,12 +278,6 @@ function AppContent() {
             onClose={() => setSelectedTask(null)}
           />
         )}
-
-        {/* Only show DebugPanel in development mode */}
-        {import.meta.env.DEV && <DebugPanel />}
-
-        {/* Confetti handler for celebration animations */}
-        <ConfettiHandler />
 
         {/* Thumbs up animation for Signal task completion */}
         <ThumbsUpAnimation 
