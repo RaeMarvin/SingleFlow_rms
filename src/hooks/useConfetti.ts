@@ -22,12 +22,8 @@ export const useConfetti = () => {
   }, []);
 
   const triggerConfetti = useCallback((config?: ConfettiConfig) => {
-    if (!isMobile()) {
-      console.log('Desktop detected - skipping confetti, border flash will be handled elsewhere');
-      return;
-    }
-
-    console.log('Mobile detected - triggering confetti');
+    const mobileCheck = isMobile();
+    console.log('Triggering confetti - isMobile:', mobileCheck);
     
     // Default Fozzle brand colors
     const defaultColors = [
@@ -82,10 +78,7 @@ export const useConfetti = () => {
   }, [isMobile]);
 
   const triggerSuccess = useCallback(() => {
-    if (!isMobile()) {
-      console.log('Desktop detected - skipping success confetti');
-      return;
-    }
+    console.log('Triggering success confetti');
     
     // Special success confetti with more celebration
     const count = 100; // Reduced by half from 200
