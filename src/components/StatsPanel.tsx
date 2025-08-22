@@ -1,8 +1,9 @@
 import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus, X, Signal, Volume2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
 import CardConfetti from './CardConfetti';
+import SparklingStars from './SparklingStars';
 
 interface StatsPanelProps {
   onTaskClick?: (task: Task) => void;
@@ -13,6 +14,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showRejectedTasks, setShowRejectedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
+  const [showStars, setShowStars] = useState(false);
   // Add showConfetti state for mobile confetti
 
   // Removed isFlashing, not used
@@ -37,6 +39,14 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const progressPercentage = Math.min((stats.totalCompleted / dailyGoal.totalTasks) * 100, 100);
   // Use completedSignalRatio for today's completed tasks ratio
   const signalRatioPercentage = (stats.completedSignalRatio || 0) * 100;
+
+  useEffect(() => {
+    if (signalRatioPercentage >= 80) {
+      setShowStars(true);
+    } else {
+      setShowStars(false);
+    }
+  }, [signalRatioPercentage]);
   
   // Trigger confetti when signal ratio reaches 80% or above
   const shouldShowConfetti = signalRatioPercentage >= 80;
@@ -57,6 +67,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
           {/* Fozzle Score Ring - Signal Percentage */}
           <div className="flex items-center justify-center mb-6">
             <div className="relative w-32 h-32">
+              <SparklingStars show={showStars} />
               <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
                 <circle
                   cx="60"
