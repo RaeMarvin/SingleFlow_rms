@@ -4,11 +4,9 @@ import logoImage from '../assets/logo.png';
 interface ThumbsUpAnimationProps {
   show: boolean;
   onComplete: () => void;
-  coords?: { x: number; y: number; } | null; // Optional coordinates for desktop positioning
-  isDesktop?: boolean; // Optional flag for desktop
 }
 
-const ThumbsUpAnimation: React.FC<ThumbsUpAnimationProps> = ({ show, onComplete, coords, isDesktop }) => {
+const ThumbsUpAnimation: React.FC<ThumbsUpAnimationProps> = ({ show, onComplete }) => {
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
@@ -21,22 +19,8 @@ const ThumbsUpAnimation: React.FC<ThumbsUpAnimationProps> = ({ show, onComplete,
 
   if (!show) return null;
 
-  const desktopStyle: React.CSSProperties = isDesktop && coords ? {
-    position: 'absolute',
-    left: coords.x,
-    top: coords.y,
-    transform: 'translate(-50%, -50%) scale(0.1)', // Center and scale to 1/10
-    zIndex: 50, // Ensure it's above other content
-    pointerEvents: 'none',
-  } : {};
-
   return (
-    <div 
-      className={`
-        ${isDesktop && coords ? '' : 'fixed inset-0 flex items-center justify-center lg:items-start lg:justify-start lg:pt-48 lg:pl-[calc(25%+18.75%)] z-40 pointer-events-none'}
-      `}
-      style={desktopStyle}
-    >
+    <div className="fixed inset-0 flex items-center justify-center lg:items-start lg:justify-start lg:pt-48 lg:pl-[calc(25%+18.75%)] z-40 pointer-events-none">
       <div className="relative">
         {/* Main Logo - Static */}
         <img 

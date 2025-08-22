@@ -4,10 +4,10 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { Signal, Volume2, TrendingUp } from 'lucide-react';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import TaskCard from './TaskCard';
-import ThumbsUpAnimation from './ThumbsUpAnimation'; // Assuming ThumbsUpAnimation is in the same components folder
+// import ThumbsUpAnimation from './ThumbsUpAnimation'; // Assuming ThumbsUpAnimation is in the same components folder
 import useMediaQuery from '../hooks/useMediaQuery';
 
 import { Task } from '../types';
@@ -22,8 +22,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
   const { tasks } = useSupabaseStore();
   const signalFigureRef = useRef<HTMLDivElement>(null);
   const signalLabelRef = useRef<HTMLDivElement>(null);
-  const [showSignalCompletionPopup, setShowSignalCompletionPopup] = useState(false);
-  const [popupCoords, setPopupCoords] = useState<{ x: number; y: number; } | null>(null);
+  const [isFlashing, setIsFlashing] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   
   // Only show incomplete and non-rejected tasks on the board
@@ -31,26 +30,23 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
   const noiseTasks = tasks.filter((task) => task.category === 'noise' && !task.completed && !task.rejected);
 
   const handleSignalTaskComplete = () => {
-    if (signalLabelRef.current) {
-      const rect = signalLabelRef.current.getBoundingClientRect();
-      // Position above the label, centered horizontally
-      setPopupCoords({ x: rect.left + rect.width / 2, y: rect.top - 21 }); // 21 = 16 (popup height) + 5 (padding)
-    }
-    setShowSignalCompletionPopup(true);
     // Original onSignalComplete from App.tsx
     onSignalComplete?.();
+
+    if (isDesktop) {
+      let flashCount = 0;
+      const flashInterval = setInterval(() => {
+        setIsFlashing(prev => !prev);
+        flashCount++;
+        if (flashCount === 6) { // 3 flashes (on/off cycles)
+          clearInterval(flashInterval);
+          setIsFlashing(false); // Ensure it ends in off state
+        }
+      }, 150); // Flash every 150ms
+    }
   };
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (showSignalCompletionPopup) {
-      timer = setTimeout(() => {
-        setShowSignalCompletionPopup(false);
-        setPopupCoords(null);
-      }, 1500); // Show for 1.5 seconds
-    }
-    return () => clearTimeout(timer);
-  }, [showSignalCompletionPopup]);
+  // Removed useEffect for popup visibility
 
   return (
     <div className="space-y-4">
@@ -64,7 +60,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <div ref={signalFigureRef} className="text-center p-2 bg-signal-50 rounded">
+          <div ref={signalFigureRef} className={`text-center p-2 bg-signal-50 rounded ${isFlashing ? 'border-2 border-[#7dc3ff]' : ''}`}>
             <div className="text-lg font-semibold text-signal-600">
               {signalTasks.length}
             </div>
@@ -73,14 +69,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
             </div>
           </div>
           
-          {isDesktop && showSignalCompletionPopup && popupCoords && (
-            <ThumbsUpAnimation 
-              show={showSignalCompletionPopup} 
-              onComplete={() => setShowSignalCompletionPopup(false)} 
-              coords={popupCoords}
-              isDesktop={isDesktop}
-            />
-          )}
+          
           
           <div className="text-center p-2 bg-noise-50 rounded">
             <div className="text-lg font-semibold text-noise-600">
