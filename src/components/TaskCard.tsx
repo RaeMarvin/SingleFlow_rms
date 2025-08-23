@@ -8,6 +8,8 @@ import useSupabaseStore from '../store/useSupabaseStore';
 import { useSignalFlash } from '../hooks/useSignalFlash';
 import NoiseTaskChoiceModal from './NoiseTaskChoiceModal';
 
+import useMediaQuery from '../hooks/useMediaQuery';
+
 interface TaskCardProps {
   task: Task;
   isDragging?: boolean;
@@ -20,6 +22,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
   const { deleteTask, toggleTaskComplete, rejectTask } = useSupabaseStore();
   const { isFlashing, triggerSignalFlash } = useSignalFlash();
   const [showChoiceModal, setShowChoiceModal] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Use sortable for within-column reordering
   const {
@@ -135,9 +138,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         toggleTaskComplete(task.id);
       }, 100);
       // Delay the thumbs up animation to avoid conflict with confetti
-      setTimeout(() => {
-        onSignalComplete?.();
-      }, 200);
+      if (isMobile) {
+        setTimeout(() => {
+          onSignalComplete?.();
+        }, 200);
+      }
     } else {
       // For all other cases (uncompleting tasks), complete immediately
       toggleTaskComplete(task.id);
