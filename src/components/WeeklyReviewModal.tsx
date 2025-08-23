@@ -167,6 +167,50 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
         </div>
 
         <div className="p-6 space-y-6">
+          {/* Insights - moved to top */}
+          <div className="bg-primary-50 dark:bg-primary-900/20 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-neutral-800 dark:text-white mb-3">
+              Weekly Insights
+            </h3>
+            <div className="space-y-2 text-sm">
+              {fozzleScore >= 80 && (
+                <p className="text-signal-700 dark:text-signal-300">
+                  🎉 Excellent Fozzle Score this week! You achieved {fozzleScore.toFixed(0)}% focus on Signal tasks.
+                </p>
+              )}
+              {rejectedWeekTasks.length > 0 && (
+                <p className="text-primary-700 dark:text-primary-300">
+                  💪 Great job saying NO to {rejectedWeekTasks.length} distracting task{rejectedWeekTasks.length !== 1 ? 's' : ''} this week!
+                </p>
+              )}
+              {fozzleScore < 80 && fozzleScore >= 60 && (
+                <p className="text-primary-700 dark:text-primary-300">
+                  ⚡ Good Fozzle Score with {fozzleScore.toFixed(0)}% Signal focus. Try to get closer to 80% next week.
+                </p>
+              )}
+              {fozzleScore < 60 && completedWeekTasks.length > 0 && (
+                <p className="text-noise-700 dark:text-noise-300">
+                  🎯 Focus improvement needed. Your Fozzle Score is {fozzleScore.toFixed(0)}%. Try to prioritize more Signal work next week.
+                </p>
+              )}
+              {completionRate >= 80 && (
+                <p className="text-signal-700 dark:text-signal-300">
+                  ✅ Great productivity this week! You completed {completionRate.toFixed(0)}% of your tasks.
+                </p>
+              )}
+              {completedWeekTasks.length === 0 && weekTasks.length > 0 && (
+                <p className="text-neutral-600 dark:text-gray-400">
+                  📝 No tasks completed this week yet. There's still time to make progress!
+                </p>
+              )}
+              {weekTasks.length === 0 && (
+                <p className="text-neutral-600 dark:text-gray-400">
+                  🚀 No tasks created this week yet. Time to plan your priorities!
+                </p>
+              )}
+            </div>
+          </div>
+
           {/* Overview Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatBox
@@ -306,50 +350,6 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
                   <span className="text-sm text-neutral-600 dark:text-gray-400">Rejected Tasks</span>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Insights */}
-          <div className="bg-primary-50 dark:bg-primary-900/20 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-neutral-800 dark:text-white mb-3">
-              Weekly Insights
-            </h3>
-            <div className="space-y-2 text-sm">
-              {fozzleScore >= 80 && (
-                <p className="text-signal-700 dark:text-signal-300">
-                  🎉 Excellent Fozzle Score this week! You achieved {fozzleScore.toFixed(0)}% focus on Signal tasks.
-                </p>
-              )}
-              {rejectedWeekTasks.length > 0 && (
-                <p className="text-primary-700 dark:text-primary-300">
-                  💪 Great job saying NO to {rejectedWeekTasks.length} distracting task{rejectedWeekTasks.length !== 1 ? 's' : ''} this week!
-                </p>
-              )}
-              {fozzleScore < 80 && fozzleScore >= 60 && (
-                <p className="text-primary-700 dark:text-primary-300">
-                  ⚡ Good Fozzle Score with {fozzleScore.toFixed(0)}% Signal focus. Try to get closer to 80% next week.
-                </p>
-              )}
-              {fozzleScore < 60 && completedWeekTasks.length > 0 && (
-                <p className="text-noise-700 dark:text-noise-300">
-                  🎯 Focus improvement needed. Your Fozzle Score is {fozzleScore.toFixed(0)}%. Try to prioritize more Signal work next week.
-                </p>
-              )}
-              {completionRate >= 80 && (
-                <p className="text-signal-700 dark:text-signal-300">
-                  ✅ Great productivity this week! You completed {completionRate.toFixed(0)}% of your tasks.
-                </p>
-              )}
-              {completedWeekTasks.length === 0 && weekTasks.length > 0 && (
-                <p className="text-neutral-600 dark:text-gray-400">
-                  📝 No tasks completed this week yet. There's still time to make progress!
-                </p>
-              )}
-              {weekTasks.length === 0 && (
-                <p className="text-neutral-600 dark:text-gray-400">
-                  🚀 No tasks created this week yet. Time to plan your priorities!
-                </p>
-              )}
             </div>
           </div>
 
