@@ -29,11 +29,8 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
   const noiseTasks = tasks.filter((task) => task.category === 'noise' && !task.completed && !task.rejected);
 
   const handleSignalTaskComplete = () => {
-    // Original onSignalComplete from App.tsx
-    onSignalComplete?.();
-
-    if (isDesktop) {
-      // No desktop-specific visual feedback for now
+    if (!isDesktop) {
+      onSignalComplete?.();
     }
   };
 
