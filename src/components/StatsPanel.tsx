@@ -251,8 +251,8 @@ const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, 
 
   useEffect(() => {
     if (completedThisWeek.length > prevCompletedRef.current) {
-      setCompletedFlash(true);
-      const t = setTimeout(() => setCompletedFlash(false), 3000); // matches CSS animation total duration
+  setCompletedFlash(true);
+  const t = setTimeout(() => setCompletedFlash(false), 1500); // matches CSS animation total duration (3 * 0.5s)
       return () => clearTimeout(t);
     }
     prevCompletedRef.current = completedThisWeek.length;

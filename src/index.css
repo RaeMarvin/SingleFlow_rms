@@ -30,7 +30,7 @@
   }
   
   .flash-border {
-    animation: flashBorder 0.5s ease-in-out 6;
+    animation: flashBorder 0.5s ease-in-out 3;
   }
 }
 
