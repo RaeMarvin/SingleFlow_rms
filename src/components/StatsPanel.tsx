@@ -10,7 +10,7 @@ interface StatsPanelProps {
 }
 
 const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
-  const { stats, dailyGoal, tasks, ideas, addIdea, deleteIdea, promoteIdea, moveTask } = useSupabaseStore();
+  const { stats, tasks, ideas, addIdea, deleteIdea, promoteIdea, moveTask } = useSupabaseStore();
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showRejectedTasks, setShowRejectedTasks] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
@@ -36,8 +36,41 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   // Filter out promoted ideas
   const availableIdeas = ideas.filter(idea => !idea.promoted);
   
-  const progressPercentage = Math.min((stats.totalCompleted / dailyGoal.totalTasks) * 100, 100);
-  // Use completedSignalRatio for today's completed tasks ratio
+  // Calculate Signal tasks scheduled today (completed + not completed) and completed Signal tasks today
+  const startOfToday = today;
+  const endOfToday = new Date(startOfToday);
+  endOfToday.setHours(23, 59, 59, 999);
+
+  // Signal tasks completed today
+  const signalCompletedToday = tasks.filter(task => {
+    if (task.category !== 'signal' || !task.completed) return false;
+    const completedDate = task.completedAt ? new Date(task.completedAt) : new Date(task.createdAt);
+    return (
+      completedDate.getFullYear() === startOfToday.getFullYear() &&
+      completedDate.getMonth() === startOfToday.getMonth() &&
+      completedDate.getDate() === startOfToday.getDate()
+    );
+  }).length;
+
+  // Signal tasks that were created today but not yet completed (i.e., scheduled and pending)
+  const signalNotCompletedCreatedToday = tasks.filter(task => {
+    if (task.category !== 'signal' || task.completed) return false;
+    const createdDate = new Date(task.createdAt);
+    return (
+      createdDate.getFullYear() === startOfToday.getFullYear() &&
+      createdDate.getMonth() === startOfToday.getMonth() &&
+      createdDate.getDate() === startOfToday.getDate()
+    );
+  }).length;
+
+  // Scheduled Signal tasks for the day = completed today + not-completed created today
+  const signalScheduledToday = signalCompletedToday + signalNotCompletedCreatedToday;
+
+  const progressPercentage = signalScheduledToday > 0
+    ? Math.min((signalCompletedToday / signalScheduledToday) * 100, 100)
+    : 0;
+
+  // Use completedSignalRatio for today's completed tasks ratio (for the Fozzle score ring)
   const signalRatioPercentage = (stats.completedSignalRatio || 0) * 100;
 
   useEffect(() => {
@@ -128,14 +161,14 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
               color="text-[#7dc3ff]"
             />
             <div className="pt-3 border-t border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  Tasks Completed Today
-                </span>
-                <span className="text-sm font-bold text-gray-900">
-                  {stats.totalCompleted} / {dailyGoal.totalTasks}
-                </span>
-              </div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Signal Tasks Completed Today
+                  </span>
+                  <span className="text-sm font-bold text-gray-900">
+                    {signalCompletedToday} / {signalScheduledToday}
+                  </span>
+                </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full transition-all duration-500 ${
@@ -146,13 +179,16 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
                 />
               </div>
               <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>Goal: {dailyGoal.totalTasks}</span>
+                <span>Goal: {signalScheduledToday}</span>
                 <span className={
                   progressPercentage >= 100 ? 'text-signal-600' :
                   progressPercentage >= 80 ? 'text-primary-600' : 'text-noise-600'
                 }>
-                  {progressPercentage >= 100 ? 'Goal Achieved!' :
-                   progressPercentage >= 80 ? 'Almost There' : 'Keep Going!'}
+                  {signalScheduledToday === 0
+                    ? 'No Signal tasks scheduled'
+                    : progressPercentage >= 100 ? 'Goal Achieved!' :
+                      progressPercentage >= 80 ? 'Almost There' : 'Keep Going!'
+                  }
                 </span>
               </div>
             </div>
