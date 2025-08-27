@@ -52,19 +52,11 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
     );
   }).length;
 
-  // Signal tasks that were created today but not yet completed (i.e., scheduled and pending)
-  const signalNotCompletedCreatedToday = tasks.filter(task => {
-    if (task.category !== 'signal' || task.completed) return false;
-    const createdDate = new Date(task.createdAt);
-    return (
-      createdDate.getFullYear() === startOfToday.getFullYear() &&
-      createdDate.getMonth() === startOfToday.getMonth() &&
-      createdDate.getDate() === startOfToday.getDate()
-    );
-  }).length;
+  // Outstanding Signal tasks (not date-restricted): all Signal tasks that are not completed
+  const signalOutstanding = tasks.filter(task => task.category === 'signal' && !task.completed).length;
 
-  // Scheduled Signal tasks for the day = completed today + not-completed created today
-  const signalScheduledToday = signalCompletedToday + signalNotCompletedCreatedToday;
+  // Target = completed today + outstanding (not date-restricted)
+  const signalScheduledToday = signalCompletedToday + signalOutstanding;
 
   const progressPercentage = signalScheduledToday > 0
     ? Math.min((signalCompletedToday / signalScheduledToday) * 100, 100)
