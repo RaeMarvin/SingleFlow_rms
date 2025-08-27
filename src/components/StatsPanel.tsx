@@ -41,7 +41,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const signalRatioPercentage = (stats.completedSignalRatio || 0) * 100;
 
   useEffect(() => {
-    if (signalRatioPercentage >= 80) {
+    if (signalRatioPercentage >= 50) {
       setShowStars(true);
     } else {
       setShowStars(false);
@@ -67,7 +67,8 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
           {/* Fozzle Score Ring - Signal Percentage */}
           <div className="flex items-center justify-center mb-6">
             <div className="relative w-32 h-32">
-              <SparklingStars show={showStars} />
+              {/* show silver stars for 50-79.9% and gold for >=80% */}
+              <SparklingStars show={showStars} variant={signalRatioPercentage >= 80 ? 'gold' : 'silver'} />
               <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
                 <circle
                   cx="60"
