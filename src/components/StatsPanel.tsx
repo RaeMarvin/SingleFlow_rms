@@ -1,5 +1,5 @@
 import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus, X, Signal, Volume2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
 import CardConfetti from './CardConfetti';
@@ -246,8 +246,21 @@ const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, 
     return completedDate >= weekStart && completedDate <= weekEnd;
   });
 
+  const [completedFlash, setCompletedFlash] = useState(false);
+  const prevCompletedRef = useRef<number>(completedThisWeek.length);
+
+  useEffect(() => {
+    if (completedThisWeek.length > prevCompletedRef.current) {
+      setCompletedFlash(true);
+      const t = setTimeout(() => setCompletedFlash(false), 3000); // matches CSS animation total duration
+      return () => clearTimeout(t);
+    }
+    prevCompletedRef.current = completedThisWeek.length;
+  }, [completedThisWeek.length]);
+  
+
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div className={`bg-white rounded-xl shadow-sm border ${completedFlash ? 'flash-border' : 'border-gray-200'}`}>
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 rounded-xl"
