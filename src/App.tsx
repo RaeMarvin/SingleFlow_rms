@@ -125,7 +125,9 @@ function AppContent() {
       const params = new URLSearchParams(window.location.search);
       if (params.get('forceWelcome') === '1') {
         sessionStorage.setItem('welcomeShown', '1');
-        setShowWelcomeBack(true);
+  setShowWelcomeBack(true);
+  // eslint-disable-next-line no-console
+  console.log('WelcomeBack: forced show via query param');
         return;
       }
     } catch (e) {
@@ -137,12 +139,20 @@ function AppContent() {
       const alreadyShown = sessionStorage.getItem('welcomeShown');
       if (otherDayWithScore && !alreadyShown) {
         setShowWelcomeBack(true);
+        // eslint-disable-next-line no-console
+        console.log('WelcomeBack: showing because otherDayWithScore && !alreadyShown');
         sessionStorage.setItem('welcomeShown', '1');
       }
     } catch (e) {
       if (otherDayWithScore) setShowWelcomeBack(true);
     }
   }, [tasks, user, authLoading, isLoading]);
+
+  // Log when the welcome modal visibility changes (safe side-effect for debugging)
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('WelcomeBack: showWelcomeBack changed ->', showWelcomeBack);
+  }, [showWelcomeBack]);
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
@@ -336,7 +346,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen transition-colors duration-200">
+  <div className="min-h-screen transition-colors duration-200">
       <div className="bg-neutral-50 min-h-screen">
         {isLoading ? (
           <div className="flex items-center justify-center min-h-screen">
