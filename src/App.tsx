@@ -123,12 +123,20 @@ function AppContent() {
     // Allow forcing the modal for testing via ?forceWelcome=1
     try {
       const params = new URLSearchParams(window.location.search);
+      const todayDateStr = today.toDateString();
       if (params.get('forceWelcome') === '1') {
-        sessionStorage.setItem('welcomeShown', '1');
-  setShowWelcomeBack(true);
-  // eslint-disable-next-line no-console
-  console.log('WelcomeBack: forced show via query param');
+        // store the date so we only force it for today
+        sessionStorage.setItem('welcomeShown', todayDateStr);
+        setShowWelcomeBack(true);
+        // eslint-disable-next-line no-console
+        console.log('WelcomeBack: forced show via query param (stored date)', todayDateStr);
         return;
+      }
+      // If debugWelcome=1 is present, allow clearing stored value and force show for debugging
+      if (params.get('debugWelcome') === '1') {
+        // eslint-disable-next-line no-console
+        console.log('WelcomeBack: debugWelcome=1 present — clearing stored key and forcing modal');
+        sessionStorage.removeItem('welcomeShown');
       }
     } catch (e) {
       // ignore
@@ -136,15 +144,25 @@ function AppContent() {
 
     // Show modal if user had another non-zero day this week (regardless of today's percent)
     try {
-      const alreadyShown = sessionStorage.getItem('welcomeShown');
-      if (otherDayWithScore && !alreadyShown) {
-        setShowWelcomeBack(true);
+      const stored = sessionStorage.getItem('welcomeShown');
+      // eslint-disable-next-line no-console
+      console.log('WelcomeBack: session stored value =', stored);
+      const todayDateStr = today.toDateString();
+      if (otherDayWithScore && stored !== todayDateStr) {
         // eslint-disable-next-line no-console
-        console.log('WelcomeBack: showing because otherDayWithScore && !alreadyShown');
-        sessionStorage.setItem('welcomeShown', '1');
+        console.log('WelcomeBack: condition met — showing modal (otherDayWithScore && not shown today)');
+        setShowWelcomeBack(true);
+        sessionStorage.setItem('welcomeShown', todayDateStr);
+      } else if (otherDayWithScore && stored === todayDateStr) {
+        // eslint-disable-next-line no-console
+        console.log('WelcomeBack: otherDayWithScore true but already shown today (stored === today)');
       }
     } catch (e) {
-      if (otherDayWithScore) setShowWelcomeBack(true);
+      if (otherDayWithScore) {
+        // eslint-disable-next-line no-console
+        console.log('WelcomeBack: sessionStorage threw, showing modal as fallback');
+        setShowWelcomeBack(true);
+      }
     }
   }, [tasks, user, authLoading, isLoading]);
 
