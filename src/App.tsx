@@ -36,36 +36,54 @@ function AppContent() {
   useEffect(() => {
     if (!user || authLoading || isLoading) return;
 
-    const start = new Date();
-    const todayStr = start.toISOString().split('T')[0];
-    const dayOfWeek = start.getDay();
+    // Reuse WeeklyReviewModal's day-based logic so streaks/averages match exactly
+    const getMonday = (date: Date) => {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      d.setDate(diff);
+      return d;
+    };
 
-    const monday = new Date(start);
-    const diff = start.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    monday.setDate(diff);
-    monday.setHours(0,0,0,0);
+    const today = new Date();
+    const weekStart = getMonday(today);
 
     const dailyScores: number[] = [];
     let otherDayWithScore = false;
 
     for (let i = 0; i < 7; i++) {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
-      const dStr = d.toISOString().split('T')[0];
+      const day = new Date(weekStart);
+      day.setDate(weekStart.getDate() + i);
 
-      const completed = tasks.filter(t => t.completed && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === dStr);
-      const noList = tasks.filter(t => t.rejected && t.rejectedAt && new Date(t.rejectedAt).toISOString().split('T')[0] === dStr);
+      // tasks completed on this specific day
+      const dayCompletedTasks = tasks.filter(task => {
+        if (!task.completed || !task.completedAt) return false;
+        const completedDate = new Date(task.completedAt);
+        return completedDate.toDateString() === day.toDateString();
+      });
 
-      const numerator = completed.filter(t => t.category === 'signal').length + noList.length;
-      const denominator = completed.length + noList.length;
+      // tasks rejected on this day
+      const dayRejectedTasks = tasks.filter(task => {
+        if (!task.rejected) return false;
+        const rejectedDate = task.rejectedAt ? new Date(task.rejectedAt) : new Date(task.createdAt);
+        return rejectedDate.toDateString() === day.toDateString();
+      });
+
+      const completedSignal = dayCompletedTasks.filter(t => t.category === 'signal').length;
+      const numerator = completedSignal + dayRejectedTasks.length;
+      const denominator = dayCompletedTasks.length + dayRejectedTasks.length;
       const percent = denominator > 0 ? (numerator / denominator) * 100 : 0;
+
       dailyScores.push(percent);
-      if (dStr !== todayStr && percent > 0) otherDayWithScore = true;
+      const todayStr = today.toDateString();
+      if (day.toDateString() !== todayStr && percent > 0) otherDayWithScore = true;
     }
 
-    const avg = dailyScores.reduce((a,b) => a + b, 0) / 7;
+    const avg = dailyScores.reduce((a, b) => a + b, 0) / 7;
     setWeeklyAveragePercent(avg);
 
+    // consecutive days: check backwards from today
     let streak = 0;
     for (let i = 6; i >= 0; i--) {
       const p = dailyScores[i];
@@ -74,7 +92,7 @@ function AppContent() {
     setConsecutiveDays(streak);
 
     const todayPercent = dailyScores[6];
-    // debug logs to help verify why modal may not show
+    // debug logs
     // eslint-disable-next-line no-console
     console.log('WelcomeBack debug', { todayPercent, otherDayWithScore, dailyScores, avg, streak });
 
@@ -82,15 +100,23 @@ function AppContent() {
     try {
       const params = new URLSearchParams(window.location.search);
       if (params.get('forceWelcome') === '1') {
+        sessionStorage.setItem('welcomeShown', '1');
         setShowWelcomeBack(true);
         return;
       }
     } catch (e) {
-      // ignore (window not available in some test environments)
+      // ignore
     }
 
-    if (todayPercent > 0 && otherDayWithScore) {
-      setShowWelcomeBack(true);
+    // Show modal if user had another non-zero day this week (regardless of today's percent)
+    try {
+      const alreadyShown = sessionStorage.getItem('welcomeShown');
+      if (otherDayWithScore && !alreadyShown) {
+        setShowWelcomeBack(true);
+        sessionStorage.setItem('welcomeShown', '1');
+      }
+    } catch (e) {
+      if (otherDayWithScore) setShowWelcomeBack(true);
     }
   }, [tasks, user, authLoading, isLoading]);
 
