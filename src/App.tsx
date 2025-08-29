@@ -149,14 +149,13 @@ function AppContent() {
       // eslint-disable-next-line no-console
       console.log('WelcomeBack: session stored value =', stored);
       const todayDateStr = today.toDateString();
-      if (otherDayWithScore && stored !== todayDateStr) {
+      if (otherDayWithScore) {
+        // For debugging now, show every login when condition is met
         // eslint-disable-next-line no-console
-        console.log('WelcomeBack: condition met — showing modal (otherDayWithScore && not shown today)');
+        console.log('WelcomeBack: showing modal every login (debug mode) because otherDayWithScore is true');
         setShowWelcomeBack(true);
-        sessionStorage.setItem('welcomeShown', todayDateStr);
-      } else if (otherDayWithScore && stored === todayDateStr) {
-        // eslint-disable-next-line no-console
-        console.log('WelcomeBack: otherDayWithScore true but already shown today (stored === today)');
+        // still store the date so we can revert to once-per-day easily later
+        try { sessionStorage.setItem('welcomeShown', todayDateStr); } catch (e) { /* ignore */ }
       }
     } catch (e) {
       if (otherDayWithScore) {
