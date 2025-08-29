@@ -14,6 +14,7 @@ import {
 import ThumbsUpAnimation from './components/ThumbsUpAnimation';
 import BicepsFlexedAnimation from './components/BicepsFlexedAnimation';
 import WelcomeBackModal from './components/WelcomeBackModal';
+import MissedReturnModal from './components/MissedReturnModal';
 import { Task } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import logoImage from './assets/logo.png';
@@ -31,6 +32,7 @@ function AppContent() {
   const [showWelcomeBack, setShowWelcomeBack] = useState(false);
   const [consecutiveDays, setConsecutiveDays] = useState(0);
   const [weeklyAveragePercent, setWeeklyAveragePercent] = useState(0);
+  const [showMissedReturn, setShowMissedReturn] = useState(false);
 
   // Compute weekly stats and decide whether to show WelcomeBackModal
   useEffect(() => {
@@ -51,9 +53,10 @@ function AppContent() {
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6);
   weekEnd.setHours(23, 59, 59, 999);
-
-    const dailyScores: number[] = [];
-    let otherDayWithScore = false;
+  const todayStr = today.toDateString();
+  const dailyScores: number[] = [];
+  let otherDayWithScore = false;
+  let missedDayFoundBeforeToday = false;
 
   let todayIndex = 0;
   for (let i = 0; i < 7; i++) {
@@ -79,11 +82,28 @@ function AppContent() {
       const denominator = dayCompletedTasks.length + dayRejectedTasks.length;
       const percent = denominator > 0 ? (numerator / denominator) * 100 : 0;
 
-      dailyScores.push(percent);
-      const todayStr = today.toDateString();
+  dailyScores.push(percent);
       if (day.toDateString() === todayStr) todayIndex = i;
       if (day.toDateString() !== todayStr && percent > 0) otherDayWithScore = true;
+      // detect any missed (zero-percent) day earlier in the week before today
+      if (day.toDateString() !== todayStr && percent === 0) {
+        // only mark missed if there exists at least one later day (including today) with percent > 0
+        // we'll compute that after the loop; store zero markers now
+      }
     }
+
+  // Determine if there was a missed day earlier in the week before any scored day (i.e., broken streak)
+    // A missed-return condition: there exists at least one day before today with percent === 0
+    // AND there exists a later day in the week (including today) with percent > 0.
+  const indexToday = dailyScores.findIndex((_, idx) => {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + idx);
+      return d.toDateString() === todayStr;
+    });
+    const anyLaterWithScore = dailyScores.slice(indexToday).some(p => p > 0) || dailyScores[indexToday] > 0;
+    // any earlier day with zero
+    const anyEarlierMissed = dailyScores.slice(0, indexToday).some(p => p === 0);
+    missedDayFoundBeforeToday = anyEarlierMissed && anyLaterWithScore;
 
   // Compute weekly aggregate fozzle score the same way WeeklyReviewModal does
     const weekTasks = tasks.filter(task => {
@@ -103,8 +123,7 @@ function AppContent() {
     const completedWeekSignalTasks = completedWeekTasks.filter(t => t.category === 'signal');
     const weeklyAggregate = completedWeekTasks.length > 0 ? (completedWeekSignalTasks.length / completedWeekTasks.length) * 100 : 0;
 
-    // Exclude tasks completed today from the weekly aggregate shown in the modal
-    const todayStr = today.toDateString();
+  // Exclude tasks completed today from the weekly aggregate shown in the modal
     const completedWeekTasksExclToday = completedWeekTasks.filter(t => {
       const completedDate = new Date(String(t.completedAt));
       return completedDate.toDateString() !== todayStr;
@@ -148,26 +167,46 @@ function AppContent() {
       // ignore
     }
 
-    // Show modal if user had another non-zero day this week (regardless of today's percent)
+    // Only show popups for users who have used Fozzle before (have any tasks)
+    const hasUsedBefore = Array.isArray(tasks) && tasks.length > 0;
+    // Show WelcomeBack modal if user had another non-zero day this week (regardless of today's percent)
     try {
       const stored = sessionStorage.getItem('welcomeShown');
       // eslint-disable-next-line no-console
       console.log('WelcomeBack: session stored value =', stored);
       const todayDateStr = today.toDateString();
-      if (otherDayWithScore && stored !== todayDateStr) {
+      if (hasUsedBefore && otherDayWithScore && stored !== todayDateStr) {
         // eslint-disable-next-line no-console
         console.log('WelcomeBack: condition met — showing modal (otherDayWithScore && not shown today)');
         setShowWelcomeBack(true);
         try { sessionStorage.setItem('welcomeShown', todayDateStr); } catch (e) { /* ignore */ }
-      } else if (otherDayWithScore && stored === todayDateStr) {
+      } else if (hasUsedBefore && otherDayWithScore && stored === todayDateStr) {
         // eslint-disable-next-line no-console
         console.log('WelcomeBack: otherDayWithScore true but already shown today (stored === today)');
       }
     } catch (e) {
-      if (otherDayWithScore) {
+      if (hasUsedBefore && otherDayWithScore) {
         // eslint-disable-next-line no-console
         console.log('WelcomeBack: sessionStorage threw, showing modal as fallback');
         setShowWelcomeBack(true);
+      }
+    }
+
+    // Missed-return modal gating (separate storage key). Only show if WelcomeBack is NOT showing.
+    try {
+      const storedMissed = sessionStorage.getItem('missedReturnShown');
+      const todayDateStr = today.toDateString();
+      if (hasUsedBefore && !showWelcomeBack && missedDayFoundBeforeToday && storedMissed !== todayDateStr) {
+        // eslint-disable-next-line no-console
+        console.log('MissedReturn: condition met — showing missed-return modal');
+        setShowMissedReturn(true);
+        try { sessionStorage.setItem('missedReturnShown', todayDateStr); } catch (e) { /* ignore */ }
+      }
+    } catch (err) {
+      if (hasUsedBefore && !showWelcomeBack && missedDayFoundBeforeToday) {
+        // eslint-disable-next-line no-console
+        console.log('MissedReturn: sessionStorage threw, showing modal as fallback');
+        setShowMissedReturn(true);
       }
     }
   }, [tasks, user, authLoading, isLoading]);
@@ -434,6 +473,11 @@ function AppContent() {
           onClose={() => setShowWelcomeBack(false)}
           consecutiveDays={consecutiveDays}
           weeklyAveragePercent={weeklyAveragePercent}
+        />
+
+        <MissedReturnModal
+          show={showMissedReturn}
+          onClose={() => setShowMissedReturn(false)}
         />
 
         {/* Thumbs up animation for Signal task completion */}
