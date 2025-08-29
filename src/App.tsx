@@ -32,8 +32,6 @@ function AppContent() {
   const { isLoading } = useInitializeData();
   const { user, loading: authLoading } = useAuth();
 
-  
-
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
   };
