@@ -95,15 +95,11 @@ function AppContent() {
   // Determine if there was a missed day earlier in the week before any scored day (i.e., broken streak)
     // A missed-return condition: there exists at least one day before today with percent === 0
     // AND there exists a later day in the week (including today) with percent > 0.
-  const indexToday = dailyScores.findIndex((_, idx) => {
-      const d = new Date(weekStart);
-      d.setDate(weekStart.getDate() + idx);
-      return d.toDateString() === todayStr;
-    });
-    const anyLaterWithScore = dailyScores.slice(indexToday).some(p => p > 0) || dailyScores[indexToday] > 0;
-    // any earlier day with zero
-    const anyEarlierMissed = dailyScores.slice(0, indexToday).some(p => p === 0);
-    missedDayFoundBeforeToday = anyEarlierMissed && anyLaterWithScore;
+  const idxToday = todayIndex; // use the index computed in the loop
+  // broken streak: there was at least one scored day earlier in the week and at least one missed (zero) day before today
+  const hadAnyScoreEarlier = idxToday > 0 ? dailyScores.slice(0, idxToday).some(p => p > 0) : false;
+  const hasAnyMissEarlier = idxToday > 0 ? dailyScores.slice(0, idxToday).some(p => p === 0) : false;
+  missedDayFoundBeforeToday = hadAnyScoreEarlier && hasAnyMissEarlier;
 
   // Compute weekly aggregate fozzle score the same way WeeklyReviewModal does
     const weekTasks = tasks.filter(task => {
@@ -169,13 +165,34 @@ function AppContent() {
 
     // Only show popups for users who have used Fozzle before (have any tasks)
     const hasUsedBefore = Array.isArray(tasks) && tasks.length > 0;
-    // Show WelcomeBack modal if user had another non-zero day this week (regardless of today's percent)
+
+    // Decide which modal to show. Prioritize the missed-return modal (broken streak) over WelcomeBack.
+    const todayDateStr = today.toDateString();
+    try {
+      // Missed-return gating (separate storage key)
+      const storedMissed = sessionStorage.getItem('missedReturnShown');
+      const shouldShowMissed = hasUsedBefore && missedDayFoundBeforeToday && storedMissed !== todayDateStr;
+      if (shouldShowMissed) {
+        // eslint-disable-next-line no-console
+        console.log('MissedReturn: condition met — showing missed-return modal');
+        setShowMissedReturn(true);
+        try { sessionStorage.setItem('missedReturnShown', todayDateStr); } catch (e) { /* ignore */ }
+      }
+    } catch (err) {
+      if (hasUsedBefore && missedDayFoundBeforeToday) {
+        // eslint-disable-next-line no-console
+        console.log('MissedReturn: sessionStorage threw, showing modal as fallback');
+        setShowMissedReturn(true);
+      }
+    }
+
+    // WelcomeBack gating: only if missed-return is not scheduled to show
     try {
       const stored = sessionStorage.getItem('welcomeShown');
       // eslint-disable-next-line no-console
       console.log('WelcomeBack: session stored value =', stored);
-      const todayDateStr = today.toDateString();
-      if (hasUsedBefore && otherDayWithScore && stored !== todayDateStr) {
+      const shouldShowWelcome = hasUsedBefore && otherDayWithScore && !missedDayFoundBeforeToday && stored !== todayDateStr;
+      if (shouldShowWelcome) {
         // eslint-disable-next-line no-console
         console.log('WelcomeBack: condition met — showing modal (otherDayWithScore && not shown today)');
         setShowWelcomeBack(true);
@@ -185,28 +202,10 @@ function AppContent() {
         console.log('WelcomeBack: otherDayWithScore true but already shown today (stored === today)');
       }
     } catch (e) {
-      if (hasUsedBefore && otherDayWithScore) {
+      if (hasUsedBefore && otherDayWithScore && !missedDayFoundBeforeToday) {
         // eslint-disable-next-line no-console
         console.log('WelcomeBack: sessionStorage threw, showing modal as fallback');
         setShowWelcomeBack(true);
-      }
-    }
-
-    // Missed-return modal gating (separate storage key). Only show if WelcomeBack is NOT showing.
-    try {
-      const storedMissed = sessionStorage.getItem('missedReturnShown');
-      const todayDateStr = today.toDateString();
-      if (hasUsedBefore && !showWelcomeBack && missedDayFoundBeforeToday && storedMissed !== todayDateStr) {
-        // eslint-disable-next-line no-console
-        console.log('MissedReturn: condition met — showing missed-return modal');
-        setShowMissedReturn(true);
-        try { sessionStorage.setItem('missedReturnShown', todayDateStr); } catch (e) { /* ignore */ }
-      }
-    } catch (err) {
-      if (hasUsedBefore && !showWelcomeBack && missedDayFoundBeforeToday) {
-        // eslint-disable-next-line no-console
-        console.log('MissedReturn: sessionStorage threw, showing modal as fallback');
-        setShowMissedReturn(true);
       }
     }
   }, [tasks, user, authLoading, isLoading]);
