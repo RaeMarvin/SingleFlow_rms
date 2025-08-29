@@ -46,13 +46,17 @@ function AppContent() {
       return d;
     };
 
-    const today = new Date();
-    const weekStart = getMonday(today);
+  const today = new Date();
+  const weekStart = getMonday(today);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+  weekEnd.setHours(23, 59, 59, 999);
 
     const dailyScores: number[] = [];
     let otherDayWithScore = false;
 
-    for (let i = 0; i < 7; i++) {
+  let todayIndex = 0;
+  for (let i = 0; i < 7; i++) {
       const day = new Date(weekStart);
       day.setDate(weekStart.getDate() + i);
 
@@ -77,24 +81,44 @@ function AppContent() {
 
       dailyScores.push(percent);
       const todayStr = today.toDateString();
+      if (day.toDateString() === todayStr) todayIndex = i;
       if (day.toDateString() !== todayStr && percent > 0) otherDayWithScore = true;
     }
 
-    const avg = dailyScores.reduce((a, b) => a + b, 0) / 7;
-    setWeeklyAveragePercent(avg);
+  // Compute weekly aggregate fozzle score the same way WeeklyReviewModal does
+    const weekTasks = tasks.filter(task => {
+      const taskDate = new Date(task.createdAt);
+      const isCreatedThisWeek = taskDate >= weekStart && taskDate <= weekEnd;
 
-    // consecutive days: check backwards from today
+      if (task.completed && task.completedAt) {
+        const completedDate = new Date(task.completedAt);
+        const isCompletedThisWeek = completedDate >= weekStart && completedDate <= weekEnd;
+        return isCreatedThisWeek || isCompletedThisWeek;
+      }
+
+      return isCreatedThisWeek;
+    });
+
+    const completedWeekTasks = weekTasks.filter(t => t.completed);
+    const completedWeekSignalTasks = completedWeekTasks.filter(t => t.category === 'signal');
+    const weeklyAggregate = completedWeekTasks.length > 0 ? (completedWeekSignalTasks.length / completedWeekTasks.length) * 100 : 0;
+  // Compute average to-date across days from week start through today (count days up to today)
+  const daysSoFar = todayIndex + 1; // e.g., Friday -> 5
+  const sumToDate = dailyScores.slice(0, daysSoFar).reduce((a, b) => a + b, 0);
+  const avgToDate = daysSoFar > 0 ? (sumToDate / daysSoFar) : 0;
+  setWeeklyAveragePercent(avgToDate);
+
+    // consecutive days: check backwards from today's index
     let streak = 0;
-    for (let i = 6; i >= 0; i--) {
+    for (let i = todayIndex; i >= 0; i--) {
       const p = dailyScores[i];
       if (p > 0) streak++; else break;
     }
     setConsecutiveDays(streak);
-
-    const todayPercent = dailyScores[6];
+    const todayPercent = dailyScores[todayIndex];
     // debug logs
     // eslint-disable-next-line no-console
-    console.log('WelcomeBack debug', { todayPercent, otherDayWithScore, dailyScores, avg, streak });
+    console.log('WelcomeBack debug', { todayPercent, todayIndex, otherDayWithScore, dailyScores, weeklyAggregate, streak });
 
     // Allow forcing the modal for testing via ?forceWelcome=1
     try {
