@@ -1,5 +1,6 @@
 import React from 'react';
 import SparklingStars from './SparklingStars';
+import logoImage from '../assets/logo.png';
 
 interface Props {
   show: boolean;
@@ -20,7 +21,7 @@ const WelcomeBackModal: React.FC<Props> = ({ show, onClose, consecutiveDays, wee
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 relative" style={{color: accent}}>
         <div className="flex items-center justify-center relative">
           <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center border border-gray-100 drop-shadow-lg relative">
-            <img src="/src/assets/logo.png" alt="Fozzle" className="w-16 h-16 object-contain" />
+            <img src={logoImage} alt="Fozzle" className="w-16 h-16 object-contain" />
             <SparklingStars show={true} variant={starVariant as any} />
           </div>
         </div>
