@@ -27,13 +27,13 @@ const WelcomeBackModal: React.FC<Props> = ({ show, onClose, consecutiveDays, wee
         </div>
 
         <div className="text-center mt-4 text-white">
-          <h2 className="text-xl font-semibold">Welcome back, focus champion! 🌟</h2>
+          <h2 className="text-xl font-semibold">Your focus streak is unstoppable, Keep going! 🌟</h2>
           <p className="mt-2">Let's get Fozzling</p>
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-4 text-center">
           <div className="p-3 bg-white/10 rounded-lg border border-white/20">
-            <div className="text-sm text-white/80">Consecutive days</div>
+            <div className="text-sm text-white/80">Current Streak</div>
             <div className="text-2xl font-semibold text-white">{consecutiveDays}</div>
           </div>
           <div className="p-3 bg-white/10 rounded-lg border border-white/20">
