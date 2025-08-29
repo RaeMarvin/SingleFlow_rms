@@ -103,14 +103,15 @@ function AppContent() {
     const completedWeekSignalTasks = completedWeekTasks.filter(t => t.category === 'signal');
     const weeklyAggregate = completedWeekTasks.length > 0 ? (completedWeekSignalTasks.length / completedWeekTasks.length) * 100 : 0;
   // Compute average to-date across days from week start through today (count days up to today)
-  const daysSoFar = todayIndex + 1; // e.g., Friday -> 5
-  const sumToDate = dailyScores.slice(0, daysSoFar).reduce((a, b) => a + b, 0);
-  const avgToDate = daysSoFar > 0 ? (sumToDate / daysSoFar) : 0;
-  setWeeklyAveragePercent(avgToDate);
+  // Note: we will show the weekly aggregate (completed signal tasks / completed tasks) in the Welcome modal
+  // because the weeklyAggregate matches the console "weeklyAggregate" value users expect.
+  // Use weeklyAggregate for the modal display (matches WeeklyReviewModal's aggregate)
+  setWeeklyAveragePercent(weeklyAggregate);
 
-    // consecutive days: check backwards from today's index
+    // consecutive days: check backwards. If today has no score, start from yesterday so streak isn't broken by a missing-today login.
     let streak = 0;
-    for (let i = todayIndex; i >= 0; i--) {
+    const startIndex = (dailyScores[todayIndex] > 0) ? todayIndex : (todayIndex - 1);
+    for (let i = startIndex; i >= 0; i--) {
       const p = dailyScores[i];
       if (p > 0) streak++; else break;
     }
