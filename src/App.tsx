@@ -99,27 +99,32 @@ function AppContent() {
       return isCreatedThisWeek;
     });
 
-    const completedWeekTasks = weekTasks.filter(t => t.completed);
+    const completedWeekTasks = weekTasks.filter(t => t.completed && t.completedAt);
     const completedWeekSignalTasks = completedWeekTasks.filter(t => t.category === 'signal');
     const weeklyAggregate = completedWeekTasks.length > 0 ? (completedWeekSignalTasks.length / completedWeekTasks.length) * 100 : 0;
-  // Compute average to-date across days from week start through today (count days up to today)
-  // Note: we will show the weekly aggregate (completed signal tasks / completed tasks) in the Welcome modal
-  // because the weeklyAggregate matches the console "weeklyAggregate" value users expect.
-  // Use weeklyAggregate for the modal display (matches WeeklyReviewModal's aggregate)
-  setWeeklyAveragePercent(weeklyAggregate);
 
-    // consecutive days: check backwards. If today has no score, start from yesterday so streak isn't broken by a missing-today login.
-    let streak = 0;
-    const startIndex = (dailyScores[todayIndex] > 0) ? todayIndex : (todayIndex - 1);
-    for (let i = startIndex; i >= 0; i--) {
-      const p = dailyScores[i];
-      if (p > 0) streak++; else break;
-    }
-    setConsecutiveDays(streak);
+    // Exclude tasks completed today from the weekly aggregate shown in the modal
+    const todayStr = today.toDateString();
+    const completedWeekTasksExclToday = completedWeekTasks.filter(t => {
+      const completedDate = new Date(String(t.completedAt));
+      return completedDate.toDateString() !== todayStr;
+    });
+    const completedWeekSignalTasksExclToday = completedWeekTasksExclToday.filter(t => t.category === 'signal');
+    const weeklyAggregateExclToday = completedWeekTasksExclToday.length > 0
+      ? (completedWeekSignalTasksExclToday.length / completedWeekTasksExclToday.length) * 100
+      : 0;
+
+    // Use the aggregate that excludes today for the modal display
+    setWeeklyAveragePercent(weeklyAggregateExclToday);
+
+    // consecutive days: display as todayIndex + 1 (include today in the count)
+    const displayStreak = todayIndex + 1;
+    setConsecutiveDays(displayStreak);
+
     const todayPercent = dailyScores[todayIndex];
     // debug logs
     // eslint-disable-next-line no-console
-    console.log('WelcomeBack debug', { todayPercent, todayIndex, otherDayWithScore, dailyScores, weeklyAggregate, streak });
+    console.log('WelcomeBack debug', { todayPercent, todayIndex, otherDayWithScore, dailyScores, weeklyAggregate, weeklyAggregateExclToday, displayStreak });
 
     // Allow forcing the modal for testing via ?forceWelcome=1
     try {
