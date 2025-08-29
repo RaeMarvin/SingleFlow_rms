@@ -74,6 +74,21 @@ function AppContent() {
     setConsecutiveDays(streak);
 
     const todayPercent = dailyScores[6];
+    // debug logs to help verify why modal may not show
+    // eslint-disable-next-line no-console
+    console.log('WelcomeBack debug', { todayPercent, otherDayWithScore, dailyScores, avg, streak });
+
+    // Allow forcing the modal for testing via ?forceWelcome=1
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('forceWelcome') === '1') {
+        setShowWelcomeBack(true);
+        return;
+      }
+    } catch (e) {
+      // ignore (window not available in some test environments)
+    }
+
     if (todayPercent > 0 && otherDayWithScore) {
       setShowWelcomeBack(true);
     }
