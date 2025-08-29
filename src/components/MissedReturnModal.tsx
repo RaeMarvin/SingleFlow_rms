@@ -24,7 +24,7 @@ const MissedReturnModal: React.FC<Props> = ({ show, onClose }) => {
         </div>
 
         <div className="text-center mt-4 text-white">
-          <h2 className="text-xl font-semibold">Welcome back, Fozzle friend! ✨</h2>
+          <h2 className="text-xl font-semibold">Welcome back, Fozzler! ✨</h2>
           <p className="mt-2">Today is where the real action happens. Let's get fozzling</p>
         </div>
 
