@@ -1,6 +1,6 @@
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, TouchSensor, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSupabaseStore from './store/useSupabaseStore';
 import { useInitializeData } from './hooks/useInitializeData';
 import { 
@@ -13,6 +13,7 @@ import {
 } from './components';
 import ThumbsUpAnimation from './components/ThumbsUpAnimation';
 import BicepsFlexedAnimation from './components/BicepsFlexedAnimation';
+import WelcomeBackModal from './components/WelcomeBackModal';
 import { Task } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import logoImage from './assets/logo.png';
@@ -27,6 +28,56 @@ function AppContent() {
   const { moveTask, reorderTasks, tasks } = useSupabaseStore();
   const { isLoading } = useInitializeData();
   const { user, loading: authLoading } = useAuth();
+  const [showWelcomeBack, setShowWelcomeBack] = useState(false);
+  const [consecutiveDays, setConsecutiveDays] = useState(0);
+  const [weeklyAveragePercent, setWeeklyAveragePercent] = useState(0);
+
+  // Compute weekly stats and decide whether to show WelcomeBackModal
+  useEffect(() => {
+    if (!user || authLoading || isLoading) return;
+
+    const start = new Date();
+    const todayStr = start.toISOString().split('T')[0];
+    const dayOfWeek = start.getDay();
+
+    const monday = new Date(start);
+    const diff = start.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+    monday.setDate(diff);
+    monday.setHours(0,0,0,0);
+
+    const dailyScores: number[] = [];
+    let otherDayWithScore = false;
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const dStr = d.toISOString().split('T')[0];
+
+      const completed = tasks.filter(t => t.completed && t.completedAt && new Date(t.completedAt).toISOString().split('T')[0] === dStr);
+      const noList = tasks.filter(t => t.rejected && t.rejectedAt && new Date(t.rejectedAt).toISOString().split('T')[0] === dStr);
+
+      const numerator = completed.filter(t => t.category === 'signal').length + noList.length;
+      const denominator = completed.length + noList.length;
+      const percent = denominator > 0 ? (numerator / denominator) * 100 : 0;
+      dailyScores.push(percent);
+      if (dStr !== todayStr && percent > 0) otherDayWithScore = true;
+    }
+
+    const avg = dailyScores.reduce((a,b) => a + b, 0) / 7;
+    setWeeklyAveragePercent(avg);
+
+    let streak = 0;
+    for (let i = 6; i >= 0; i--) {
+      const p = dailyScores[i];
+      if (p > 0) streak++; else break;
+    }
+    setConsecutiveDays(streak);
+
+    const todayPercent = dailyScores[6];
+    if (todayPercent > 0 && otherDayWithScore) {
+      setShowWelcomeBack(true);
+    }
+  }, [tasks, user, authLoading, isLoading]);
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
@@ -278,6 +329,13 @@ function AppContent() {
             onClose={() => setSelectedTask(null)}
           />
         )}
+
+        <WelcomeBackModal
+          show={showWelcomeBack}
+          onClose={() => setShowWelcomeBack(false)}
+          consecutiveDays={consecutiveDays}
+          weeklyAveragePercent={weeklyAveragePercent}
+        />
 
         {/* Thumbs up animation for Signal task completion */}
         <ThumbsUpAnimation 
