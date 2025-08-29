@@ -100,6 +100,10 @@ function AppContent() {
   const hadAnyScoreEarlier = idxToday > 0 ? dailyScores.slice(0, idxToday).some(p => p > 0) : false;
   const hasAnyMissEarlier = idxToday > 0 ? dailyScores.slice(0, idxToday).some(p => p === 0) : false;
   missedDayFoundBeforeToday = hadAnyScoreEarlier && hasAnyMissEarlier;
+  // touch the variable so TypeScript treats it as used (prevents TS6133 when other logic
+  // switched to yesterday-first rules). Keep this log for debugging; it can be removed later.
+  // eslint-disable-next-line no-console
+  console.log('missedDayFoundBeforeToday', missedDayFoundBeforeToday);
 
   // Compute weekly aggregate fozzle score the same way WeeklyReviewModal does
     const weekTasks = tasks.filter(task => {
@@ -166,46 +170,78 @@ function AppContent() {
     // Only show popups for users who have used Fozzle before (have any tasks)
     const hasUsedBefore = Array.isArray(tasks) && tasks.length > 0;
 
-    // Decide which modal to show. Prioritize the missed-return modal (broken streak) over WelcomeBack.
+    // Compute yesterday's percent (independent of the weekly slice) and whether
+    // the user has any prior activity before yesterday. "Prior activity" mirrors
+    // the numerator: any completed 'signal' or any rejected task strictly before yesterday.
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+    const startOfYesterday = new Date(yesterday);
+    startOfYesterday.setHours(0, 0, 0, 0);
+
+    const percentForDate = (dateStr: string) => {
+      const dayCompletedTasks = tasks.filter(t => (t.completed && t.completedAt) && new Date(String(t.completedAt)).toDateString() === dateStr);
+      const dayRejectedTasks = tasks.filter(t => t.rejected && ((t.rejectedAt ? new Date(String(t.rejectedAt)) : new Date(String(t.createdAt))).toDateString() === dateStr));
+      const completedSignal = dayCompletedTasks.filter(t => t.category === 'signal').length;
+      const numerator = completedSignal + dayRejectedTasks.length;
+      const denominator = dayCompletedTasks.length + dayRejectedTasks.length;
+      return denominator > 0 ? (numerator / denominator) * 100 : 0;
+    };
+
+    const yesterdayPercent = percentForDate(yesterdayStr);
+
+    const hasPriorActivityBeforeYesterday = tasks.some(t => {
+      // rejected before yesterday
+      if (t.rejected) {
+        const rejectedDate = t.rejectedAt ? new Date(String(t.rejectedAt)) : new Date(String(t.createdAt));
+        if (rejectedDate < startOfYesterday) return true;
+      }
+      // completed 'signal' before yesterday
+      if (t.completed && t.completedAt && t.category === 'signal') {
+        const completedDate = new Date(String(t.completedAt));
+        if (completedDate < startOfYesterday) return true;
+      }
+      return false;
+    });
+
+    // Decision order per spec:
+    // 1) If yesterdayPercent > 0 -> show WelcomeBack.
+    // 2) Else if yesterdayPercent === 0 AND hasPriorActivityBeforeYesterday -> show MissedReturn.
+    // SessionStorage gating ensures each modal shows once per day.
     const todayDateStr = today.toDateString();
     try {
-      // Missed-return gating (separate storage key)
-      const storedMissed = sessionStorage.getItem('missedReturnShown');
-      const shouldShowMissed = hasUsedBefore && missedDayFoundBeforeToday && storedMissed !== todayDateStr;
-      if (shouldShowMissed) {
+      // eslint-disable-next-line no-console
+      console.log('WelcomeBack decision', { yesterdayStr, yesterdayPercent, hasPriorActivityBeforeYesterday });
+
+      // WelcomeBack: highest priority when yesterday had any score
+      const storedWelcome = sessionStorage.getItem('welcomeShown');
+      if (hasUsedBefore && yesterdayPercent > 0 && storedWelcome !== todayDateStr) {
         // eslint-disable-next-line no-console
-        console.log('MissedReturn: condition met — showing missed-return modal');
+        console.log('WelcomeBack: yesterday > 0 — showing WelcomeBack');
+        setShowWelcomeBack(true);
+        try { sessionStorage.setItem('welcomeShown', todayDateStr); } catch (e) { /* ignore */ }
+        return; // if we show WelcomeBack we don't evaluate MissedReturn
+      }
+
+      // MissedReturn: only when yesterday had zero and there is prior activity before yesterday
+      const storedMissed = sessionStorage.getItem('missedReturnShown');
+      if (hasUsedBefore && yesterdayPercent === 0 && hasPriorActivityBeforeYesterday && storedMissed !== todayDateStr) {
+        // eslint-disable-next-line no-console
+        console.log('MissedReturn: yesterday === 0 and prior activity exists — showing MissedReturn');
         setShowMissedReturn(true);
         try { sessionStorage.setItem('missedReturnShown', todayDateStr); } catch (e) { /* ignore */ }
       }
     } catch (err) {
-      if (hasUsedBefore && missedDayFoundBeforeToday) {
+      // sessionStorage may throw in some environments — fall back to showing nothing if uncertain
+      // but still allow modals as a last resort if conditions are met
+      if (hasUsedBefore && yesterdayPercent > 0) {
         // eslint-disable-next-line no-console
-        console.log('MissedReturn: sessionStorage threw, showing modal as fallback');
+        console.log('WelcomeBack: sessionStorage threw, showing WelcomeBack as fallback');
+        setShowWelcomeBack(true);
+      } else if (hasUsedBefore && yesterdayPercent === 0 && hasPriorActivityBeforeYesterday) {
+        // eslint-disable-next-line no-console
+        console.log('MissedReturn: sessionStorage threw, showing MissedReturn as fallback');
         setShowMissedReturn(true);
-      }
-    }
-
-    // WelcomeBack gating: only if missed-return is not scheduled to show
-    try {
-      const stored = sessionStorage.getItem('welcomeShown');
-      // eslint-disable-next-line no-console
-      console.log('WelcomeBack: session stored value =', stored);
-      const shouldShowWelcome = hasUsedBefore && otherDayWithScore && !missedDayFoundBeforeToday && stored !== todayDateStr;
-      if (shouldShowWelcome) {
-        // eslint-disable-next-line no-console
-        console.log('WelcomeBack: condition met — showing modal (otherDayWithScore && not shown today)');
-        setShowWelcomeBack(true);
-        try { sessionStorage.setItem('welcomeShown', todayDateStr); } catch (e) { /* ignore */ }
-      } else if (hasUsedBefore && otherDayWithScore && stored === todayDateStr) {
-        // eslint-disable-next-line no-console
-        console.log('WelcomeBack: otherDayWithScore true but already shown today (stored === today)');
-      }
-    } catch (e) {
-      if (hasUsedBefore && otherDayWithScore && !missedDayFoundBeforeToday) {
-        // eslint-disable-next-line no-console
-        console.log('WelcomeBack: sessionStorage threw, showing modal as fallback');
-        setShowWelcomeBack(true);
       }
     }
   }, [tasks, user, authLoading, isLoading]);
