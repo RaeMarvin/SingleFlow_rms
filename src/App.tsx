@@ -376,25 +376,9 @@ function AppContent() {
               <p className="text-xl text-neutral-600 mb-12 leading-relaxed">
                 Fozzle today and keep distractions at bay
               </p>
-
-              {/* Body brand block (desktop enlarged, header unchanged) */}
-              <div className="mx-auto mb-6 lg:max-w-lg">
-                <div className="flex items-center justify-center space-x-4">
-                  <img
-                    src={logoImage}
-                    alt="Logo"
-                    className="w-16 h-16 lg:w-28 lg:h-28 drop-shadow-lg object-contain"
-                  />
-                  <img
-                    src={wordmarkImage}
-                    alt="Fozzle"
-                    className="h-14 lg:h-28 object-contain w-full max-w-[420px]"
-                  />
-                </div>
-              </div>
-
+              
               {/* Demo task list matching the image */}
-              <div className="mx-auto mb-8 lg:max-w-md">
+                <div className="mx-auto mb-8 lg:max-w-md">
                 <h2 className="text-2xl font-semibold text-neutral-800 mb-6">
                   Today's Focus
                 </h2>
