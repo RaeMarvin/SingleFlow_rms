@@ -378,7 +378,7 @@ function AppContent() {
               </p>
               
               {/* Demo task list matching the image */}
-              <div className="max-w-md mx-auto mb-12">
+                <div className="mx-auto mb-8 lg:max-w-md">
                 <h2 className="text-2xl font-semibold text-neutral-800 mb-6">
                   Today's Focus
                 </h2>
