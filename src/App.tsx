@@ -374,13 +374,13 @@ function AppContent() {
               </div>
               
               <p className="text-xl text-neutral-600 mb-12 leading-relaxed">
-                Focus on the next thing you need to do.
+                Fozzle today and keep distractions at bay
               </p>
               
               {/* Demo task list matching the image */}
               <div className="max-w-md mx-auto mb-12">
                 <h2 className="text-2xl font-semibold text-neutral-800 mb-6">
-                  Today's Tasks
+                  Today's Focus
                 </h2>
                 
                 <div className="space-y-3">
@@ -390,7 +390,7 @@ function AppContent() {
                       <div className="w-5 h-5 rounded-full border-2 border-primary-500 flex items-center justify-center">
                         <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
                       </div>
-                      <span className="text-neutral-800 font-medium">Task</span>
+                      <span className="text-neutral-800 font-medium">Item 1</span>
                     </div>
                     <span className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full border border-primary-200">
                       Work
@@ -403,7 +403,7 @@ function AppContent() {
                       <div className="w-5 h-5 rounded-full border-2 border-signal-200 flex items-center justify-center">
                         <div className="w-2 h-2 bg-signal-700 rounded-full"></div>
                       </div>
-                      <span className="text-neutral-800 font-medium">Task</span>
+                      <span className="text-neutral-800 font-medium">Item 2</span>
                     </div>
                     <span className="px-3 py-1 bg-signal-100 text-signal-700 text-sm font-medium rounded-full border border-signal-200">
                       Home
@@ -414,7 +414,7 @@ function AppContent() {
                   <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                     <div className="flex items-center space-x-3">
                       <div className="w-5 h-5 rounded-full border-2 border-noise-400"></div>
-                      <span className="text-neutral-800 font-medium">Task</span>
+                      <span className="text-neutral-800 font-medium">Item 3</span>
                     </div>
                     <span className="px-3 py-1 bg-noise-100 text-noise-700 text-sm font-medium rounded-full border border-noise-200">
                       Social
@@ -422,20 +422,6 @@ function AppContent() {
                   </div>
                 </div>
               </div>
-
-              {/* Quick Action section */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-neutral-800 mb-4">
-                  Quick Action
-                </h3>
-                <button className="w-full max-w-md mx-auto block text-white border rounded-xl py-4 px-6 text-lg font-medium transition-colors duration-200" style={{backgroundColor: '#7dc3ff', borderColor: '#6bb6ff'}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#6bb6ff'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7dc3ff'}>
-                  Add a task
-                </button>
-              </div>
-              
-              <p className="text-neutral-600 mb-8">
-                Sign in to start organizing your tasks and boost your productivity today.
-              </p>
             </div>
           </main>
         </div>
