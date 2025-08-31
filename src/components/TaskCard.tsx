@@ -189,7 +189,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
         className="absolute top-0 left-0 right-0 h-8 cursor-grab active:cursor-grabbing flex items-center justify-center"
         {...listeners}
         {...attributes}
-        title="Drag to move task"
+  title="Drag to move activity"
       >
         {/* Drag indicator dots */}
         <div className="flex space-x-1 opacity-30 group-hover:opacity-60">
@@ -227,7 +227,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
                 <div
                   className="w-5 h-5 rounded-full border-2 border-blue-300 bg-white hover:bg-blue-50 hover:border-blue-400 flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
                   onClick={handleEditClick}
-                  title="Edit task"
+                  title="Edit activity"
                 >
                   <Edit3 className="w-3 h-3 text-blue-500" strokeWidth={2} />
                 </div>
@@ -238,7 +238,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
                 <div
                   className="w-5 h-5 rounded-full border-2 border-blue-300 bg-white hover:bg-blue-50 hover:border-blue-400 flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
                   onClick={handleEditClick}
-                  title="Edit task"
+                  title="Edit activity"
                 >
                   <Edit3 className="w-3 h-3 text-blue-500" strokeWidth={2} />
                 </div>
@@ -250,7 +250,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
               className="flex-1 min-w-0 cursor-pointer select-none"
               onDoubleClick={handleDoubleClick}
               onTouchEnd={handleTouchEnd}
-              title="Double-click/tap to edit task"
+              title="Double-click/tap to edit activity"
             >
               <h3 className={`
                 font-medium text-neutral-800 text-sm leading-tight
@@ -288,7 +288,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
           deleteTask(task.id);
         }}
         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-200 p-1 rounded"
-        title="Delete task"
+  title="Delete activity"
       >
         <Trash2 className="w-4 h-4" />
       </button>

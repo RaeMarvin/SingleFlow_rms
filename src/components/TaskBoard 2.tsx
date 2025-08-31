@@ -18,10 +18,10 @@ const TaskBoard: React.FC = () => {
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Task Board
+          Activity Board
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Drag tasks between Signal and Noise categories
+          Drag activities between Signal and Noise categories
         </p>
       </div>
 
@@ -103,15 +103,15 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
 
       {/* Task List */}
       <div className="p-4 space-y-3">
-        {sortedTasks.length === 0 ? (
+            {sortedTasks.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <div className="mb-3 opacity-50">
               {icon}
             </div>
             <p className="text-sm">
               {id === 'signal' 
-                ? 'Drop important tasks here' 
-                : 'Drop less critical tasks here'
+                ? 'Drop important activities here' 
+                : 'Drop less critical activities here'
               }
             </p>
           </div>
