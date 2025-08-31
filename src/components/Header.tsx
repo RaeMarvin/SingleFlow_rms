@@ -50,8 +50,8 @@ const Header: React.FC<HeaderProps> = ({ onShowWeeklyReview }) => {
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7dc3ff'}
                 >
                   <Plus className="w-4 h-4 mr-1 sm:mr-2" />
-                  <span className="sm:hidden">Activity</span>
-                  <span className="hidden sm:inline">Add an activity</span>
+                  <span className="sm:hidden">Task</span>
+                  <span className="hidden sm:inline">Add a task</span>
                 </button>
               )}
               
