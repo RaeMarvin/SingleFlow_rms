@@ -35,7 +35,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose }) => {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Add New Activity
+            Add New Task
           </h2>
           <button
             onClick={onClose}
@@ -48,14 +48,14 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose }) => {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Activity Title
+              Task Title
             </label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => handleChange('title', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Enter activity title"
+              placeholder="Enter task title"
               autoFocus
             />
           </div>

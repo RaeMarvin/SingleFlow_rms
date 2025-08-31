@@ -38,12 +38,12 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
 
   return (
     <div className="space-y-4">
-  {/* Current Activities Overview */}
+      {/* Current Tasks Overview */}
       <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 relative">
         <div className="flex items-center space-x-2 mb-2">
           <TrendingUp className="w-4 h-4 text-purple-600" />
           <h3 className="text-sm font-medium text-gray-700">
-            Current Activities
+            Current Tasks
           </h3>
         </div>
 

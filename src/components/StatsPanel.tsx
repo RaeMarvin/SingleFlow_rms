@@ -41,7 +41,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const endOfToday = new Date(startOfToday);
   endOfToday.setHours(23, 59, 59, 999);
 
-  // Signal activities completed today
+  // Signal tasks completed today
   const signalCompletedToday = tasks.filter(task => {
     if (task.category !== 'signal' || !task.completed) return false;
     const completedDate = task.completedAt ? new Date(task.completedAt) : new Date(task.createdAt);
@@ -62,7 +62,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
     ? Math.min((signalCompletedToday / signalScheduledToday) * 100, 100)
     : 0;
 
-  // Use completedSignalRatio for today's completed activities ratio (for the Fozzle score ring)
+  // Use completedSignalRatio for today's completed tasks ratio (for the Fozzle score ring)
   const signalRatioPercentage = (stats.completedSignalRatio || 0) * 100;
 
   useEffect(() => {
@@ -155,7 +155,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
             <div className="pt-3 border-t border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">
-                    Signal Activities Completed Today
+                    Signal Tasks Completed Today
                   </span>
                   <span className="text-sm font-bold text-gray-900">
                     {signalCompletedToday} / {signalScheduledToday}
@@ -188,7 +188,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
         </div>
       </div>
 
-  {/* Completed Activities Dropdown */}
+      {/* Completed Tasks Dropdown */}
       <CompletedTasksDropdown 
         tasks={tasks}
         isOpen={showCompletedTasks}
@@ -296,7 +296,7 @@ const CompletedTasksDropdown: React.FC<CompletedTasksDropdownProps> = ({ tasks, 
         <div className="flex items-center space-x-3">
           <CheckCircle className="w-5 h-5 text-signal-600" />
           <span className="font-medium text-gray-900 dark:text-white">
-            Completed Activities ({completedThisWeek.length})
+            Completed Tasks ({completedThisWeek.length})
           </span>
         </div>
         {isOpen ? (
