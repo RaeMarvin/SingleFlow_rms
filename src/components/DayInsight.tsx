@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 interface DayInsightProps {
   todayPercent: number;
@@ -24,43 +24,39 @@ const EXCELLENT = [
 
 const DayInsight: React.FC<DayInsightProps> = ({ todayPercent }) => {
   const [message, setMessage] = useState<string | null>(null);
+  const [visible, setVisible] = useState(true);
+  const debounceRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const todayKey = new Date().toDateString();
-    const storageKey = `dayInsight_${todayKey}`;
+    const p = Number.isFinite(todayPercent) ? todayPercent : 0;
 
-    try {
-      const stored = sessionStorage.getItem(storageKey);
-      if (stored) {
-        const parsed = JSON.parse(stored) as { bracket: string; idx: number };
-        // If bracket matches current percent range, reuse; otherwise pick new
-        const pFloat = todayPercent; // use raw float for bracket boundaries
-        const bracket = pFloat < 50 ? 'low' : pFloat < 80 ? 'mid' : 'high';
-        if (parsed && parsed.bracket === bracket) {
-          const arr = bracket === 'low' ? NEEDS_IMPROVEMENT : bracket === 'mid' ? REALLY_GOOD : EXCELLENT;
-          const chosen = arr[parsed.idx % arr.length];
-          setMessage(chosen.replace('[X]', `${Math.round(pFloat)}`));
-          return;
-        }
+    // clear any pending debounce
+    if (debounceRef.current) {
+      window.clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+
+    // start fade-out
+    setVisible(false);
+
+    // debounce selection to avoid rapid flicker on many quick updates
+    debounceRef.current = window.setTimeout(() => {
+      const bracket = p < 50 ? 'low' : p < 80 ? 'mid' : 'high';
+      const arr = bracket === 'low' ? NEEDS_IMPROVEMENT : bracket === 'mid' ? REALLY_GOOD : EXCELLENT;
+      // deterministic-ish selection: rotate by timestamp to reduce repeats
+      const idx = Math.floor((Date.now() / 1000)) % arr.length;
+      const chosen = arr[idx];
+      setMessage(chosen.replace('[X]', `${Math.round(p)}`));
+      // fade-in after setting message
+      setVisible(true);
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) {
+        window.clearTimeout(debounceRef.current);
+        debounceRef.current = null;
       }
-    } catch (e) {
-      // ignore storage errors
-    }
-
-    // pick a new one and persist
-    const pFloat = todayPercent;
-    const bracket = pFloat < 50 ? 'low' : pFloat < 80 ? 'mid' : 'high';
-    const arr = bracket === 'low' ? NEEDS_IMPROVEMENT : bracket === 'mid' ? REALLY_GOOD : EXCELLENT;
-    const idx = Math.floor(Math.random() * arr.length);
-    const chosen = arr[idx];
-    setMessage(chosen.replace('[X]', `${Math.round(pFloat)}`));
-
-    try {
-      const payload = JSON.stringify({ bracket, idx });
-      sessionStorage.setItem(storageKey, payload);
-    } catch (e) {
-      // ignore
-    }
+    };
   }, [todayPercent]);
 
   if (!message) return null;
@@ -85,7 +81,7 @@ const DayInsight: React.FC<DayInsightProps> = ({ todayPercent }) => {
 
         <div className="min-w-0">
           <div className="text-sm font-semibold text-gray-700">Day Insight</div>
-          <div className="mt-2 text-sm text-gray-800 leading-relaxed" role="status" aria-live="polite">
+          <div className={`mt-2 text-sm text-gray-800 leading-relaxed transition-opacity duration-300 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}`} role="status" aria-live="polite">
             {message}
           </div>
           {/* no CTA buttons as requested */}
