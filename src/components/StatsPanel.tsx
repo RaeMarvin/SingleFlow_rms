@@ -4,6 +4,7 @@ import useSupabaseStore from '../store/useSupabaseStore';
 import { Task } from '../types';
 import CardConfetti from './CardConfetti';
 import SparklingStars from './SparklingStars';
+import DayInsight from './DayInsight';
 
 interface StatsPanelProps {
   onTaskClick?: (task: Task) => void;
@@ -184,6 +185,10 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
                 </span>
               </div>
             </div>
+          </div>
+          {/* Day Insight - encouraging message based on today's Fozzle score */}
+          <div className="mt-4">
+            <DayInsight todayPercent={signalRatioPercentage} />
           </div>
         </div>
       </div>
