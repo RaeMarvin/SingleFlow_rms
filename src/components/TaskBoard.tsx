@@ -3,10 +3,11 @@ import {
   SortableContext, 
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { Signal, Volume2, TrendingUp } from 'lucide-react';
-import { useRef } from 'react';
+import { Signal, Volume2 } from 'lucide-react';
+// no refs required
 import useSupabaseStore from '../store/useSupabaseStore';
 import TaskCard from './TaskCard';
+import DayInsight from './DayInsight';
 // import ThumbsUpAnimation from './ThumbsUpAnimation'; // Assuming ThumbsUpAnimation is in the same components folder
 import useMediaQuery from '../hooks/useMediaQuery';
 
@@ -20,13 +21,22 @@ interface TaskBoardProps {
 
 const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, onNoiseReject }) => {
   const { tasks } = useSupabaseStore();
-  const signalFigureRef = useRef<HTMLDivElement>(null);
-  const signalLabelRef = useRef<HTMLDivElement>(null);
+  // refs removed (no longer needed for Day Insight replacement)
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   
   // Only show incomplete and non-rejected tasks on the board
   const signalTasks = tasks.filter((task) => task.category === 'signal' && !task.completed && !task.rejected);
   const noiseTasks = tasks.filter((task) => task.category === 'noise' && !task.completed && !task.rejected);
+
+  // Compute today's Fozzle percent using same numerator/denominator logic
+  const today = new Date();
+  const todayStr = today.toDateString();
+  const dayCompletedTasks = tasks.filter(task => task.completed && task.completedAt && new Date(String(task.completedAt)).toDateString() === todayStr);
+  const dayRejectedTasks = tasks.filter(task => task.rejected && ((task.rejectedAt ? new Date(String(task.rejectedAt)) : new Date(String(task.createdAt))).toDateString() === todayStr));
+  const completedSignal = dayCompletedTasks.filter(t => t.category === 'signal').length;
+  const numerator = completedSignal + dayRejectedTasks.length;
+  const denominator = dayCompletedTasks.length + dayRejectedTasks.length;
+  const todayPercent = denominator > 0 ? (numerator / denominator) * 100 : 0;
 
   const handleSignalTaskComplete = () => {
     if (!isDesktop) {
@@ -38,36 +48,9 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
 
   return (
     <div className="space-y-4">
-      {/* Current Tasks Overview */}
-      <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 relative">
-        <div className="flex items-center space-x-2 mb-2">
-          <TrendingUp className="w-4 h-4 text-purple-600" />
-          <h3 className="text-sm font-medium text-gray-700">
-            Current Tasks
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <div ref={signalFigureRef} className="text-center p-2 bg-signal-50 rounded">
-            <div className="text-lg font-semibold text-signal-600">
-              {signalTasks.length}
-            </div>
-            <div className="text-xs text-gray-600" ref={signalLabelRef}>
-              Signal
-            </div>
-          </div>
-          
-          
-          
-          <div className="text-center p-2 bg-noise-50 rounded">
-            <div className="text-lg font-semibold text-noise-600">
-              {noiseTasks.length}
-            </div>
-            <div className="text-xs text-gray-600">
-              Noise
-            </div>
-          </div>
-        </div>
+      {/* Day Insight (replaces Current Tasks overview) */}
+      <div>
+        <DayInsight todayPercent={todayPercent} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

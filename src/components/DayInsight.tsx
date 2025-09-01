@@ -88,10 +88,7 @@ const DayInsight: React.FC<DayInsightProps> = ({ todayPercent }) => {
           <div className="mt-2 text-sm text-gray-800 leading-relaxed" role="status" aria-live="polite">
             {message}
           </div>
-          <div className="mt-3 flex items-center space-x-2">
-            <button className="text-xs font-medium text-gray-600 hover:text-gray-800">Review Noise</button>
-            <button className="text-xs font-medium text-gray-600 hover:text-gray-800">Weekly Review</button>
-          </div>
+          {/* no CTA buttons as requested */}
         </div>
       </div>
     </div>
