@@ -22,14 +22,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   // Calculate Noise Said No To Today
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const noiseRejectedToday = tasks.filter(task => {
-    if (task.category !== 'noise' || !task.rejected) return false;
-    if (!task.rejectedAt) return false;
-    const rejectedDate = new Date(task.rejectedAt);
-    return rejectedDate.getFullYear() === today.getFullYear() &&
-      rejectedDate.getMonth() === today.getMonth() &&
-      rejectedDate.getDate() === today.getDate();
-  }).length;
+  
   
   // Confetti logic removed. No-op for desktop confetti event.
   
@@ -75,6 +68,35 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   
   // Trigger confetti when signal ratio reaches 80% or above
   const shouldShowConfetti = signalRatioPercentage >= 80;
+
+  const signalCompletedTodayTasks = tasks.filter(task => {
+    if (task.category !== 'signal' || !task.completed) return false;
+    const completedDate = task.completedAt ? new Date(task.completedAt) : new Date(task.createdAt);
+    return (
+      completedDate.getFullYear() === today.getFullYear() &&
+      completedDate.getMonth() === today.getMonth() &&
+      completedDate.getDate() === today.getDate()
+    );
+  });
+
+  const noiseCompletedTodayTasks = tasks.filter(task => {
+    if (task.category !== 'noise' || !task.completed) return false;
+    const completedDate = task.completedAt ? new Date(task.completedAt) : new Date(task.createdAt);
+    return (
+      completedDate.getFullYear() === today.getFullYear() &&
+      completedDate.getMonth() === today.getMonth() &&
+      completedDate.getDate() === today.getDate()
+    );
+  });
+
+  const noiseRejectedTodayTasks = tasks.filter(task => {
+    if (task.category !== 'noise' || !task.rejected) return false;
+    if (!task.rejectedAt) return false;
+    const rejectedDate = new Date(task.rejectedAt);
+    return rejectedDate.getFullYear() === today.getFullYear() &&
+      rejectedDate.getMonth() === today.getMonth() &&
+      rejectedDate.getDate() === today.getDate();
+  });
 
   return (
     <div className="space-y-4">
@@ -133,24 +155,26 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
 
           {/* Stats Cards */}
           <div className="space-y-3">
-            <StatCard
+            <DailyStatDropdown
               icon={<CheckCircle className="w-5 h-5 text-signal-600" />}
               label="Signal Completed Today"
-              value={stats.signalCompleted}
+              tasks={signalCompletedTodayTasks}
               color="text-signal-600"
+              onTaskClick={onTaskClick}
             />
-            <StatCard
+            <DailyStatDropdown
               icon={<Circle className="w-5 h-5 text-noise-600" />}
               label="Noise Completed Today"
-              value={stats.noiseCompleted}
+              tasks={noiseCompletedTodayTasks}
               color="text-noise-600"
+              onTaskClick={onTaskClick}
             />
-            {/* New StatCard for Noise Said No To Today */}
-            <StatCard
+            <DailyStatDropdown
               icon={<X className="w-5 h-5 text-[#7dc3ff]" />}
               label="Noise Said No To Today"
-              value={noiseRejectedToday}
+              tasks={noiseRejectedTodayTasks}
               color="text-[#7dc3ff]"
+              onTaskClick={onTaskClick}
             />
             <div className="pt-3 border-t border-gray-200">
                 <div className="flex items-center justify-between mb-2">
@@ -219,26 +243,71 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   );
 };
 
-interface StatCardProps {
+interface DailyStatDropdownProps {
   icon: React.ReactNode;
   label: string;
-  value: number;
+  tasks: Task[];
   color: string;
+  onTaskClick?: (task: Task) => void;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color }) => (
-  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-    <div className="flex items-center space-x-3">
-      {icon}
-      <span className="text-sm font-medium text-gray-700">
-        {label}
-      </span>
+const DailyStatDropdown: React.FC<DailyStatDropdownProps> = ({ icon, label, tasks, color, onTaskClick }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="bg-gray-50 rounded-lg">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-3 text-left transition-colors duration-200"
+        aria-expanded={isOpen}
+      >
+        <div className="flex items-center space-x-3">
+          {icon}
+          <span className="text-sm font-medium text-gray-700">{label}</span>
+        </div>
+        <div className="flex items-center space-x-3">
+          <span className={`text-lg font-bold ${color}`}>{tasks.length}</span>
+          {isOpen ? (
+            <ChevronDown className="w-5 h-5 text-gray-400" />
+          ) : (
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          )}
+        </div>
+      </button>
+      {isOpen && (
+        <div className="px-3 pb-3 space-y-2 max-h-48 overflow-y-auto">
+          {tasks.length === 0 ? (
+            <p className="text-sm text-gray-500 py-2 text-center">No tasks today.</p>
+          ) : (
+            tasks.map(task => (
+              <div
+                key={task.id}
+                className={`flex items-start space-x-3 p-2 bg-white rounded-lg transition-colors ${
+                  onTaskClick ? 'cursor-pointer hover:bg-gray-100' : ''
+                }`}
+                onClick={() => onTaskClick?.(task)}
+              >
+                <div className="mt-0.5 flex-shrink-0">{icon}</div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-gray-800 text-sm line-through">{task.title}</h4>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                      task.category === 'signal'
+                        ? 'text-signal-600 bg-signal-50 border border-signal-200'
+                        : 'text-noise-600 bg-noise-50 border border-noise-200'
+                    }`}>
+                      {task.category}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
-    <span className={`text-lg font-bold ${color}`}>
-      {value}
-    </span>
-  </div>
-);
+  );
+};
 
 interface CompletedTasksDropdownProps {
   tasks: Task[];
