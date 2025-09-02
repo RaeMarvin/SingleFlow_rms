@@ -340,22 +340,24 @@ const useSupabaseStore = create<Store & {
     const { tasks } = get();
     // Get today's date (start of day) in local timezone
     const today = new Date();
-    const todayDateString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+    today.setHours(0, 0, 0, 0);
 
     // Filter for tasks completed today only
     const completedToday = tasks.filter((task) => {
       if (!task.completed || !task.completedAt) return false;
       const completedDate = new Date(task.completedAt);
-      const completedDateString = completedDate.toISOString().split('T')[0];
-      return completedDateString === todayDateString;
+      return completedDate.getFullYear() === today.getFullYear() &&
+        completedDate.getMonth() === today.getMonth() &&
+        completedDate.getDate() === today.getDate();
     });
 
     // Filter for NO (rejected) tasks today
     const noToday = tasks.filter((task) => {
       if (!task.rejected || !task.rejectedAt) return false;
       const rejectedDate = new Date(task.rejectedAt);
-      const rejectedDateString = rejectedDate.toISOString().split('T')[0];
-      return rejectedDateString === todayDateString;
+      return rejectedDate.getFullYear() === today.getFullYear() &&
+        rejectedDate.getMonth() === today.getMonth() &&
+        rejectedDate.getDate() === today.getDate();
     });
 
     const signalCompleted = completedToday.filter((task) => task.category === 'signal').length;
