@@ -33,12 +33,8 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
       rejectedDate.getMonth() === today.getMonth() &&
       rejectedDate.getDate() === today.getDate();
   }).length;
-  // Arrays for today's dropdowns
-  // Define start/end of today before using them to avoid temporal dead zone
-  const startOfToday = today;
-  const endOfToday = new Date(startOfToday);
-  endOfToday.setHours(23, 59, 59, 999);
 
+  // Arrays for today's dropdowns
   const signalCompletedTodayArr = tasks.filter(task => {
     if (task.category !== 'signal' || !task.completed) return false;
     const completedDate = task.completedAt ? new Date(task.completedAt) : new Date(task.createdAt);
@@ -75,7 +71,9 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const availableIdeas = ideas.filter(idea => !idea.promoted);
   
   // Calculate Signal tasks scheduled today (completed + not completed) and completed Signal tasks today
-  // Calculate Signal tasks scheduled today (completed + not completed) and completed Signal tasks today
+  const startOfToday = today;
+  const endOfToday = new Date(startOfToday);
+  endOfToday.setHours(23, 59, 59, 999);
 
   // Signal tasks completed today
   const signalCompletedToday = tasks.filter(task => {
