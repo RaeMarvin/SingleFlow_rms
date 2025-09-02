@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import SparklingStars from './SparklingStars';
+import { Star } from 'lucide-react';
 
 interface DayInsightProps {
   todayPercent: number;
@@ -76,9 +76,7 @@ const DayInsight: React.FC<DayInsightProps> = ({ todayPercent }) => {
           {variant === 'high' ? (
             <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.09 4.26L18.5 7l-3.5 2.5L15.18 14 12 11.8 8.82 14l.18-4.5L5.5 7l4.41-.74L12 2z"/></svg>
           ) : variant === 'mid' ? (
-            <div className="w-8 h-8 flex items-center justify-center relative">
-              <SparklingStars show={true} variant='silver' />
-            </div>
+            <Star className="w-8 h-8" />
           ) : (
             <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9" strokeWidth="1.5"/></svg>
           )}
