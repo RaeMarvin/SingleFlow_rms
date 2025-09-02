@@ -1,6 +1,7 @@
 import { BarChart3, Plus, User, LogOut } from 'lucide-react';
 import { useState } from 'react';
-import { AddTaskModal, AuthModal } from './';
+import AddTaskModal from './AddTaskModal';
+import { AuthModal } from './AuthModal';
 import { useAuth } from '../contexts/AuthContext';
 import logoImage from '../assets/logo.png';
 import wordmarkImage from '../assets/wordmark.png';
