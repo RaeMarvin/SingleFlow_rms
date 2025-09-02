@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import SparklingStars from './SparklingStars';
 
 interface DayInsightProps {
   todayPercent: number;
@@ -64,16 +65,20 @@ const DayInsight: React.FC<DayInsightProps> = ({ todayPercent }) => {
   const p = Math.round(todayPercent);
   const variant = p < 50 ? 'low' : p < 80 ? 'mid' : 'high';
   const accent = variant === 'low' ? 'text-noise-700' : variant === 'mid' ? 'text-signal-700' : 'text-yellow-500';
+  const bgColor = variant === 'low' ? 'bg-noise-50' : variant === 'mid' ? 'bg-signal-50' : 'bg-yellow-50';
+  const borderColor = variant === 'low' ? 'border-noise-200' : variant === 'mid' ? 'border-signal-200' : 'border-yellow-200';
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+    <div className={`rounded-xl shadow-sm p-4 border ${bgColor} ${borderColor}`}>
       <div className="flex items-start space-x-3">
         <div className={`flex-shrink-0 mt-1 ${accent}`}>
           {/* Decorative icon */}
           {variant === 'high' ? (
             <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.09 4.26L18.5 7l-3.5 2.5L15.18 14 12 11.8 8.82 14l.18-4.5L5.5 7l4.41-.74L12 2z"/></svg>
           ) : variant === 'mid' ? (
-            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M12 2v6M2 12h6M12 22v-6M22 12h-6M4.9 4.9l4.24 4.24M18.9 18.9l-4.24-4.24M4.9 19.1l4.24-4.24M18.9 5.1l-4.24 4.24"/></svg>
+            <div className="w-8 h-8 flex items-center justify-center">
+              <SparklingStars show={true} variant='silver' />
+            </div>
           ) : (
             <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9" strokeWidth="1.5"/></svg>
           )}
