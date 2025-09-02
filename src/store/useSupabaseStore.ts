@@ -160,15 +160,22 @@ const useSupabaseStore = create<Store & {
     const newCompletedStatus = !task.completed;
     const completedAt = newCompletedStatus ? new Date() : undefined;
 
+    // When completing a task, we must also un-reject it.
+    const updates: Partial<Task> = {
+      completed: newCompletedStatus,
+      completedAt,
+    };
+
+    if (newCompletedStatus) {
+      updates.rejected = false;
+      updates.rejectedAt = undefined;
+    }
+
     // Optimistic update
     set(state => ({
       tasks: state.tasks.map(t => 
         t.id === id 
-          ? { 
-              ...t, 
-              completed: newCompletedStatus,
-              completedAt
-            }
+          ? { ...t, ...updates }
           : t
       )
     }));
@@ -177,10 +184,7 @@ const useSupabaseStore = create<Store & {
     get().updateStats();
 
     try {
-      await taskService.update(id, { 
-        completed: newCompletedStatus,
-        completedAt
-      });
+      await taskService.update(id, updates);
       
       // Don't update stats again - the optimistic update should have handled UI updates
       console.log('Debug - Task completion synced to server successfully');
