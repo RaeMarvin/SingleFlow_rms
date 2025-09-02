@@ -205,7 +205,8 @@ const useSupabaseStore = create<Store & {
   rejectTask: async (id) => {
     const { tasks } = get();
     const task = tasks.find(t => t.id === id);
-    if (!task) return;
+    // Signal tasks cannot be rejected, so do nothing if the task is a signal.
+    if (!task || task.category === 'signal') return;
 
     const newRejectedStatus = !task.rejected;
     const rejectedAt = newRejectedStatus ? new Date() : undefined;
@@ -351,9 +352,9 @@ const useSupabaseStore = create<Store & {
         completedDate.getDate() === today.getDate();
     });
 
-    // Filter for NO (rejected) tasks today
+    // Filter for NO (rejected) tasks today - only Noise tasks can be rejected
     const noToday = tasks.filter((task) => {
-      if (!task.rejected || !task.rejectedAt) return false;
+      if (task.category !== 'noise' || !task.rejected || !task.rejectedAt) return false;
       const rejectedDate = new Date(task.rejectedAt);
       return rejectedDate.getFullYear() === today.getFullYear() &&
         rejectedDate.getMonth() === today.getMonth() &&
