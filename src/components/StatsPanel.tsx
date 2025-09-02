@@ -13,9 +13,6 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
   const { stats, tasks, ideas, addIdea, deleteIdea, promoteIdea, moveTask } = useSupabaseStore();
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showRejectedTasks, setShowRejectedTasks] = useState(false);
-  const [showSignalToday, setShowSignalToday] = useState(false);
-  const [showNoiseToday, setShowNoiseToday] = useState(false);
-  const [showNoiseSaidNoToday, setShowNoiseSaidNoToday] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
   const [showStars, setShowStars] = useState(false);
   // Add showConfetti state for mobile confetti
@@ -33,37 +30,6 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
       rejectedDate.getMonth() === today.getMonth() &&
       rejectedDate.getDate() === today.getDate();
   }).length;
-
-  // Arrays for today's dropdowns
-  const signalCompletedTodayArr = tasks.filter(task => {
-    if (task.category !== 'signal' || !task.completed) return false;
-    const completedDate = task.completedAt ? new Date(task.completedAt) : new Date(task.createdAt);
-    return (
-      completedDate.getFullYear() === startOfToday.getFullYear() &&
-      completedDate.getMonth() === startOfToday.getMonth() &&
-      completedDate.getDate() === startOfToday.getDate()
-    );
-  });
-
-  const noiseCompletedTodayArr = tasks.filter(task => {
-    if (task.category !== 'noise' || !task.completed) return false;
-    const completedDate = task.completedAt ? new Date(task.completedAt) : new Date(task.createdAt);
-    return (
-      completedDate.getFullYear() === startOfToday.getFullYear() &&
-      completedDate.getMonth() === startOfToday.getMonth() &&
-      completedDate.getDate() === startOfToday.getDate()
-    );
-  });
-
-  const noiseSaidNoTodayArr = tasks.filter(task => {
-    if (!task.rejected) return false;
-    const rejectedDate = task.rejectedAt ? new Date(task.rejectedAt) : new Date(task.createdAt);
-    return (
-      rejectedDate.getFullYear() === startOfToday.getFullYear() &&
-      rejectedDate.getMonth() === startOfToday.getMonth() &&
-      rejectedDate.getDate() === startOfToday.getDate()
-    );
-  });
   
   // Confetti logic removed. No-op for desktop confetti event.
   
@@ -230,50 +196,6 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
         onToggle={() => setShowCompletedTasks(!showCompletedTasks)}
         onTaskClick={onTaskClick}
       />
-      {/* Today's Signal Completed dropdown */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <button
-          onClick={() => setShowSignalToday(!showSignalToday)}
-          className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors duration-200 rounded-xl"
-        >
-          <div className="flex items-center space-x-3">
-            <CheckCircle className="w-5 h-5 text-signal-600" />
-            <span className="font-medium text-gray-900">Signal Completed Today ({signalCompletedTodayArr.length})</span>
-          </div>
-          {showSignalToday ? (
-            <ChevronDown className="w-5 h-5 text-gray-400" />
-          ) : (
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          )}
-        </button>
-        {showSignalToday && (
-          <div className="px-4 pb-4 space-y-2 max-h-60 overflow-y-auto">
-            {signalCompletedTodayArr.length === 0 ? (
-              <p className="text-sm text-gray-500 py-4 text-center">No signal tasks completed today.</p>
-            ) : (
-              signalCompletedTodayArr.map(task => (
-                <div 
-                  key={task.id}
-                  className={`flex items-start space-x-3 p-2 bg-gray-50 rounded-lg transition-colors ${onTaskClick ? 'cursor-pointer hover:bg-gray-100' : ''}`}
-                  onClick={() => onTaskClick?.(task)}
-                >
-                  <CheckCircle className="w-4 h-4 text-signal-500 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-gray-800 text-sm line-through">{task.title}</h4>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                        task.category === 'signal' 
-                          ? 'text-signal-600 bg-signal-50 border border-signal-200' 
-                          : 'text-noise-600 bg-noise-50 border border-noise-200'
-                      }`}>{task.category}</span>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
 
       {/* Rejected Tasks Dropdown (NO List) */}
       <RejectedTasksDropdown 
@@ -283,119 +205,6 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
         onTaskClick={onTaskClick}
         onMoveTask={moveTask}
       />
-
-      {/* Today's Noise Completed dropdown */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <button
-          onClick={() => setShowNoiseToday(!showNoiseToday)}
-          className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors duration-200 rounded-xl"
-        >
-          <div className="flex items-center space-x-3">
-            <Circle className="w-5 h-5 text-noise-600" />
-            <span className="font-medium text-gray-900">Noise Completed Today ({noiseCompletedTodayArr.length})</span>
-          </div>
-          {showNoiseToday ? (
-            <ChevronDown className="w-5 h-5 text-gray-400" />
-          ) : (
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          )}
-        </button>
-        {showNoiseToday && (
-          <div className="px-4 pb-4 space-y-2 max-h-60 overflow-y-auto">
-            {noiseCompletedTodayArr.length === 0 ? (
-              <p className="text-sm text-gray-500 py-4 text-center">No noise tasks completed today.</p>
-            ) : (
-              noiseCompletedTodayArr.map(task => (
-                <div 
-                  key={task.id}
-                  className={`flex items-start space-x-3 p-2 bg-gray-50 rounded-lg transition-colors ${onTaskClick ? 'cursor-pointer hover:bg-gray-100' : ''}`}
-                  onClick={() => onTaskClick?.(task)}
-                >
-                  <Circle className="w-4 h-4 text-noise-500 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-gray-800 text-sm line-through">{task.title}</h4>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                        task.category === 'signal' 
-                          ? 'text-signal-600 bg-signal-50 border border-signal-200' 
-                          : 'text-noise-600 bg-noise-50 border border-noise-200'
-                      }`}>{task.category}</span>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Today's Noise Said NO To dropdown */}
-      <div className="bg-white rounded-xl shadow-sm border border-[#7dc3ff]">
-        <button
-          onClick={() => setShowNoiseSaidNoToday(!showNoiseSaidNoToday)}
-          className="w-full flex items-center justify-between p-4 text-left hover:bg-[#eaf6fd] transition-colors duration-200 rounded-xl"
-        >
-          <div className="flex items-center space-x-3">
-            <X className="w-5 h-5 text-[#7dc3ff]" />
-            <span className="font-medium text-gray-900">Noise Said No To Today ({noiseSaidNoTodayArr.length})</span>
-          </div>
-          {showNoiseSaidNoToday ? (
-            <ChevronDown className="w-5 h-5 text-gray-400" />
-          ) : (
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          )}
-        </button>
-        {showNoiseSaidNoToday && (
-          <div className="px-4 pb-4 space-y-2 max-h-60 overflow-y-auto">
-            {noiseSaidNoTodayArr.length === 0 ? (
-              <p className="text-sm text-gray-500 py-4 text-center">No Noise items rejected today.</p>
-            ) : (
-              noiseSaidNoTodayArr.map(task => (
-                <div 
-                  key={task.id} 
-                  className="flex items-start space-x-3 p-2 bg-[#eaf6fd] rounded-lg border border-[#7dc3ff] transition-colors group"
-                >
-                  <X className="w-4 h-4 text-[#7dc3ff] mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <h4 
-                      className={`font-medium text-gray-800 text-sm line-through ${
-                        onTaskClick ? 'cursor-pointer hover:text-gray-600' : ''
-                      }`}
-                      onClick={() => onTaskClick?.(task)}
-                    >
-                      {task.title}
-                    </h4>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                        task.category === 'signal' 
-                          ? 'text-signal-600 bg-signal-50 border border-signal-200' 
-                          : 'text-noise-600 bg-noise-50 border border-noise-200'
-                      }`}>{task.category}</span>
-                      <span className="text-xs font-medium text-[#7dc3ff]">Said NO 🚫</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); moveTask(task.id, 'signal'); }}
-                      className="p-1 text-signal-600 hover:bg-signal-100 rounded transition-colors duration-200"
-                      title="Restore to Signal (Important)"
-                    >
-                      <Signal className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); moveTask(task.id, 'noise'); }}
-                      className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors duration-200"
-                      title="Restore to Noise (Less Critical)"
-                    >
-                      <Volume2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
 
       {/* Ideas Dropdown */}
       <IdeasDropdown 
