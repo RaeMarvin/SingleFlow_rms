@@ -64,7 +64,7 @@ const DayInsight: React.FC<DayInsightProps> = ({ todayPercent }) => {
 
   const p = Math.round(todayPercent);
   const variant = p < 50 ? 'low' : p < 80 ? 'mid' : 'high';
-  const accent = variant === 'low' ? 'text-noise-700' : variant === 'mid' ? 'text-signal-700' : 'text-yellow-500';
+  const accent = variant === 'low' ? 'text-noise-700' : variant === 'mid' ? 'text-primary-600' : 'text-yellow-500';
   const bgColor = variant === 'low' ? 'bg-noise-50' : variant === 'mid' ? 'bg-signal-50' : 'bg-yellow-50';
   const borderColor = variant === 'low' ? 'border-noise-200' : variant === 'mid' ? 'border-signal-200' : 'border-yellow-200';
 
