@@ -28,15 +28,33 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
   const signalTasks = tasks.filter((task) => task.category === 'signal' && !task.completed && !task.rejected);
   const noiseTasks = tasks.filter((task) => task.category === 'noise' && !task.completed && !task.rejected);
 
-  // Compute today's Fozzle percent using same numerator/denominator logic
+  // Compute today's Fozzle percent using the new formula
   const today = new Date();
-  const todayStr = today.toDateString();
-  const dayCompletedTasks = tasks.filter(task => task.completed && task.completedAt && new Date(String(task.completedAt)).toDateString() === todayStr);
-  const dayRejectedTasks = tasks.filter(task => task.rejected && ((task.rejectedAt ? new Date(String(task.rejectedAt)) : new Date(String(task.createdAt))).toDateString() === todayStr));
-  const completedSignal = dayCompletedTasks.filter(t => t.category === 'signal').length;
-  const numerator = completedSignal + dayRejectedTasks.length;
-  const denominator = dayCompletedTasks.length + dayRejectedTasks.length;
-  const todayPercent = denominator > 0 ? (numerator / denominator) * 100 : 0;
+  today.setHours(0, 0, 0, 0);
+
+  const completedToday = tasks.filter((task) => {
+    if (!task.completed || !task.completedAt) return false;
+    const completedDate = new Date(task.completedAt);
+    return completedDate.getFullYear() === today.getFullYear() &&
+      completedDate.getMonth() === today.getMonth() &&
+      completedDate.getDate() === today.getDate();
+  });
+
+  const noToday = tasks.filter((task) => {
+    if (task.category !== 'noise' || !task.rejected || !task.rejectedAt) return false;
+    const rejectedDate = new Date(task.rejectedAt);
+    return rejectedDate.getFullYear() === today.getFullYear() &&
+      rejectedDate.getMonth() === today.getMonth() &&
+      rejectedDate.getDate() === today.getDate();
+  });
+
+  const signalCompleted = completedToday.filter((task) => task.category === 'signal').length;
+  const totalCompleted = completedToday.length;
+  const uncompletedSignal = tasks.filter(t => t.category === 'signal' && !t.completed).length;
+
+  const fozzleNumerator = signalCompleted + noToday.length;
+  const fozzleDenominator = totalCompleted + noToday.length + uncompletedSignal;
+  const todayPercent = fozzleDenominator > 0 ? (fozzleNumerator / fozzleDenominator) * 100 : 0;
 
   const handleSignalTaskComplete = () => {
     if (!isDesktop) {

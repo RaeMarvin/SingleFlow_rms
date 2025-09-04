@@ -365,9 +365,10 @@ const useSupabaseStore = create<Store & {
     const noiseCompleted = completedToday.filter((task) => task.category === 'noise').length;
     const totalCompleted = completedToday.length;
 
-    // New Fozzle Score calculation: numerator is completed Signal + NO tasks, denominator is completed + NO tasks
+    // Fozzle Score: (Signal Done + NOs) / (Total Done + NOs + Outstanding Signals)
+    const uncompletedSignal = tasks.filter(t => t.category === 'signal' && !t.completed).length;
     const fozzleNumerator = signalCompleted + noToday.length;
-    const fozzleDenominator = totalCompleted + noToday.length;
+    const fozzleDenominator = totalCompleted + noToday.length + uncompletedSignal;
     const completedSignalRatio = fozzleDenominator > 0 ? fozzleNumerator / fozzleDenominator : 0;
 
     // Check if we should trigger confetti: crossing from below 80% to 80%+ 
