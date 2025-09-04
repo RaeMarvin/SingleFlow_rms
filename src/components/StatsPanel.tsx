@@ -353,7 +353,7 @@ const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle, 
         <div className="flex items-center space-x-3">
           <Lightbulb className="w-5 h-5 text-yellow-600" />
           <span className="font-medium text-gray-900 dark:text-white">
-            Ideas ({ideas.length})
+            Idea Park ({ideas.length})
           </span>
         </div>
         <div className="flex items-center space-x-2">
