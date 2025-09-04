@@ -167,7 +167,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
             <p className="text-sm">
               {id === 'signal' 
                 ? 'Drop important tasks here' 
-                : 'Drop less critical tasks here'
+                : 'Drop potential distractions here'
               }
             </p>
           </div>

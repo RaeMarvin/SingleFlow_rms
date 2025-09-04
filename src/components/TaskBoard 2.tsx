@@ -30,7 +30,7 @@ const TaskBoard: React.FC = () => {
         <TaskColumn
           id="signal"
           title="Signal"
-          subtitle="Critical & Important"
+          subtitle="Today's focus items"
           icon={<Signal className="w-5 h-5" />}
           tasks={signalTasks}
           colorClass="border-signal-300 bg-signal-50 dark:bg-signal-900/10"
@@ -41,7 +41,7 @@ const TaskBoard: React.FC = () => {
         <TaskColumn
           id="noise"
           title="Noise"
-          subtitle="Less Critical"
+          subtitle="Today's potential distractions"
           icon={<Volume2 className="w-5 h-5" />}
           tasks={noiseTasks}
           colorClass="border-noise-300 bg-noise-50 dark:bg-noise-900/10"
@@ -110,8 +110,8 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
             </div>
             <p className="text-sm">
               {id === 'signal' 
-                ? 'Drop important tasks here' 
-                : 'Drop less critical tasks here'
+                ? 'Drop focus items here' 
+                : 'Drop potential distractions here'
               }
             </p>
           </div>
