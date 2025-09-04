@@ -89,7 +89,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskClick, onSignalComplete, on
         <TaskColumn
           id="noise"
           title="Noise"
-          subtitle="Today's potential distractions"
+          subtitle="Today's distractions"
           icon={<Volume2 className="w-5 h-5" />}
           tasks={noiseTasks}
           colorClass="border-noise-300 bg-noise-50"

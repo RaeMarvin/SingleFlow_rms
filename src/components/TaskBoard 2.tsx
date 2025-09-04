@@ -41,7 +41,7 @@ const TaskBoard: React.FC = () => {
         <TaskColumn
           id="noise"
           title="Noise"
-          subtitle="Today's potential distractions"
+          subtitle="Today's distractions"
           icon={<Volume2 className="w-5 h-5" />}
           tasks={noiseTasks}
           colorClass="border-noise-300 bg-noise-50 dark:bg-noise-900/10"
