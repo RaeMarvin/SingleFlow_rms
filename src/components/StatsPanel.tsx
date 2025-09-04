@@ -1,19 +1,40 @@
-import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus, X, Signal, Volume2 } from 'lucide-react';
+import { Target, CheckCircle, Circle, ChevronRight, ChevronDown, Lightbulb, Plus, X, Signal, Volume2, Pencil } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import useSupabaseStore from '../store/useSupabaseStore';
-import { Task } from '../types';
+import { Task, Idea } from '../types';
 import CardConfetti from './CardConfetti';
 import SparklingStars from './SparklingStars';
+import EditIdeaModal from './EditIdeaModal';
 
 interface StatsPanelProps {
   onTaskClick?: (task: Task) => void;
 }
 
 const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
-  const { stats, tasks, ideas, addIdea, deleteIdea, promoteIdea } = useSupabaseStore();
+  const { stats, tasks, ideas, addIdea, deleteIdea, promoteIdea, updateIdea } = useSupabaseStore();
   
   const [showIdeas, setShowIdeas] = useState(false);
   const [showStars, setShowStars] = useState(false);
+  const [isEditIdeaModalOpen, setIsEditIdeaModalOpen] = useState(false);
+  const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
+
+  const handleOpenEditIdeaModal = (idea: Idea) => {
+    setEditingIdea(idea);
+    setIsEditIdeaModalOpen(true);
+  };
+
+  const handleCloseEditIdeaModal = () => {
+    setEditingIdea(null);
+    setIsEditIdeaModalOpen(false);
+  };
+
+  const handleSaveChanges = async (updates: Partial<Idea>) => {
+    if (editingIdea) {
+      await updateIdea(editingIdea.id, updates);
+      handleCloseEditIdeaModal();
+    }
+  };
+
   // Add showConfetti state for mobile confetti
 
   // Removed isFlashing, not used
@@ -237,7 +258,17 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onTaskClick }) => {
         onAddIdea={addIdea}
         onDeleteIdea={deleteIdea}
         onPromoteIdea={promoteIdea}
+        onOpenEditIdeaModal={handleOpenEditIdeaModal}
       />
+
+      {isEditIdeaModalOpen && editingIdea && (
+        <EditIdeaModal
+          idea={editingIdea}
+          isOpen={isEditIdeaModalOpen}
+          onClose={handleCloseEditIdeaModal}
+          onSave={handleSaveChanges}
+        />
+      )}
     </div>
   );
 };
@@ -312,16 +343,19 @@ const DailyStatDropdown: React.FC<DailyStatDropdownProps> = ({ icon, label, task
 
 
 
+
+
 interface IdeasDropdownProps {
-  ideas: any[];
+  ideas: Idea[];
   isOpen: boolean;
   onToggle: () => void;
   onAddIdea: (idea: { title: string; description?: string }) => void;
   onDeleteIdea: (id: string) => void;
   onPromoteIdea: (id: string, category: 'signal' | 'noise') => void;
+  onOpenEditIdeaModal: (idea: Idea) => void;
 }
 
-const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle, onAddIdea, onDeleteIdea, onPromoteIdea }) => {
+const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle, onAddIdea, onDeleteIdea, onPromoteIdea, onOpenEditIdeaModal }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newIdea, setNewIdea] = useState({ title: '', description: '' });
 
@@ -441,6 +475,13 @@ const IdeasDropdown: React.FC<IdeasDropdownProps> = ({ ideas, isOpen, onToggle, 
                     )}
                   </div>
                   <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => onOpenEditIdeaModal(idea)}
+                      className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                      title="Edit Idea"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() => handlePromoteIdea(idea.id, 'signal')}
                       className="p-1 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/20 rounded transition-colors duration-200"
