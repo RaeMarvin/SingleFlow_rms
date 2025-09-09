@@ -22,6 +22,7 @@ import wordmarkImage from './assets/wordmark.png';
 
 function AppContent() {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [activeTaskWidth, setActiveTaskWidth] = useState<number | null>(null);
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showThumbsUp, setShowThumbsUp] = useState(false);
@@ -286,10 +287,14 @@ function AppContent() {
     const taskId = event.active.id as string;
     const task = tasks.find((t: Task) => t.id === taskId);
     setActiveTask(task || null);
+    if (event.active.rect.current.initial) {
+      setActiveTaskWidth(event.active.rect.current.initial.width);
+    }
   }
 
   function handleDragEnd(event: DragEndEvent) {
     setActiveTask(null);
+    setActiveTaskWidth(null);
     
     const { active, over } = event;
     
@@ -467,7 +472,7 @@ function AppContent() {
             
             <DragOverlay>
               {activeTask && (
-                <div className="rotate-3 opacity-95 scale-110 transition-transform cursor-grabbing">
+                <div style={{ width: activeTaskWidth ? `${activeTaskWidth}px` : 'auto' }} className="rotate-3 opacity-95 scale-110 transition-transform cursor-grabbing">
                   <TaskCard task={activeTask} isDragging />
                 </div>
               )}
