@@ -77,4 +77,4 @@ The project uses `npm` as the package manager. Key scripts are defined in `packa
 *   **Styling:** Utility-first classes from Tailwind CSS are used directly in the component files.
 *   **Database Interaction:** All interactions with the Supabase backend are centralized in `src/lib/supabase.ts` (client setup) and `src/lib/database.ts` (service functions).
 *   **Security:** Data privacy is enforced at the database level using Supabase's Row Level Security (RLS), ensuring users can only access their own data.
-*   **Drag and Drop:** The `@dnd-kit` library is used for all drag-and-drop functionality, chosen for its accessibility features.
+*   **Drag and Drop:** The `@dnd-kit` library is used for all drag-and-drop functionality. To ensure a stable and consistent user experience, the implementation separates the component in the list (`TaskCard`) from the component being dragged (`DraggedTaskCard`). The `DraggedTaskCard` is a simplified presentational component rendered in a `DragOverlay` to provide a consistent drag preview. The width of the card is captured when a drag begins and is applied to the overlay to prevent visual distortion.

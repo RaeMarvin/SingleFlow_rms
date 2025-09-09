@@ -11,15 +11,14 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'signal' as 'signal' | 'noise',
     priority: 'work' as 'work' | 'home' | 'social',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddTask = (category: 'signal' | 'noise') => {
     if (formData.title.trim()) {
       addTask({
         ...formData,
+        category,
         completed: false,
       });
       onClose();
@@ -45,7 +44,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <div className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Task Title
@@ -73,35 +72,19 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose }) => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Category
-              </label>
-              <select
-                value={formData.category}
-                onChange={(e) => handleChange('category', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="signal">Signal (Focus Item)</option>
-                <option value="noise">Noise (Potential Distraction)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Priority
-              </label>
-              <select
-                value={formData.priority}
-                onChange={(e) => handleChange('priority', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="work">Work</option>
-                <option value="home">Home</option>
-                <option value="social">Social</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Priority
+            </label>
+            <select
+              value={formData.priority}
+              onChange={(e) => handleChange('priority', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="work">Work</option>
+              <option value="home">Home</option>
+              <option value="social">Social</option>
+            </select>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
@@ -113,13 +96,21 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose }) => {
               Cancel
             </button>
             <button
-              type="submit"
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200"
+              type="button"
+              onClick={() => handleAddTask('noise')}
+              className="px-6 py-2 bg-noise-600 hover:bg-noise-700 text-white rounded-lg font-medium transition-colors duration-200"
             >
-              Add Task
+              Add Noise
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAddTask('signal')}
+              className="px-6 py-2 bg-signal-600 hover:bg-signal-700 text-white rounded-lg font-medium transition-colors duration-200"
+            >
+              Add Signal
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
