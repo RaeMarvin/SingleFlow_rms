@@ -179,7 +179,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging = false, onTaskCli
       className={`
         group relative rounded-xl p-4 border transition-all duration-200
         ${task.category === 'noise' ? 'bg-gray-50' : 'bg-white'}
-        ${isDragging ? 'shadow-xl' : isDragActive ? 'shadow-xl rotate-1 scale-105 z-50' : 'hover:shadow-md'}
+        ${isDragging ? 'shadow-xl rotate-3 scale-110' : isDragActive ? 'shadow-xl rotate-1 scale-105 z-50' : 'hover:shadow-md'}
         ${task.completed ? 'opacity-75' : ''}
         ${isFlashing ? 'border-2 shadow-lg' : 'border border-gray-200 shadow-sm'}
       `}

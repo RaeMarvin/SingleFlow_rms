@@ -472,7 +472,7 @@ function AppContent() {
             
             <DragOverlay>
               {activeTask && (
-                <div style={{ width: activeTaskWidth ? `${activeTaskWidth}px` : 'auto' }} className="rotate-3 opacity-95 scale-110 transition-transform cursor-grabbing">
+                <div style={{ width: activeTaskWidth ? `${activeTaskWidth}px` : 'auto' }}>
                   <TaskCard task={activeTask} isDragging />
                 </div>
               )}
