@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, Trash2, Edit3 } from 'lucide-react';
+import { Check, Edit3 } from 'lucide-react';
 import { Task } from '../types';
 import useSupabaseStore from '../store/useSupabaseStore';
 import { useSignalFlash } from '../hooks/useSignalFlash';
@@ -16,7 +16,7 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskClick, onSignalComplete, onNoiseReject }) => {
-  const { deleteTask, toggleTaskComplete, rejectTask } = useSupabaseStore();
+  const { toggleTaskComplete, rejectTask } = useSupabaseStore();
   const { isFlashing, triggerSignalFlash } = useSignalFlash();
   const [showChoiceModal, setShowChoiceModal] = useState(false);
 
@@ -280,17 +280,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onTaskClick, onSignalComplete
         </div>
       </div>
 
-      {/* Delete button - appears on hover */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          deleteTask(task.id);
-        }}
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-200 p-1 rounded"
-        title="Delete task"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
+      
 
       {/* Noise Task Choice Modal */}
       <NoiseTaskChoiceModal
