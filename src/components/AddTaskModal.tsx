@@ -73,18 +73,26 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Priority
-            </label>
-            <select
-              value={formData.priority}
-              onChange={(e) => handleChange('priority', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="work">Work</option>
-              <option value="home">Home</option>
-              <option value="social">Social</option>
-            </select>
+            <div className="grid grid-cols-3 gap-2 rounded-lg">
+              <button
+                type="button"
+                onClick={() => handleChange('priority', 'work')}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${formData.priority === 'work' ? 'bg-primary-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'}`}>
+                Work
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChange('priority', 'home')}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${formData.priority === 'home' ? 'bg-signal-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'}`}>
+                Home
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChange('priority', 'social')}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${formData.priority === 'social' ? 'bg-noise-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'}`}>
+                Social
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
@@ -97,17 +105,17 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose }) => {
             </button>
             <button
               type="button"
-              onClick={() => handleAddTask('noise')}
-              className="px-6 py-2 bg-noise-600 hover:bg-noise-700 text-white rounded-lg font-medium transition-colors duration-200"
-            >
-              Add Noise
-            </button>
-            <button
-              type="button"
               onClick={() => handleAddTask('signal')}
               className="px-6 py-2 bg-signal-600 hover:bg-signal-700 text-white rounded-lg font-medium transition-colors duration-200"
             >
               Add Signal
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAddTask('noise')}
+              className="px-6 py-2 bg-noise-600 hover:bg-noise-700 text-white rounded-lg font-medium transition-colors duration-200"
+            >
+              Add Noise
             </button>
           </div>
         </div>
