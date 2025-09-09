@@ -192,9 +192,6 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
 
           {/* Priority */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Priority
-            </label>
             <div className="grid grid-cols-3 gap-2">
               {['work', 'home', 'social'].map((p) => (
                 <button
