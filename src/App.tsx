@@ -8,8 +8,8 @@ import {
   Header, 
   StatsPanel, 
   WeeklyReviewModal, 
-  TaskCard,
-  TaskDetailModal
+  TaskDetailModal,
+  DraggedTaskCard
 } from './components';
 import ThumbsUpAnimation from './components/ThumbsUpAnimation';
 import BicepsFlexedAnimation from './components/BicepsFlexedAnimation';
@@ -473,7 +473,7 @@ function AppContent() {
             <DragOverlay>
               {activeTask && (
                 <div style={{ width: activeTaskWidth ? `${activeTaskWidth}px` : 'auto' }}>
-                  <TaskCard task={activeTask} isDragging />
+                  <DraggedTaskCard task={activeTask} />
                 </div>
               )}
             </DragOverlay>

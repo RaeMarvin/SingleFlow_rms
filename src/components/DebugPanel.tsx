@@ -14,7 +14,7 @@ interface DebugInfo {
   lastError: string | null;
 }
 
-export function DebugPanel() {
+export default function DebugPanel() {
   const { triggerConfetti } = useConfetti();
   const { resetConfetti } = useSupabaseStore();
   const [debugInfo, setDebugInfo] = useState<DebugInfo>({
