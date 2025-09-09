@@ -235,7 +235,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
             <button
               onClick={handleSave}
               disabled={isLoading || !title.trim()}
-              className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? 'Saving...' : 'Save Changes'}
             </button>
@@ -243,7 +243,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
               <button
                 onClick={handleComplete}
                 disabled={isLoading}
-                className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 transition-colors"
+                className="flex items-center justify-center px-4 py-2 bg-signal-600 text-white rounded-lg hover:bg-signal-700 disabled:bg-gray-300 transition-colors"
                 title="Mark as Complete"
                 type="button"
                 tabIndex={10}
@@ -255,7 +255,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
               <button
                 onClick={handleMarkIncomplete}
                 disabled={isLoading}
-                className="flex items-center justify-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-300 transition-colors"
+                className="flex items-center justify-center px-4 py-2 bg-neutral-500 text-white rounded-lg hover:bg-neutral-600 disabled:bg-gray-300 transition-colors"
                 title="Mark as Incomplete"
               >
                 <Undo className="w-4 h-4" />
@@ -268,7 +268,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
             <button
               onClick={handleMoveToIdea}
               disabled={isLoading}
-              className="flex-1 flex items-center justify-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:bg-gray-300 transition-colors"
+              className="flex-1 flex items-center justify-center px-4 py-2 bg-transparent hover:bg-neutral-100 text-neutral-700 border border-neutral-300 rounded-lg disabled:opacity-50 transition-colors"
             >
               <Lightbulb className="w-4 h-4 mr-2" />
               Move to Ideas
@@ -276,7 +276,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, onClose
             <button
               onClick={handleDelete}
               disabled={isLoading}
-              className="flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 transition-colors"
+              className="flex items-center justify-center px-4 py-2 bg-transparent hover:bg-red-50 text-red-600 border border-red-300 rounded-lg disabled:opacity-50 transition-colors"
             >
               <Trash2 className="w-4 h-4" />
             </button>
