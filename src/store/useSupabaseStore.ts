@@ -112,6 +112,11 @@ const useSupabaseStore = create<Store & {
     const originalTask = get().tasks.find(t => t.id === id);
     if (!originalTask) return;
 
+    // If category is being changed, add the timestamp
+    if (updates.category && updates.category !== originalTask.category) {
+      updates.category_changed_at = new Date().toISOString();
+    }
+
     // Optimistic update
     set(state => ({
       tasks: state.tasks.map(task => 

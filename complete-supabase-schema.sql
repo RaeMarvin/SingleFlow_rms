@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   task_order INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
   completed_at TIMESTAMP WITH TIME ZONE,
+  category_changed_at TIMESTAMPTZ NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
@@ -60,12 +61,12 @@ CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id);
 
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $
 BEGIN
     NEW.updated_at = timezone('utc'::text, now());
     RETURN NEW;
 END;
-$$ language 'plpgsql';
+$ language 'plpgsql';
 
 -- Add updated_at triggers
 DROP TRIGGER IF EXISTS update_tasks_updated_at ON tasks;

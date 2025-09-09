@@ -123,6 +123,7 @@ export const taskService = {
       ...(updates.order !== undefined && { task_order: updates.order }),
       ...(updates.rejected !== undefined && { rejected: updates.rejected }),
       ...(updates.rejectedAt !== undefined && { rejected_at: updates.rejectedAt?.toISOString() || null }),
+      ...(updates.category_changed_at !== undefined && { category_changed_at: updates.category_changed_at }),
     };
 
     const { data, error } = await supabase

@@ -101,35 +101,68 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
   for (let i = 0; i < 7; i++) {
     const day = new Date(weekStart);
     day.setDate(weekStart.getDate() + i);
-    
-    // Get tasks completed on this specific day
-    const dayCompletedTasks = tasks.filter(task => {
-      if (!task.completed || !task.completedAt) return false;
-      const completedDate = new Date(task.completedAt);
-      return completedDate.toDateString() === day.toDateString();
+    const dayStart = new Date(day);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(day);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    let dayCompletedSignal = 0;
+    let dayCompletedNoise = 0;
+    let dayRejectedNoise = 0;
+    let dayUncompletedSignal = 0;
+    let totalCompletedThisDay = 0;
+
+    tasks.forEach(task => {
+      const createdAt = new Date(task.createdAt);
+      const completedAt = task.completedAt ? new Date(task.completedAt) : null;
+      const rejectedAt = task.rejectedAt ? new Date(task.rejectedAt) : null;
+      const categoryChangedAt = task.category_changed_at ? new Date(task.category_changed_at) : null;
+
+      // Determine the task's category on this specific day
+      let categoryOnDay = task.category;
+      if (categoryChangedAt && categoryChangedAt > dayEnd) {
+        // If the last change was after this day, it had the opposite category
+        categoryOnDay = task.category === 'signal' ? 'noise' : 'signal';
+      }
+
+      // --- Calculations based on the task's state *on this day* ---
+
+      // 1. Was the task completed on this day?
+      if (completedAt && completedAt >= dayStart && completedAt <= dayEnd) {
+        totalCompletedThisDay++;
+        if (categoryOnDay === 'signal') {
+          dayCompletedSignal++;
+        } else {
+          dayCompletedNoise++;
+        }
+      }
+
+      // 2. Was a 'noise' task rejected on this day?
+      if (rejectedAt && rejectedAt >= dayStart && rejectedAt <= dayEnd) {
+        if (categoryOnDay === 'noise') {
+          dayRejectedNoise++;
+        }
+      }
+
+      // 3. Was it an uncompleted 'signal' task by the end of this day?
+      if (categoryOnDay === 'signal' && createdAt <= dayEnd && (!completedAt || completedAt > dayEnd)) {
+        dayUncompletedSignal++;
+      }
     });
-    
-    // Get tasks rejected on this specific day
-    const dayRejectedTasks = tasks.filter(task => {
-      if (!task.rejected) return false;
-      
-      // Use rejectedAt if available, otherwise fall back to createdAt
-      const rejectedDate = task.rejectedAt ? new Date(task.rejectedAt) : new Date(task.createdAt);
-      return rejectedDate.toDateString() === day.toDateString();
-    });
-    
-    const dayCompletedSignal = dayCompletedTasks.filter(t => t.category === 'signal');
-    const dayCompletedNoise = dayCompletedTasks.filter(t => t.category === 'noise');
-    const dayFozzleScore = dayCompletedTasks.length > 0 ? (dayCompletedSignal.length / dayCompletedTasks.length) * 100 : 0;
+
+    // Aligned Fozzle Score Calculation for the day
+    const fozzleNumerator = dayCompletedSignal + dayRejectedNoise;
+    const fozzleDenominator = totalCompletedThisDay + dayRejectedNoise + dayUncompletedSignal;
+    const dayFozzleScore = fozzleDenominator > 0 ? (fozzleNumerator / fozzleDenominator) * 100 : 0;
     
     weekDays.push({
       date: day,
       name: getDayName(day),
       isToday: day.toDateString() === today.toDateString(),
-      completedSignal: dayCompletedSignal.length,
-      completedNoise: dayCompletedNoise.length,
-      totalCompleted: dayCompletedTasks.length,
-      rejectedTasks: dayRejectedTasks.length,
+      completedSignal: dayCompletedSignal,
+      completedNoise: dayCompletedNoise,
+      totalCompleted: totalCompletedThisDay,
+      rejectedTasks: dayRejectedNoise,
       fozzleScore: dayFozzleScore
     });
   }

@@ -11,6 +11,7 @@ export interface Task {
   createdAt: Date;
   completedAt?: Date;
   rejectedAt?: Date; // New field for when task was rejected
+  category_changed_at?: string; // New field for when category was changed
 }
 
 export interface Idea {
