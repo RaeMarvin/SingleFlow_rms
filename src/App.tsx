@@ -37,214 +37,130 @@ function AppContent() {
 
   // Compute weekly stats and decide whether to show WelcomeBackModal
   useEffect(() => {
-    if (!user || authLoading || isLoading) return;
+    if (!user || authLoading || isLoading || !tasks.length) return;
 
-    // Reuse WeeklyReviewModal's day-based logic so streaks/averages match exactly
-    const getMonday = (date: Date) => {
-      const d = new Date(date);
-      d.setHours(0, 0, 0, 0);
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      d.setDate(diff);
-      return d;
-    };
+    const today = new Date();
+    const todayStr = today.toDateString();
 
-  const today = new Date();
-  const weekStart = getMonday(today);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 6);
-  weekEnd.setHours(23, 59, 59, 999);
-  const todayStr = today.toDateString();
-  const dailyScores: number[] = [];
-  let otherDayWithScore = false;
-  let missedDayFoundBeforeToday = false;
+    // --- Helper function to calculate Fozzle score for any given day ---
+    const calculateFozzleScoreForDate = (date: Date) => {
+      const dayStart = new Date(date);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(date);
+      dayEnd.setHours(23, 59, 59, 999);
 
-  let todayIndex = 0;
-  for (let i = 0; i < 7; i++) {
-      const day = new Date(weekStart);
-      day.setDate(weekStart.getDate() + i);
+      let dayCompletedSignal = 0;
+      let dayCompletedNoise = 0;
+      let dayRejectedNoise = 0;
+      let dayUncompletedSignal = 0;
+      let totalCompletedThisDay = 0;
 
-      // tasks completed on this specific day
-      const dayCompletedTasks = tasks.filter(task => {
-        if (!task.completed || !task.completedAt) return false;
-        const completedDate = new Date(task.completedAt);
-        return completedDate.toDateString() === day.toDateString();
+      tasks.forEach(task => {
+        const createdAt = new Date(task.createdAt);
+        const completedAt = task.completedAt ? new Date(task.completedAt) : null;
+        const rejectedAt = task.rejectedAt ? new Date(task.rejectedAt) : null;
+        const categoryChangedAt = task.category_changed_at ? new Date(task.category_changed_at) : null;
+
+        let categoryOnDay = task.category;
+        if (categoryChangedAt && categoryChangedAt > dayEnd) {
+          categoryOnDay = task.category === 'signal' ? 'noise' : 'signal';
+        }
+
+        if (completedAt && completedAt >= dayStart && completedAt <= dayEnd) {
+          totalCompletedThisDay++;
+          if (categoryOnDay === 'signal') dayCompletedSignal++;
+          else dayCompletedNoise++;
+        }
+        if (rejectedAt && rejectedAt >= dayStart && rejectedAt <= dayEnd && categoryOnDay === 'noise') {
+          dayRejectedNoise++;
+        }
+        if (categoryOnDay === 'signal' && createdAt <= dayEnd && (!completedAt || completedAt > dayEnd)) {
+          dayUncompletedSignal++;
+        }
       });
 
-      // tasks rejected on this day
-      const dayRejectedTasks = tasks.filter(task => {
-        if (!task.rejected) return false;
-        const rejectedDate = task.rejectedAt ? new Date(task.rejectedAt) : new Date(task.createdAt);
-        return rejectedDate.toDateString() === day.toDateString();
-      });
-
-      const completedSignal = dayCompletedTasks.filter(t => t.category === 'signal').length;
-      const numerator = completedSignal + dayRejectedTasks.length;
-      const denominator = dayCompletedTasks.length + dayRejectedTasks.length;
-      const percent = denominator > 0 ? (numerator / denominator) * 100 : 0;
-
-  dailyScores.push(percent);
-      if (day.toDateString() === todayStr) todayIndex = i;
-      if (day.toDateString() !== todayStr && percent > 0) otherDayWithScore = true;
-      // detect any missed (zero-percent) day earlier in the week before today
-      if (day.toDateString() !== todayStr && percent === 0) {
-        // only mark missed if there exists at least one later day (including today) with percent > 0
-        // we'll compute that after the loop; store zero markers now
-      }
-    }
-
-  // Determine if there was a missed day earlier in the week before any scored day (i.e., broken streak)
-    // A missed-return condition: there exists at least one day before today with percent === 0
-    // AND there exists a later day in the week (including today) with percent > 0.
-  const idxToday = todayIndex; // use the index computed in the loop
-  // broken streak: there was at least one scored day earlier in the week and at least one missed (zero) day before today
-  const hadAnyScoreEarlier = idxToday > 0 ? dailyScores.slice(0, idxToday).some(p => p > 0) : false;
-  const hasAnyMissEarlier = idxToday > 0 ? dailyScores.slice(0, idxToday).some(p => p === 0) : false;
-  missedDayFoundBeforeToday = hadAnyScoreEarlier && hasAnyMissEarlier;
-  // touch the variable so TypeScript treats it as used (prevents TS6133 when other logic
-  // switched to yesterday-first rules). Keep this log for debugging; it can be removed later.
-  // eslint-disable-next-line no-console
-  console.log('missedDayFoundBeforeToday', missedDayFoundBeforeToday);
-
-  // Compute weekly aggregate fozzle score the same way WeeklyReviewModal does
-    const weekTasks = tasks.filter(task => {
-      const taskDate = new Date(task.createdAt);
-      const isCreatedThisWeek = taskDate >= weekStart && taskDate <= weekEnd;
-
-      if (task.completed && task.completedAt) {
-        const completedDate = new Date(task.completedAt);
-        const isCompletedThisWeek = completedDate >= weekStart && completedDate <= weekEnd;
-        return isCreatedThisWeek || isCompletedThisWeek;
-      }
-
-      return isCreatedThisWeek;
-    });
-
-    const completedWeekTasks = weekTasks.filter(t => t.completed && t.completedAt);
-    const completedWeekSignalTasks = completedWeekTasks.filter(t => t.category === 'signal');
-    const weeklyAggregate = completedWeekTasks.length > 0 ? (completedWeekSignalTasks.length / completedWeekTasks.length) * 100 : 0;
-
-  // Exclude tasks completed today from the weekly aggregate shown in the modal
-    const completedWeekTasksExclToday = completedWeekTasks.filter(t => {
-      const completedDate = new Date(String(t.completedAt));
-      return completedDate.toDateString() !== todayStr;
-    });
-    const completedWeekSignalTasksExclToday = completedWeekTasksExclToday.filter(t => t.category === 'signal');
-    const weeklyAggregateExclToday = completedWeekTasksExclToday.length > 0
-      ? (completedWeekSignalTasksExclToday.length / completedWeekTasksExclToday.length) * 100
-      : 0;
-
-    // Use the aggregate that excludes today for the modal display
-    setWeeklyAveragePercent(weeklyAggregateExclToday);
-
-    // consecutive days: display as todayIndex + 1 (include today in the count)
-    const displayStreak = todayIndex + 1;
-    setConsecutiveDays(displayStreak);
-
-    const todayPercent = dailyScores[todayIndex];
-    // debug logs
-    // eslint-disable-next-line no-console
-    console.log('WelcomeBack debug', { todayPercent, todayIndex, otherDayWithScore, dailyScores, weeklyAggregate, weeklyAggregateExclToday, displayStreak });
-
-    // Allow forcing the modal for testing via ?forceWelcome=1
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const todayDateStr = today.toDateString();
-      if (params.get('forceWelcome') === '1') {
-        // store the date so we only force it for today
-        sessionStorage.setItem('welcomeShown', todayDateStr);
-        setShowWelcomeBack(true);
-        // eslint-disable-next-line no-console
-        console.log('WelcomeBack: forced show via query param (stored date)', todayDateStr);
-        return;
-      }
-      // If debugWelcome=1 is present, allow clearing stored value and force show for debugging
-      if (params.get('debugWelcome') === '1') {
-        // eslint-disable-next-line no-console
-        console.log('WelcomeBack: debugWelcome=1 present — clearing stored key and forcing modal');
-        sessionStorage.removeItem('welcomeShown');
-      }
-    } catch (e) {
-      // ignore
-    }
-
-    // Only show popups for users who have used Fozzle before (have any tasks)
-    const hasUsedBefore = Array.isArray(tasks) && tasks.length > 0;
-
-    // Compute yesterday's percent (independent of the weekly slice) and whether
-    // the user has any prior activity before yesterday. "Prior activity" mirrors
-    // the numerator: any completed 'signal' or any rejected task strictly before yesterday.
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    const yesterdayStr = yesterday.toDateString();
-    const startOfYesterday = new Date(yesterday);
-    startOfYesterday.setHours(0, 0, 0, 0);
-
-    const percentForDate = (dateStr: string) => {
-      const dayCompletedTasks = tasks.filter(t => (t.completed && t.completedAt) && new Date(String(t.completedAt)).toDateString() === dateStr);
-      const dayRejectedTasks = tasks.filter(t => t.rejected && ((t.rejectedAt ? new Date(String(t.rejectedAt)) : new Date(String(t.createdAt))).toDateString() === dateStr));
-      const completedSignal = dayCompletedTasks.filter(t => t.category === 'signal').length;
-      const numerator = completedSignal + dayRejectedTasks.length;
-      const denominator = dayCompletedTasks.length + dayRejectedTasks.length;
+      const numerator = dayCompletedSignal + dayRejectedNoise;
+      const denominator = totalCompletedThisDay + dayRejectedNoise + dayUncompletedSignal;
       return denominator > 0 ? (numerator / denominator) * 100 : 0;
     };
 
-    const yesterdayPercent = percentForDate(yesterdayStr);
+    // --- Calculations for the current week ---
+    const getMonday = (d: Date) => {
+      const date = new Date(d);
+      date.setHours(0, 0, 0, 0);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      date.setDate(diff);
+      return date;
+    };
+
+    const weekStart = getMonday(today);
+    const dailyScores = Array.from({ length: 7 }).map((_, i) => {
+      const day = new Date(weekStart);
+      day.setDate(weekStart.getDate() + i);
+      return calculateFozzleScoreForDate(day);
+    });
+
+    const daysWithActivity = dailyScores.filter(score => score > 0);
+    const weeklyAverage = daysWithActivity.length > 0 ? daysWithActivity.reduce((a, b) => a + b, 0) / daysWithActivity.length : 0;
+    setWeeklyAveragePercent(weeklyAverage);
+
+    // --- Logic for Streak and Modal Visibility ---
+    const todayIndex = today.getDay() - (today.getDay() === 0 ? -6 : 1);
+    let currentStreak = 0;
+    for (let i = todayIndex; i >= 0; i--) {
+      if (dailyScores[i] > 0) {
+        currentStreak++;
+      } else {
+        break;
+      }
+    }
+    setConsecutiveDays(currentStreak);
+
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const startOfYesterday = new Date(yesterday);
+    startOfYesterday.setHours(0, 0, 0, 0);
+
+    const yesterdayPercent = calculateFozzleScoreForDate(yesterday);
 
     const hasPriorActivityBeforeYesterday = tasks.some(t => {
-      // rejected before yesterday
-      if (t.rejected) {
-        const rejectedDate = t.rejectedAt ? new Date(String(t.rejectedAt)) : new Date(String(t.createdAt));
-        if (rejectedDate < startOfYesterday) return true;
-      }
-      // completed 'signal' before yesterday
-      if (t.completed && t.completedAt && t.category === 'signal') {
-        const completedDate = new Date(String(t.completedAt));
-        if (completedDate < startOfYesterday) return true;
-      }
+      const completedAt = t.completedAt ? new Date(t.completedAt) : null;
+      const rejectedAt = t.rejectedAt ? new Date(t.rejectedAt) : null;
+      if (completedAt && completedAt < startOfYesterday && t.category === 'signal') return true;
+      if (rejectedAt && rejectedAt < startOfYesterday) return true;
       return false;
     });
 
-    // Decision order per spec:
-    // 1) If yesterdayPercent > 0 -> show WelcomeBack.
-    // 2) Else if yesterdayPercent === 0 AND hasPriorActivityBeforeYesterday -> show MissedReturn.
-    // SessionStorage gating ensures each modal shows once per day.
-    const todayDateStr = today.toDateString();
+    // --- Modal Display Logic (gated by sessionStorage) ---
     try {
-      // eslint-disable-next-line no-console
-      console.log('WelcomeBack decision', { yesterdayStr, yesterdayPercent, hasPriorActivityBeforeYesterday });
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('forceWelcome') === '1') {
+        sessionStorage.setItem('welcomeShown', todayStr);
+        setShowWelcomeBack(true);
+        return;
+      }
+      if (params.get('debugWelcome') === '1') {
+        sessionStorage.removeItem('welcomeShown');
+        sessionStorage.removeItem('missedReturnShown');
+      }
 
-      // WelcomeBack: highest priority when yesterday had any score
       const storedWelcome = sessionStorage.getItem('welcomeShown');
-      if (hasUsedBefore && yesterdayPercent > 0 && storedWelcome !== todayDateStr) {
-        // eslint-disable-next-line no-console
-        console.log('WelcomeBack: yesterday > 0 — showing WelcomeBack');
+      if (yesterdayPercent > 0 && storedWelcome !== todayStr) {
         setShowWelcomeBack(true);
-        try { sessionStorage.setItem('welcomeShown', todayDateStr); } catch (e) { /* ignore */ }
-        return; // if we show WelcomeBack we don't evaluate MissedReturn
+        sessionStorage.setItem('welcomeShown', todayStr);
+        return;
       }
 
-      // MissedReturn: only when yesterday had zero and there is prior activity before yesterday
       const storedMissed = sessionStorage.getItem('missedReturnShown');
-      if (hasUsedBefore && yesterdayPercent === 0 && hasPriorActivityBeforeYesterday && storedMissed !== todayDateStr) {
-        // eslint-disable-next-line no-console
-        console.log('MissedReturn: yesterday === 0 and prior activity exists — showing MissedReturn');
+      if (yesterdayPercent === 0 && hasPriorActivityBeforeYesterday && storedMissed !== todayStr) {
         setShowMissedReturn(true);
-        try { sessionStorage.setItem('missedReturnShown', todayDateStr); } catch (e) { /* ignore */ }
+        sessionStorage.setItem('missedReturnShown', todayStr);
       }
-    } catch (err) {
-      // sessionStorage may throw in some environments — fall back to showing nothing if uncertain
-      // but still allow modals as a last resort if conditions are met
-      if (hasUsedBefore && yesterdayPercent > 0) {
-        // eslint-disable-next-line no-console
-        console.log('WelcomeBack: sessionStorage threw, showing WelcomeBack as fallback');
-        setShowWelcomeBack(true);
-      } else if (hasUsedBefore && yesterdayPercent === 0 && hasPriorActivityBeforeYesterday) {
-        // eslint-disable-next-line no-console
-        console.log('MissedReturn: sessionStorage threw, showing MissedReturn as fallback');
-        setShowMissedReturn(true);
-      }
+    } catch (e) {
+      // Ignore sessionStorage errors in restricted environments
     }
+
   }, [tasks, user, authLoading, isLoading]);
 
   // Log when the welcome modal visibility changes (safe side-effect for debugging)
