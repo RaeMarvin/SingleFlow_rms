@@ -139,7 +139,7 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
     return createdAt >= weekStart && createdAt <= weekEnd;
   });
   const completedThisWeekCount = weekDays.reduce((sum, day) => sum + day.totalCompleted, 0);
-  const completionRate = createdThisWeek.length > 0 ? (completedThisWeekCount / createdThisWeek.length) * 100 : 0;
+  
   
   const getScoreColor = (percentage: number) => {
     if (percentage >= 80) return 'text-signal-600';
@@ -190,21 +190,17 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
                   💪 Great job saying NO to {rejectedWeekTasks} distracting task{rejectedWeekTasks !== 1 ? 's' : ''} this week!
                 </p>
               )}
-              {fozzleScore < 80 && fozzleScore >= 60 && (
+              {fozzleScore < 80 && fozzleScore >= 50 && (
                 <p className="text-primary-700 dark:text-primary-300">
                   ⚡ Good Fozzle Score with an average of {fozzleScore.toFixed(0)}%. Try to get closer to 80% next week.
                 </p>
               )}
-              {fozzleScore < 60 && (completedWeekSignalTasks + completedWeekNoiseTasks) > 0 && (
+              {fozzleScore < 50 && (completedWeekSignalTasks + completedWeekNoiseTasks) > 0 && (
                 <p className="text-noise-700 dark:text-noise-300">
-                  🎯 Focus improvement needed. Your average Fozzle Score is {fozzleScore.toFixed(0)}%. Prioritize more Signal work.
+                  🎯 Why not review your Noise activities. Your average Fozzle Score is {fozzleScore.toFixed(0)}%. Prioritize more Signal work.
                 </p>
               )}
-              {completionRate >= 80 && (
-                <p className="text-signal-700 dark:text-signal-300">
-                  ✅ Great productivity this week! You completed {completionRate.toFixed(0)}% of the tasks created this week.
-                </p>
-              )}
+              
               {completedThisWeekCount === 0 && createdThisWeek.length > 0 && (
                 <p className="text-neutral-600 dark:text-gray-400">
                   📝 No tasks completed this week yet. There's still time to make progress!
