@@ -35,54 +35,6 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
     return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
   };
 
-  // Better filtering approach
-  const weekTasks = tasks.filter(task => {
-    const taskDate = new Date(task.createdAt);
-    const isCreatedThisWeek = taskDate >= weekStart && taskDate <= weekEnd;
-    
-    // Also include tasks completed this week even if created earlier
-    if (task.completed && task.completedAt) {
-      const completedDate = new Date(task.completedAt);
-      const isCompletedThisWeek = completedDate >= weekStart && completedDate <= weekEnd;
-      return isCreatedThisWeek || isCompletedThisWeek;
-    }
-    
-    return isCreatedThisWeek;
-  });
-
-  // Debug logging
-  console.log('Weekly Review Debug:', {
-    today: today.toISOString(),
-    weekStart: weekStart.toISOString(), 
-    weekEnd: weekEnd.toISOString(),
-    totalTasks: tasks.length,
-    filteredWeekTasks: weekTasks.length,
-    allTasksDates: tasks.map(t => ({ 
-      id: t.id, 
-      title: t.title,
-      createdAt: new Date(t.createdAt).toISOString(), 
-      completed: t.completed, 
-      completedAt: t.completedAt ? new Date(t.completedAt).toISOString() : null
-    })),
-    filteredTasksDates: weekTasks.map(t => ({ 
-      id: t.id, 
-      title: t.title,
-      createdAt: new Date(t.createdAt).toISOString(), 
-      completed: t.completed, 
-      completedAt: t.completedAt ? new Date(t.completedAt).toISOString() : null
-    }))
-  });
-
-  const completedWeekTasks = weekTasks.filter(t => t.completed);
-  const completedWeekSignalTasks = completedWeekTasks.filter(t => t.category === 'signal');
-  const completedWeekNoiseTasks = completedWeekTasks.filter(t => t.category === 'noise');
-  const rejectedWeekTasks = weekTasks.filter(t => t.rejected);
-  
-  // Calculate Fozzle Score (completed Signal ratio)
-  const fozzleScore = completedWeekTasks.length > 0 ? (completedWeekSignalTasks.length / completedWeekTasks.length) * 100 : 0;
-  
-  const completionRate = weekTasks.length > 0 ? (completedWeekTasks.length / weekTasks.length) * 100 : 0;
-
   // Daily breakdown for the week
   const getDayName = (date: Date) => date.toLocaleDateString('en-US', { weekday: 'short' });
   
@@ -166,6 +118,28 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
       fozzleScore: dayFozzleScore
     });
   }
+
+  // --- Corrected Weekly Aggregate Calculations ---
+
+  // 1. Fozzle Score (Week) - Average of daily scores with activity
+  const daysWithActivity = weekDays.filter(d => d.totalCompleted > 0 || d.rejectedTasks > 0);
+  const totalFozzleScore = daysWithActivity.reduce((sum, day) => sum + day.fozzleScore, 0);
+  const fozzleScore = daysWithActivity.length > 0 ? totalFozzleScore / daysWithActivity.length : 0;
+
+  // 2. Signal & Noise Tasks Completed This Week
+  const completedWeekSignalTasks = weekDays.reduce((sum, day) => sum + day.completedSignal, 0);
+  const completedWeekNoiseTasks = weekDays.reduce((sum, day) => sum + day.completedNoise, 0);
+
+  // 3. Tasks Rejected This Week
+  const rejectedWeekTasks = weekDays.reduce((sum, day) => sum + day.rejectedTasks, 0);
+
+  // 4. Completion Rate (for insights)
+  const createdThisWeek = tasks.filter(t => {
+    const createdAt = new Date(t.createdAt);
+    return createdAt >= weekStart && createdAt <= weekEnd;
+  });
+  const completedThisWeekCount = weekDays.reduce((sum, day) => sum + day.totalCompleted, 0);
+  const completionRate = createdThisWeek.length > 0 ? (completedThisWeekCount / createdThisWeek.length) * 100 : 0;
   
   const getScoreColor = (percentage: number) => {
     if (percentage >= 80) return 'text-signal-600';
@@ -208,37 +182,37 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
             <div className="space-y-2 text-sm">
               {fozzleScore >= 80 && (
                 <p className="text-signal-700 dark:text-signal-300">
-                  🎉 Excellent Fozzle Score this week! You achieved {fozzleScore.toFixed(0)}% focus on Signal tasks.
+                  🎉 Excellent Fozzle Score this week! You achieved an average of {fozzleScore.toFixed(0)}% focus.
                 </p>
               )}
-              {rejectedWeekTasks.length > 0 && (
+              {rejectedWeekTasks > 0 && (
                 <p className="text-primary-700 dark:text-primary-300">
-                  💪 Great job saying NO to {rejectedWeekTasks.length} distracting task{rejectedWeekTasks.length !== 1 ? 's' : ''} this week!
+                  💪 Great job saying NO to {rejectedWeekTasks} distracting task{rejectedWeekTasks !== 1 ? 's' : ''} this week!
                 </p>
               )}
               {fozzleScore < 80 && fozzleScore >= 60 && (
                 <p className="text-primary-700 dark:text-primary-300">
-                  ⚡ Good Fozzle Score with {fozzleScore.toFixed(0)}% Signal focus. Try to get closer to 80% next week.
+                  ⚡ Good Fozzle Score with an average of {fozzleScore.toFixed(0)}%. Try to get closer to 80% next week.
                 </p>
               )}
-              {fozzleScore < 60 && completedWeekTasks.length > 0 && (
+              {fozzleScore < 60 && (completedWeekSignalTasks + completedWeekNoiseTasks) > 0 && (
                 <p className="text-noise-700 dark:text-noise-300">
-                  🎯 Focus improvement needed. Your Fozzle Score is {fozzleScore.toFixed(0)}%. Try to prioritize more Signal work next week.
+                  🎯 Focus improvement needed. Your average Fozzle Score is {fozzleScore.toFixed(0)}%. Prioritize more Signal work.
                 </p>
               )}
               {completionRate >= 80 && (
                 <p className="text-signal-700 dark:text-signal-300">
-                  ✅ Great productivity this week! You completed {completionRate.toFixed(0)}% of your tasks.
+                  ✅ Great productivity this week! You completed {completionRate.toFixed(0)}% of the tasks created this week.
                 </p>
               )}
-              {completedWeekTasks.length === 0 && weekTasks.length > 0 && (
+              {completedThisWeekCount === 0 && createdThisWeek.length > 0 && (
                 <p className="text-neutral-600 dark:text-gray-400">
                   📝 No tasks completed this week yet. There's still time to make progress!
                 </p>
               )}
-              {weekTasks.length === 0 && (
+              {createdThisWeek.length === 0 && completedThisWeekCount === 0 && (
                 <p className="text-neutral-600 dark:text-gray-400">
-                  🚀 No tasks created this week yet. Time to plan your priorities!
+                  🚀 No tasks created or completed this week yet. Time to plan your priorities!
                 </p>
               )}
             </div>
@@ -256,19 +230,19 @@ const WeeklyReviewModal: React.FC<WeeklyReviewModalProps> = ({ onClose }) => {
             <StatBox
               icon={<Target className="w-6 h-6 text-signal-600" />}
               title="Signal Tasks Completed"
-              value={completedWeekSignalTasks.length}
+              value={completedWeekSignalTasks}
               subtitle={`Focus on what matters`}
             />
             <StatBox
               icon={<TrendingUp className="w-6 h-6 text-noise-600" />}
               title="Noise Tasks Completed"
-              value={completedWeekNoiseTasks.length}
+              value={completedWeekNoiseTasks}
               subtitle={`Distractions handled`}
             />
             <StatBox
               icon={<X className="w-6 h-6 text-primary-600" />}
               title="Tasks Rejected This Week"
-              value={rejectedWeekTasks.length}
+              value={rejectedWeekTasks}
               subtitle="Said NO to distractions"
               valueColor="text-primary-600"
             />
