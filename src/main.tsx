@@ -5,7 +5,7 @@ import './index.css'
 import favicon from './assets/logo.png';
 
 // Set the favicon dynamically to ensure it's included in the build
-const faviconLink = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+const faviconLink = document.getElementById('favicon-png') as HTMLLinkElement;
 if (faviconLink) {
   faviconLink.href = favicon;
 }
