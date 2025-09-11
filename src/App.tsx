@@ -107,15 +107,23 @@ function AppContent() {
 
     // --- Logic for Streak and Modal Visibility ---
     const todayIndex = today.getDay() - (today.getDay() === 0 ? -6 : 1);
-    let currentStreak = 0;
-    for (let i = todayIndex; i >= 0; i--) {
+    
+    let pastStreak = 0;
+    // Calculate the streak of days ending yesterday
+    for (let i = todayIndex - 1; i >= 0; i--) {
       if (dailyScores[i] > 0) {
-        currentStreak++;
+        pastStreak++;
       } else {
         break;
       }
     }
-    setConsecutiveDays(currentStreak);
+
+    // Determine the streak to display based on the user's rule
+    let displayStreak = 0;
+    if (pastStreak > 0) {
+      displayStreak = pastStreak + 1;
+    }
+    setConsecutiveDays(displayStreak);
 
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
